@@ -36,6 +36,61 @@ func (g *graphBuilder) invalidate() {
 	g.computedCircularDeps = nil
 }
 
+func (g *graphBuilder) warmUpCircularDeps(graph interface {
+	CircularDeps() [][]containerGraph.Dependency
+}) {
+	g.servicesCycles = make(map[string][]int)
+	g.computedCircularDeps = graph.CircularDeps()
+	for cycleID, cycle := range g.computedCircularDeps {
+		for _, dep := range cycle {
+			if !dep.IsService() {
+				continue
+			}
+
+			skip := false
+
+			for _, savedCycleID := range g.servicesCycles[dep.Resource] {
+				if savedCycleID == cycleID {
+					skip = true
+					break
+				}
+			}
+
+			if skip {
+				continue
+			}
+
+			g.servicesCycles[dep.Resource] = append(g.servicesCycles[dep.Resource], cycleID)
+		}
+	}
+}
+
+func (g *graphBuilder) warmUpScopes(graph interface {
+	Deps(serviceID string) []containerGraph.Dependency
+}) {
+	g.scopes = make(map[string]scope)
+	for sID, s := range g.container.services {
+		if s.scope != scopeDefault {
+			continue
+		}
+		hasContextual := false
+		for _, d := range graph.Deps(sID) {
+			if !d.IsService() {
+				continue
+			}
+			hasContextual = g.container.services[d.Resource].scope == scopeContextual
+			if hasContextual {
+				break
+			}
+		}
+		if hasContextual {
+			g.scopes[sID] = scopeContextual
+		} else {
+			g.scopes[sID] = scopeShared
+		}
+	}
+}
+
 // warmUp prepares and caches the circular deps.
 func (g *graphBuilder) warmUp() {
 	g.locker.Lock()
@@ -91,54 +146,8 @@ func (g *graphBuilder) warmUp() {
 		graph.DecoratorDependsOnTags(dID, dependenciesTags)
 	}
 
-	servicesCycles := make(map[string][]int)
-	g.servicesCycles = servicesCycles
-	g.computedCircularDeps = graph.CircularDeps()
-	for cycleID, cycle := range g.computedCircularDeps {
-		for _, dep := range cycle {
-			if !dep.IsService() {
-				continue
-			}
-
-			skip := false
-
-			for _, savedCycleID := range servicesCycles[dep.Resource] {
-				if savedCycleID == cycleID {
-					skip = true
-					break
-				}
-			}
-
-			if skip {
-				continue
-			}
-
-			servicesCycles[dep.Resource] = append(servicesCycles[dep.Resource], cycleID)
-		}
-	}
-
-	scopes := make(map[string]scope)
-	g.scopes = scopes
-	for sID, s := range g.container.services {
-		if s.scope != scopeDefault {
-			continue
-		}
-		hasContextual := false
-		for _, d := range graph.Deps(sID) {
-			if !d.IsService() {
-				continue
-			}
-			hasContextual = g.container.services[d.Resource].scope == scopeContextual
-			if hasContextual {
-				break
-			}
-		}
-		if hasContextual {
-			scopes[sID] = scopeContextual
-		} else {
-			scopes[sID] = scopeShared
-		}
-	}
+	g.warmUpCircularDeps(graph)
+	g.warmUpScopes(graph)
 }
 
 // resolveScope returns scopeContextual when at least on dependency is contextual,
