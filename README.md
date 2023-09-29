@@ -31,12 +31,10 @@ var (
     from = 5         // the type of the variable `to` can be different from the type of the variable `from`
     to   interface{} // as long as the `from` is assignable to the `to`
 )
-err := copier.Copy(from, &to)
+_ = copier.Copy(from, &to)
 fmt.Println(to)
-fmt.Println(err)
 // Output:
 // 5
-// <nil>
 ```
 
 [More examples](copier/examples_test.go)
