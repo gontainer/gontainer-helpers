@@ -85,4 +85,4 @@ fmt.Println(person.name)
 // Mary
 ```
 
-[See examples](setter/examples_test.go).
+[More examples](setter/examples_test.go).
