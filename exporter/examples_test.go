@@ -80,6 +80,30 @@ func ExampleExport_emptySlice2() {
 	// Output: make([]interface{}, 0)
 }
 
+func ExampleExport_array() {
+	s, _ := exporter.Export([3]uint{1, 2, 3})
+	fmt.Println(s)
+	// Output: [3]uint{uint(1), uint(2), uint(3)}
+}
+
+func ExampleExport_array2() {
+	s, _ := exporter.Export([3]interface{}{nil, 1.5, "hello world"})
+	fmt.Println(s)
+	// Output: [3]interface{}{nil, float64(1.5), "hello world"}
+}
+
+func ExampleExport_emptyArray() {
+	s, _ := exporter.Export([0]uint{})
+	fmt.Println(s)
+	// Output: [0]uint{}
+}
+
+func ExampleExport_emptyArray2() {
+	s, _ := exporter.Export([0]interface{}{})
+	fmt.Println(s)
+	// Output: [0]interface{}{}
+}
+
 func ExampleExport_err() {
 	_, err := exporter.Export(struct{}{})
 	fmt.Println(err)
