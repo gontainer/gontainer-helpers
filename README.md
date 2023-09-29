@@ -18,11 +18,11 @@ fmt.Println(r[0])
 // Output: 4
 ```
 
-[More examples](caller/examples_test.go).
+[More examples](caller/examples_test.go)
 
 ## Container
 
-[See examples](container/examples_test.go).
+[See examples](container/examples_test.go)
 
 ## Copier
 
@@ -39,7 +39,7 @@ fmt.Println(err)
 // <nil>
 ```
 
-[More examples](copier/examples_test.go).
+[More examples](copier/examples_test.go)
 
 ## Errors
 
@@ -53,7 +53,7 @@ fmt.Println(s)
 // Output: false
 ```
 
-[More examples](exporter/examples_test.go).
+[More examples](exporter/examples_test.go)
 
 ## Graph
 
@@ -71,7 +71,7 @@ fmt.Println(g.CircularDeps())
 // [[company tech-team cto company] [company tech-team cto ceo company]]
 ```
 
-[More examples](graph/examples_test.go).
+[More examples](graph/examples_test.go)
 
 ## Setter
 
@@ -85,4 +85,4 @@ fmt.Println(person.name)
 // Mary
 ```
 
-[More examples](setter/examples_test.go).
+[More examples](setter/examples_test.go)
