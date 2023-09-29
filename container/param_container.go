@@ -9,7 +9,7 @@ import (
 )
 
 type paramContainer struct {
-	params       map[string]Dependency // todo maybe it would be better to introduce a new type
+	params       map[string]Dependency
 	cachedParams map[string]interface{}
 	rwlocker     rwlocker
 	lockers      map[string]sync.Locker

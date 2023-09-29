@@ -85,30 +85,37 @@ func (d *dependencyGraph) CircularDeps() [][]Dependency {
 		}
 	}
 
-	for j, cycle := range circularDeps {
-		lowest := 0
-
-		for indexNode, node := range cycle { // find the first service
-			if node.kind == dependencyService {
-				lowest = indexNode
-				break
-			}
-		}
-
-		for indexNode, node := range cycle { // find the lowest service name
-			if node.kind != dependencyService {
-				continue
-			}
-			if cycle[lowest].Resource > cycle[indexNode].Resource {
-				lowest = indexNode
-			}
-		}
-
-		for i := 0; i < lowest; i++ { // [b, c, a, b] => [a, b, c, a]
-			cycle = append(cycle[1:], cycle[1])
-		}
-		circularDeps[j] = cycle
+	for i, cycle := range circularDeps {
+		circularDeps[i] = normalizeCycle(cycle)
 	}
 
 	return circularDeps
+}
+
+// normalizeCycle finds a service with the lowest name, and put it on the beginning of the cycle.
+// [b, c, a, b] => [a, b, c, a]
+func normalizeCycle(cycle []Dependency) []Dependency {
+	lowest := 0
+
+	for indexNode, node := range cycle { // find the first service
+		if node.kind == dependencyService {
+			lowest = indexNode
+			break
+		}
+	}
+
+	for indexNode, node := range cycle { // find the lowest service name
+		if node.kind != dependencyService {
+			continue
+		}
+		if cycle[lowest].Resource > cycle[indexNode].Resource {
+			lowest = indexNode
+		}
+	}
+
+	for i := 0; i < lowest; i++ {
+		cycle = append(cycle[1:], cycle[1])
+	}
+
+	return cycle
 }
