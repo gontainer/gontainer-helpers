@@ -36,9 +36,11 @@ func (g *graphBuilder) invalidate() {
 	g.computedCircularDeps = nil
 }
 
-func (g *graphBuilder) warmUpCircularDeps(graph interface {
-	CircularDeps() [][]containerGraph.Dependency
-}) {
+func (g *graphBuilder) warmUpCircularDeps(
+	graph interface {
+		CircularDeps() [][]containerGraph.Dependency
+	},
+) {
 	g.servicesCycles = make(map[string][]int)
 	g.computedCircularDeps = graph.CircularDeps()
 	for cycleID, cycle := range g.computedCircularDeps {
@@ -65,9 +67,11 @@ func (g *graphBuilder) warmUpCircularDeps(graph interface {
 	}
 }
 
-func (g *graphBuilder) warmUpScopes(graph interface {
-	Deps(serviceID string) []containerGraph.Dependency
-}) {
+func (g *graphBuilder) warmUpScopes(
+	graph interface {
+		Deps(serviceID string) []containerGraph.Dependency
+	},
+) {
 	g.scopes = make(map[string]scope)
 	for sID, s := range g.container.services {
 		if s.scope != scopeDefault {
