@@ -76,8 +76,8 @@ func (c chainExporter) export(v interface{}) (string, error) {
 }
 
 func newDefaultExporter() exporter {
-	interfaceSliceExporter := newInterfaceSliceExporter(nil)
-	primitiveTypeSliceExporter := newPrimitiveTypeSliceExporter(nil)
+	interfaceSliceExporter := &interfaceSliceExporter{}
+	primitiveTypeSliceExporter := &primitiveTypeSliceExporter{}
 
 	result := newChainExporter(
 		&boolExporter{},
@@ -201,10 +201,6 @@ type interfaceSliceExporter struct {
 	exporter exporter
 }
 
-func newInterfaceSliceExporter(exporter exporter) *interfaceSliceExporter {
-	return &interfaceSliceExporter{exporter: exporter}
-}
-
 func (i interfaceSliceExporter) export(v interface{}) (string, error) {
 	val := reflect.ValueOf(v)
 	if val.Type().Kind() == reflect.Slice && val.Len() == 0 {
@@ -239,10 +235,6 @@ func (i interfaceSliceExporter) supports(v interface{}) bool {
 
 type primitiveTypeSliceExporter struct {
 	exporter exporter
-}
-
-func newPrimitiveTypeSliceExporter(exporter exporter) *primitiveTypeSliceExporter {
-	return &primitiveTypeSliceExporter{exporter: exporter}
 }
 
 func (p primitiveTypeSliceExporter) export(v interface{}) (string, error) {
