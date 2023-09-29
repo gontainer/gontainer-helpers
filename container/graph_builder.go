@@ -44,21 +44,10 @@ func (g *graphBuilder) warmUpCircularDeps(
 	g.servicesCycles = make(map[string][]int)
 	g.computedCircularDeps = graph.CircularDeps()
 	for cycleID, cycle := range g.computedCircularDeps {
-		for _, dep := range cycle {
+		// first and last elements in the cycle points to the same dependency, so we should ignore one of them
+		// a -> b -> c -> a
+		for _, dep := range cycle[1:] {
 			if !dep.IsService() {
-				continue
-			}
-
-			skip := false
-
-			for _, savedCycleID := range g.servicesCycles[dep.Resource] {
-				if savedCycleID == cycleID {
-					skip = true
-					break
-				}
-			}
-
-			if skip {
 				continue
 			}
 
