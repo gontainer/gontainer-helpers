@@ -29,7 +29,7 @@ fmt.Println(r[0])
 ```go
 var (
     from = 5         // the type of the variable `to` can be different from the type of the variable `from`
-    to   interface{} // as long as the `from` is assignable to the `to`
+    to   interface{} // as long as the underlying value of `from` is assignable to the `to`
 )
 _ = copier.Copy(from, &to)
 fmt.Println(to)
