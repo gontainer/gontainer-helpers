@@ -1,6 +1,7 @@
 package container_test
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 	"sync/atomic"
@@ -197,6 +198,23 @@ func Test_container_CopyServiceTo(t *testing.T) {
 		var numbers *Numbers
 		err := c.CopyServiceTo("numbers", numbers) // missing pointer, it should be &numbers
 		assert.ErrorContains(t, err, `container.CopyServiceTo("numbers"): `)
+	})
+	t.Run("Error #2", func(t *testing.T) {
+		c := container.NewContainer()
+
+		s := container.NewService()
+		s.SetConstructor(func() (interface{}, error) {
+			return nil, errors.New("unexpected error")
+		})
+		c.OverrideService("numbers", s)
+
+		var numbers *Numbers
+		err := c.CopyServiceTo("numbers", &numbers)
+		assert.EqualError(
+			t,
+			err,
+			`container.CopyServiceTo("numbers"): container.get("numbers"): constructor: unexpected error`,
+		)
 	})
 }
 
