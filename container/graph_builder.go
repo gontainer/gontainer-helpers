@@ -36,13 +36,8 @@ func (g *graphBuilder) invalidate() {
 	g.computedCircularDeps = nil
 }
 
-func (g *graphBuilder) warmUpCircularDeps(
-	graph interface {
-		CircularDeps() [][]containerGraph.Dependency
-	},
-) {
+func (g *graphBuilder) warmUpCircularDeps() {
 	g.servicesCycles = make(map[string][]int)
-	g.computedCircularDeps = graph.CircularDeps()
 	for cycleID, cycle := range g.computedCircularDeps {
 		// first and last elements in the cycle points to the same dependency, so we should ignore one of them
 		// a -> b -> c -> a
@@ -139,7 +134,8 @@ func (g *graphBuilder) warmUp() {
 		graph.DecoratorDependsOnTags(dID, dependenciesTags)
 	}
 
-	g.warmUpCircularDeps(graph)
+	g.computedCircularDeps = graph.CircularDeps()
+	g.warmUpCircularDeps()
 	g.warmUpScopes(graph)
 }
 
