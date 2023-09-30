@@ -1,5 +1,0 @@
-issues:
-  exclude-rules:
-    - linters:
-        - gosimple
-      text: "S1005:"
