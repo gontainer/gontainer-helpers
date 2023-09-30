@@ -123,7 +123,9 @@ func (c *container) executeServiceCalls(
 	svc Service,
 	contextualBag map[string]interface{},
 ) (interface{}, error) {
-	for _, call := range svc.calls {
+	errs := make([]error, len(svc.calls))
+
+	for i, call := range svc.calls {
 		action := "call"
 		if call.wither {
 			action = "wither"
@@ -131,23 +133,25 @@ func (c *container) executeServiceCalls(
 
 		params, err := c.resolveDeps(contextualBag, call.deps...)
 		if err != nil {
-			return nil, errors.PrefixedGroup(fmt.Sprintf("resolve args %+q: ", call.method), err)
+			errs[i] = errors.PrefixedGroup(fmt.Sprintf("resolve args %+q: ", call.method), err)
+			continue
 		}
 
 		if call.wither {
 			result, err = caller.CallWitherByName(result, call.method, params...)
 			if err != nil {
-				return nil, errors.PrefixedGroup(fmt.Sprintf("%s %+q: ", action, call.method), err)
+				errs[i] = errors.PrefixedGroup(fmt.Sprintf("%s %+q: ", action, call.method), err)
+				// wither may return a nil value for error,
+				// so we have to stop execution here
+				break
 			}
 		} else {
 			_, err = caller.CallByName(&result, call.method, params...)
-			if err != nil {
-				return nil, errors.PrefixedGroup(fmt.Sprintf("%s %+q: ", action, call.method), err)
-			}
+			errs[i] = errors.PrefixedGroup(fmt.Sprintf("%s %+q: ", action, call.method), err)
 		}
 	}
 
-	return result, nil
+	return result, errors.Group(errs...)
 }
 
 func (c *container) decorateService(
