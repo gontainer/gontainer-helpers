@@ -99,12 +99,12 @@ func (c *container) Get(id string) (interface{}, error) {
 
 func (c *container) resolveDeps(contextualBag map[string]interface{}, deps ...Dependency) ([]interface{}, error) {
 	r := make([]interface{}, len(deps))
-	errs := make([]error, 0, len(deps))
+	errs := make([]error, len(deps))
 
 	for i, d := range deps {
 		var err error
 		r[i], err = c.resolveDep(contextualBag, d)
-		errs = append(errs, errors.PrefixedGroup(fmt.Sprintf("arg #%d: ", i), err))
+		errs[i] = errors.PrefixedGroup(fmt.Sprintf("arg #%d: ", i), err)
 	}
 
 	return r, errors.Group(errs...)

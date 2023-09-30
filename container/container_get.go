@@ -103,17 +103,19 @@ func (c *container) setServiceFields(
 	svc Service,
 	contextualBag map[string]interface{},
 ) (interface{}, error) {
-	for _, f := range svc.fields {
+	errs := make([]error, len(svc.fields))
+	for i, f := range svc.fields {
 		fieldVal, err := c.resolveDep(contextualBag, f.dep)
 		if err != nil {
-			return nil, errors.PrefixedGroup(fmt.Sprintf("field value %+q: ", f.name), err)
+			errs[i] = errors.PrefixedGroup(fmt.Sprintf("field value %+q: ", f.name), err)
+			continue
 		}
 		err = setter.Set(&result, f.name, fieldVal)
 		if err != nil {
-			return nil, errors.PrefixedGroup(fmt.Sprintf("set field %+q: ", f.name), err)
+			errs[i] = errors.PrefixedGroup(fmt.Sprintf("set field %+q: ", f.name), err)
 		}
 	}
-	return result, nil
+	return result, errors.Group(errs...)
 }
 
 func (c *container) executeServiceCalls(
