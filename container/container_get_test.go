@@ -1,6 +1,7 @@
 package container_test
 
 import (
+	"io"
 	"log"
 	"testing"
 
@@ -19,7 +20,7 @@ func Test_container_executeServiceCalls(t *testing.T) {
 		}))
 		s.AppendCall("SetAge", container.NewDependencyValue(21))
 		s.AppendCall("SetColor", container.NewDependencyValue("red"))
-		s.AppendWither("WithLogger", container.NewDependencyValue(log.Default()))
+		s.AppendWither("WithLogger", container.NewDependencyValue(log.New(io.Discard, "", 0)))
 		// this call will be ignored, because it's after the error returned by a wither
 		s.AppendCall("SetLanguage", container.NewDependencyValue("en"))
 
