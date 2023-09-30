@@ -1,8 +1,8 @@
 package container_test
 
 import (
-	"io"
 	"log"
+	"os"
 	"testing"
 
 	"github.com/gontainer/gontainer-helpers/container"
@@ -20,7 +20,7 @@ func Test_container_executeServiceCalls(t *testing.T) {
 		}))
 		s.AppendCall("SetAge", container.NewDependencyValue(21))
 		s.AppendCall("SetColor", container.NewDependencyValue("red"))
-		s.AppendWither("WithLogger", container.NewDependencyValue(log.New(io.Discard, "", 0)))
+		s.AppendWither("WithLogger", container.NewDependencyValue(log.New(os.Stdout, "", 0)))
 		// this call will be ignored, because it's after the error returned by a wither
 		s.AppendCall("SetLanguage", container.NewDependencyValue("en"))
 
