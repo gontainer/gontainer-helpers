@@ -95,3 +95,26 @@ func Test_container_createNewService(t *testing.T) {
 		assert.Equal(t, 8080, server.Port)
 	})
 }
+
+func Test_container_setServiceFields(t *testing.T) {
+	t.Run("Errors", func(t *testing.T) {
+		s := container.NewService()
+		s.SetValue(struct{}{})
+		s.SetField("Name", container.NewDependencyValue("Mary"))
+		s.SetField("Age", container.NewDependencyProvider(func() (interface{}, error) {
+			return nil, errors.New("unexpected error")
+		}))
+
+		c := container.NewContainer()
+		c.OverrideService("service", s)
+
+		expected := []string{
+			"container.get(\"service\"): set field \"Name\": set `*interface {}`.\"Name\": field `Name` does not exist",
+			`container.get("service"): field value "Age": unexpected error`,
+		}
+
+		svc, err := c.Get("service")
+		assert.Nil(t, svc)
+		assertErr.EqualErrorGroup(t, err, expected)
+	})
+}
