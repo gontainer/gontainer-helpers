@@ -160,6 +160,8 @@ func (c *container) decorateService(
 	svc Service,
 	contextualBag map[string]interface{},
 ) (interface{}, error) {
+	// for decorators, we have to stop execution on the very first error,
+	// because in case of error they may return a nil-value
 	for i, dec := range c.decorators {
 		if _, tagged := svc.tags[dec.tag]; !tagged {
 			continue
