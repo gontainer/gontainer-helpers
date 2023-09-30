@@ -38,3 +38,59 @@ func Test_container_executeServiceCalls(t *testing.T) {
 		assertErr.EqualErrorGroup(t, err, expected)
 	})
 }
+
+func Test_container_createNewService(t *testing.T) {
+	t.Run("Error in provider", func(t *testing.T) {
+		s := container.NewService()
+		s.SetConstructor(func() (interface{}, error) {
+			return nil, errors.New("could not create")
+		})
+
+		c := container.NewContainer()
+		c.OverrideService("service", s)
+		service, err := c.Get("service")
+		assert.Nil(t, service)
+		assert.EqualError(t, err, `container.get("service"): constructor: could not create`)
+	})
+	t.Run("Errors in args", func(t *testing.T) {
+		s := container.NewService()
+		s.SetConstructor(
+			NewServer,
+			container.NewDependencyProvider(func() (interface{}, error) {
+				return nil, errors.New("unexpected error")
+			}),
+			container.NewDependencyProvider(func() (interface{}, error) {
+				return nil, errors.New("unexpected error")
+			}),
+		)
+
+		c := container.NewContainer()
+		c.OverrideService("server", s)
+
+		expected := []string{
+			`container.get("server"): constructor args: arg #0: unexpected error`,
+			`container.get("server"): constructor args: arg #1: unexpected error`,
+		}
+
+		svc, err := c.Get("server")
+		assert.Nil(t, svc)
+		assertErr.EqualErrorGroup(t, err, expected)
+	})
+	t.Run("Ok", func(t *testing.T) {
+		s := container.NewService()
+		s.SetConstructor(
+			NewServer,
+			container.NewDependencyValue("localhost"),
+			container.NewDependencyValue(8080),
+		)
+
+		c := container.NewContainer()
+		c.OverrideService("server", s)
+
+		var server *Server
+		err := c.CopyServiceTo("server", &server)
+		assert.NoError(t, err)
+		assert.Equal(t, "localhost", server.Host)
+		assert.Equal(t, 8080, server.Port)
+	})
+}
