@@ -2,6 +2,7 @@ package container_test
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/gontainer/gontainer-helpers/container"
 )
@@ -334,4 +335,25 @@ func ExampleNewContainer_invalidConstructorParameters() {
 	// Output:
 	// container.get("server"): constructor: arg0: cannot cast `<nil>` to `string`
 	// container.get("server"): constructor: arg1: cannot cast `string` to `int`
+}
+
+func ExampleNewContainer_isTaggedBy() {
+	c := container.NewContainer()
+
+	pi := container.NewService()
+	pi.SetValue(math.Pi)
+	c.OverrideService("pi", pi)
+
+	three := container.NewService()
+	three.SetValue(3)
+	three.Tag("int", 0)
+	c.OverrideService("three", three)
+
+	fmt.Println(
+		c.IsTaggedBy("pi", "int"),
+		c.IsTaggedBy("three", "int"),
+	)
+
+	// Output:
+	// false true
 }
