@@ -90,7 +90,7 @@ func (c *container) CopyServiceTo(id string, dst interface{}) (err error) {
 	return copier.Copy(r, dst)
 }
 
-func (c *container) Get(id string) (result interface{}, err error) {
+func (c *container) Get(id string) (interface{}, error) {
 	c.rwlocker.RLock()
 	defer c.rwlocker.RUnlock()
 
@@ -138,7 +138,7 @@ func (c *container) IsTaggedBy(id string, tag string) bool {
 	return ok
 }
 
-func (c *container) GetTaggedBy(tag string) (result []interface{}, err error) {
+func (c *container) GetTaggedBy(tag string) ([]interface{}, error) {
 	c.rwlocker.RLock()
 	defer c.rwlocker.RUnlock()
 
