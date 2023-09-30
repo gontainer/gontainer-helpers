@@ -98,7 +98,7 @@ func (g *graphBuilder) warmUp() {
 	// otherwise we would add elements to the tree in different order
 	// it may lead to having inconsistent results in the method `CircularDeps()`
 	sIDs := make([]string, 0, len(g.container.services))
-	for sID, _ := range g.container.services {
+	for sID := range g.container.services {
 		sIDs = append(sIDs, sID)
 	}
 	sort.Strings(sIDs)
@@ -107,7 +107,7 @@ func (g *graphBuilder) warmUp() {
 		s := g.container.services[sID]
 
 		var tags []string
-		for tag, _ := range s.tags {
+		for tag := range s.tags {
 			tags = append(tags, tag)
 		}
 		graph.AddService(sID, tags)
