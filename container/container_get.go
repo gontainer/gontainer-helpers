@@ -166,7 +166,7 @@ func (c *container) decorateService(
 		if _, tagged := svc.tags[dec.tag]; !tagged {
 			continue
 		}
-		ctx := DecoratorContext{
+		payload := DecoratorPayload{
 			Tag:       dec.tag,
 			ServiceID: id,
 			Service:   result,
@@ -175,7 +175,7 @@ func (c *container) decorateService(
 		if err != nil {
 			return nil, errors.PrefixedGroup(fmt.Sprintf("resolve decorator args #%d: ", i), err)
 		}
-		params = append([]interface{}{ctx}, params...)
+		params = append([]interface{}{payload}, params...)
 		result, err = caller.CallProvider(dec.fn, params...)
 		if err != nil {
 			return nil, errors.PrefixedGroup(fmt.Sprintf("decorator #%d: ", i), err)

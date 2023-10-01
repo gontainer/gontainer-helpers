@@ -181,9 +181,9 @@ func (p politeGreeter) Greet() string {
 	return fmt.Sprintf("Hello! %s", p.parent.Greet())
 }
 
-func PoliteGreeterDecorator(ctx container.DecoratorContext) politeGreeter {
+func PoliteGreeterDecorator(payload container.DecoratorPayload) politeGreeter {
 	return politeGreeter{
-		parent: ctx.Service.(greeter),
+		parent: payload.Service.(greeter),
 	}
 }
 
