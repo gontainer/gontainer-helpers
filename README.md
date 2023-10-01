@@ -42,14 +42,14 @@ fmt.Println(to)
 
 ## Errors
 
-[See examples](errors/examples_test.go).
+[See examples](errors/examples_test.go)
 
 ## Exporter
 
 ```go
-s, _ := exporter.ToString(false)
+s, _ := exporter.Export(float32(3.1416))
 fmt.Println(s)
-// Output: false
+// Output: float32(3.1416)
 ```
 
 [More examples](exporter/examples_test.go)
