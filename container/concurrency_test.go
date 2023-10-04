@@ -1,3 +1,6 @@
+//go:build concurrency
+// +build concurrency
+
 package container_test
 
 import (
