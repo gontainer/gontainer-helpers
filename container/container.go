@@ -3,7 +3,6 @@ package container
 import (
 	"fmt"
 	"sort"
-	"strings"
 	"sync"
 
 	"github.com/gontainer/gontainer-helpers/caller"
@@ -171,7 +170,7 @@ func (c *container) getTaggedBy(tag string, contextualBag map[string]interface{}
 
 	sort.SliceStable(services, func(i, j int) bool {
 		if services[i].priority == services[j].priority {
-			return strings.Compare(services[i].id, services[j].id) < 0
+			return services[i].id < services[j].id
 		}
 		return services[i].priority > services[j].priority
 	})

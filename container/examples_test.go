@@ -292,7 +292,7 @@ func ExampleNewContainer_getTaggedBy() {
 	p3 := container.NewService()
 	p3.SetValue(Person{})
 	p3.SetField("Name", container.NewDependencyValue("person3"))
-	p3.Tag("person", 2) // priority 2
+	p3.Tag("person", 1) // priority 1
 
 	c := container.NewContainer()
 	c.OverrideService("p1", p1)
@@ -305,7 +305,7 @@ func ExampleNewContainer_getTaggedBy() {
 	fmt.Println(people)
 
 	// Output:
-	// [{person3} {person2} {person1}]
+	// [{person2} {person3} {person1}]
 }
 
 type Server struct {
