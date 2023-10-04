@@ -30,12 +30,12 @@ func (c *container) get(id string, contextualBag map[string]interface{}) (result
 		currentScope = c.graphBuilder.resolveScope(id)
 	}
 	if currentScope == scopeShared { // write operation only for scopeShared
-		c.lockers[id].Lock()
-		defer c.lockers[id].Unlock()
+		c.serviceLockers[id].Lock()
+		defer c.serviceLockers[id].Unlock()
 	}
 
 	// scopeShared
-	if s, cached := c.cacheShared[id]; cached {
+	if s, cached := c.cacheShared.get(id); cached {
 		return s, nil
 	}
 
@@ -75,7 +75,7 @@ func (c *container) get(id string, contextualBag map[string]interface{}) (result
 		contextualBag[id] = result
 	case scopeShared:
 		// the given instance is cached, and it will be re-used each time you call `container.Call(id)`
-		c.cacheShared[id] = result
+		c.cacheShared.set(id, result)
 	}
 
 	return result, nil

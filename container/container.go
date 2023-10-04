@@ -18,51 +18,51 @@ type serviceDecorator struct {
 }
 
 type container struct {
-	graphBuilder *graphBuilder
-	services     map[string]Service
-	cacheShared  map[string]interface{}
-	lockers      map[string]sync.Locker
-	rwlocker     rwlocker
-	decorators   []serviceDecorator
+	graphBuilder   *graphBuilder
+	services       map[string]Service
+	cacheShared    *safeMap
+	serviceLockers map[string]sync.Locker
+	globalLocker   rwlocker
+	decorators     []serviceDecorator
 }
 
 func NewContainer() *container {
 	c := &container{
-		services:    make(map[string]Service),
-		cacheShared: make(map[string]interface{}),
-		lockers:     make(map[string]sync.Locker),
-		rwlocker:    &sync.RWMutex{},
+		services:       make(map[string]Service),
+		cacheShared:    newSafeMap(),
+		serviceLockers: make(map[string]sync.Locker),
+		globalLocker:   &sync.RWMutex{},
 	}
 	c.graphBuilder = newGraphBuilder(c)
 	return c
 }
 
 func (c *container) CircularDeps() error {
-	c.rwlocker.RLock()
-	defer c.rwlocker.RUnlock()
+	c.globalLocker.RLock()
+	defer c.globalLocker.RUnlock()
 
 	return errors.PrefixedGroup("container.CircularDeps(): ", c.graphBuilder.circularDeps())
 }
 
 func (c *container) OverrideService(id string, s Service) {
-	c.rwlocker.Lock()
-	defer c.rwlocker.Unlock()
+	c.globalLocker.Lock()
+	defer c.globalLocker.Unlock()
 
 	c.graphBuilder.invalidate()
 
 	c.services[id] = s
-	delete(c.cacheShared, id)
+	c.cacheShared.delete(id)
 	switch s.scope {
 	case
 		scopeDefault,
 		scopeShared:
-		c.lockers[id] = &sync.Mutex{}
+		c.serviceLockers[id] = &sync.Mutex{}
 	}
 }
 
 func (c *container) AddDecorator(tag string, decorator interface{}, deps ...Dependency) {
-	c.rwlocker.Lock()
-	defer c.rwlocker.Unlock()
+	c.globalLocker.Lock()
+	defer c.globalLocker.Unlock()
 
 	c.graphBuilder.invalidate()
 
@@ -91,8 +91,8 @@ func (c *container) CopyServiceTo(id string, dst interface{}) (err error) {
 }
 
 func (c *container) Get(id string) (interface{}, error) {
-	c.rwlocker.RLock()
-	defer c.rwlocker.RUnlock()
+	c.globalLocker.RLock()
+	defer c.globalLocker.RUnlock()
 
 	return c.get(id, make(map[string]interface{}))
 }
@@ -126,8 +126,8 @@ func (c *container) resolveDep(contextualBag map[string]interface{}, d Dependenc
 }
 
 func (c *container) IsTaggedBy(id string, tag string) bool {
-	c.rwlocker.RLock()
-	defer c.rwlocker.RUnlock()
+	c.globalLocker.RLock()
+	defer c.globalLocker.RUnlock()
 
 	s, exists := c.services[id]
 	if !exists {
@@ -138,8 +138,8 @@ func (c *container) IsTaggedBy(id string, tag string) bool {
 }
 
 func (c *container) GetTaggedBy(tag string) ([]interface{}, error) {
-	c.rwlocker.RLock()
-	defer c.rwlocker.RUnlock()
+	c.globalLocker.RLock()
+	defer c.globalLocker.RUnlock()
 
 	return c.getTaggedBy(tag, make(map[string]interface{}))
 }
