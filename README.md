@@ -23,6 +23,8 @@ fmt.Println(r[0])
 
 ## Container
 
+Provides a concurrent-safe DI container.
+
 [See examples](container/examples_test.go)
 
 ## Copier
