@@ -5,6 +5,7 @@ type SuperContainer struct {
 	*paramContainer
 }
 
+// NewSuperContainer creates a concurrent-safe DI container.
 func NewSuperContainer() *SuperContainer {
 	return &SuperContainer{
 		container:      NewContainer(),

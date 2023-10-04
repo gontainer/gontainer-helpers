@@ -25,6 +25,7 @@ type container struct {
 	decorators     []serviceDecorator
 }
 
+// NewContainer creates a concurrent-safe DI container.
 func NewContainer() *container {
 	c := &container{
 		services:       make(map[string]Service),

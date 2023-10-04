@@ -15,6 +15,7 @@ type paramContainer struct {
 	lockers      map[string]sync.Locker
 }
 
+// NewParamContainer creates a concurrent-safe container.
 func NewParamContainer() *paramContainer {
 	return &paramContainer{
 		params:       make(map[string]Dependency),
