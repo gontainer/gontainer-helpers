@@ -32,13 +32,14 @@ func EqualErrorGroup(t testingT, err error, msgs []string) {
 	}
 
 	errs := errors.Collection(err)
-	for i := 0; i < minLen(errs, msgs); i++ {
+	l := minLen(errs, msgs)
+	for i := 0; i < l; i++ {
 		assert.EqualError(t, errs[i], msgs[i])
 	}
 
 	var extra []interface{}
 	if err != nil {
-		extra = append(extra, err.Error())
+		extra = []interface{}{err.Error()}
 	}
 
 	assert.Len(t, errs, len(msgs), extra...)
