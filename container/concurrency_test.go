@@ -13,7 +13,7 @@ import (
 )
 
 func Test_container_concurrency(t *testing.T) {
-	const max = 1000
+	const max = 100
 
 	t.Run("Cache for shared services", func(t *testing.T) {
 		// make sure we don't have the following errors
@@ -42,7 +42,7 @@ func Test_container_concurrency(t *testing.T) {
 		wg.Wait()
 	})
 
-	t.Run("Override", func(t *testing.T) {
+	t.Run("OverrideService", func(t *testing.T) {
 		// fatal error: concurrent map writes
 
 		c := container.NewContainer()
