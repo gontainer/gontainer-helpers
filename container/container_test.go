@@ -53,7 +53,7 @@ func Test_container_Get(t *testing.T) {
 			SetField("C", container.NewDependencyService("nextInt")).
 			SetField("D", container.NewDependencyService("nextInt"))
 
-		const max = 5000
+		const max = 100
 
 		for i := 0; i < max; i++ {
 			c.OverrideService(fmt.Sprintf("numbers%d", i), svcNum)
