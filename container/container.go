@@ -138,8 +138,8 @@ func (c *container) IsTaggedBy(id string, tag string) bool {
 }
 
 func (c *container) GetTaggedBy(tag string) ([]interface{}, error) {
-	//c.globalLocker.RLock()
-	//defer c.globalLocker.RUnlock()
+	c.globalLocker.RLock()
+	defer c.globalLocker.RUnlock()
 
 	return c.getTaggedBy(tag, make(map[string]interface{}))
 }
