@@ -19,7 +19,7 @@ type serviceDecorator struct {
 type container struct {
 	graphBuilder   *graphBuilder
 	services       map[string]Service
-	cacheShared    *safeMap
+	cacheShared    keyValue
 	serviceLockers map[string]sync.Locker
 	globalLocker   rwlocker
 	decorators     []serviceDecorator

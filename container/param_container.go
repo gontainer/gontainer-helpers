@@ -10,7 +10,7 @@ import (
 
 type paramContainer struct {
 	params       map[string]Dependency
-	cachedParams *safeMap
+	cachedParams keyValue
 	rwlocker     rwlocker
 	lockers      map[string]sync.Locker
 }

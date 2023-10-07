@@ -6,3 +6,9 @@ type rwlocker interface {
 	Lock()
 	Unlock()
 }
+
+type keyValue interface {
+	set(id string, v interface{})
+	get(id string) (result interface{}, exists bool)
+	delete(id string)
+}
