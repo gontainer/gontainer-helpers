@@ -124,6 +124,8 @@ func main() {
 		errors.New("invalid age"),
 	)
 
+	err = fmt.Errorf("validation: %w", err)
+
 	err = errors.Join(
 		errors.New("unexpected error"),
 		err,
@@ -137,7 +139,7 @@ func main() {
 
 	// Output:
 	// operation failed: could not create new user: unexpected error
-	// invalid name
+	// validation: invalid name
 	// invalid age
 }
 ```
