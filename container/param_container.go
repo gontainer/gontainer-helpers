@@ -10,7 +10,7 @@ import (
 
 type paramContainer struct {
 	params       map[string]Dependency
-	cachedParams map[string]interface{}
+	cachedParams *safeMap
 	rwlocker     rwlocker
 	lockers      map[string]sync.Locker
 }
@@ -19,7 +19,7 @@ type paramContainer struct {
 func NewParamContainer() *paramContainer {
 	return &paramContainer{
 		params:       make(map[string]Dependency),
-		cachedParams: make(map[string]interface{}),
+		cachedParams: newSafeMap(),
 		rwlocker:     &sync.RWMutex{},
 		lockers:      make(map[string]sync.Locker),
 	}
@@ -38,7 +38,7 @@ func (p *paramContainer) OverrideParam(id string, d Dependency) {
 	}
 
 	p.params[id] = d
-	delete(p.cachedParams, id)
+	p.cachedParams.delete(id)
 	p.lockers[id] = &sync.Mutex{}
 }
 
@@ -70,7 +70,7 @@ func (p *paramContainer) GetParam(id string) (result interface{}, err error) {
 		}
 	}
 
-	p.cachedParams[id] = result
+	p.cachedParams.set(id, result)
 
 	return result, nil
 }
