@@ -41,8 +41,9 @@ type groupError struct {
 }
 
 func (g *groupError) Error() string {
-	s := make([]string, 0, len(g.errs))
-	for _, err := range g.Collection() {
+	c := g.Collection()
+	s := make([]string, 0, len(c))
+	for _, err := range c {
 		s = append(s, err.Error())
 	}
 	return strings.Join(s, "\n")
