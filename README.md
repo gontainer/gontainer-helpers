@@ -119,7 +119,7 @@ import (
 func main() {
 	err := errors.Join(
 		errors.New("invalid name"),
-		nil,
+		nil, // nil-errors are being ignored
 		nil,
 		errors.New("invalid age"),
 	)
