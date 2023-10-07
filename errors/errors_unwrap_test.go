@@ -15,6 +15,8 @@ import (
 )
 
 func Test_groupError_Unwrap(t *testing.T) {
+	// https://tip.golang.org/doc/go1.20#errors
+
 	const wrongFileName = "file does not exist"
 
 	getPathError := func() error {
@@ -22,7 +24,6 @@ func Test_groupError_Unwrap(t *testing.T) {
 		return err
 	}
 
-	// https://tip.golang.org/doc/go1.20#errors
 	err := errors.PrefixedGroup(
 		"my group: ",
 		errors.PrefixedGroup("some errors: ", io.EOF, io.ErrNoProgress),
