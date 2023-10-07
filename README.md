@@ -189,10 +189,13 @@ func main()  {
 
 ## Exporter
 
+Export the given variable to a GO code.
+
 ```go
-s, _ := exporter.Export(float32(3.1416))
+var s string
+s, _ = exporter.Export([]uint{1, 2, 3})
 fmt.Println(s)
-// Output: float32(3.1416)
+// Output: []uint{uint(1), uint(2), uint(3)}
 ```
 
 [More examples](exporter/examples_test.go)
