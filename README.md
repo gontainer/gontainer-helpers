@@ -25,7 +25,67 @@ fmt.Println(r[0])
 
 Provides a concurrent-safe DI container.
 
-[See examples](container/examples_test.go)
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/gontainer/gontainer-helpers/container"
+)
+
+type Person struct {
+	Name string
+}
+
+type People struct {
+    People []Person
+}
+
+func main()  {
+	// create Mary Jane
+	mary := container.NewService()
+	mary.SetConstructor(func() Person {
+		return Person{}
+	})
+	mary.SetField("Name", container.NewDependencyValue("Mary Jane"))
+	mary.Tag("person", 1) // priority = 1, ladies first :)
+
+	// create Peter Parker
+	peter := container.NewService()
+	peter.SetConstructor(func() Person {
+		return Person{}
+	})
+	peter.SetField("Name", container.NewDependencyProvider(func() string {
+		return "Peter Parker"
+	}))
+	peter.Tag("person", 0)
+
+	// create "people"
+	people := container.NewService()
+	people.SetValue(People{})                                       // instead of providing a constructor, we can provide a value directly
+	people.SetField("People", container.NewDependencyTag("person")) // fetch all objects tagged as "person", and assign them to the field "people"
+
+	// create a container, and append all services there
+	c := container.NewContainer()
+	c.OverrideService("mary", mary)
+	c.OverrideService("peter", peter)
+	c.OverrideService("people", people)
+
+	// instead of these 2 following lines,
+	// you can write:
+	//
+	// peopleObject, _ := c.Get("people")
+	var peopleObject People
+	_ = c.CopyServiceTo("people", &peopleObject)
+
+	fmt.Printf("%+v\n", peopleObject)
+
+	// Output: {People:[{Name:Mary Jane} {Name:Peter Parker}]}
+}
+```
+
+[More examples](container/examples_test.go)
 
 ## Copier
 
