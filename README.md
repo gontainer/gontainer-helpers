@@ -181,7 +181,7 @@ func main()  {
 	// operation failed: could not create new user: validation: invalid name
 	// operation failed: could not create new user: validation: invalid age
 	
-	// use errors.Collection to get a slice with all errors
+	// use errors.Collection(err) to get a slice with all errors
 }
 ```
 
