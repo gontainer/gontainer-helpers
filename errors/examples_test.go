@@ -1,10 +1,36 @@
 package errors_test
 
 import (
+	stdErrors "errors"
 	"fmt"
 
 	"github.com/gontainer/gontainer-helpers/errors"
 )
+
+func ExamplePrefixedGroup_stdlib() {
+	err := stdErrors.Join(
+		errors.New("invalid name"),
+		nil,
+		nil,
+		errors.New("invalid age"),
+	)
+
+	err = stdErrors.Join(
+		errors.New("unexpected error"),
+		err,
+	)
+
+	err = fmt.Errorf("could not create new user: %w", err)
+
+	err = fmt.Errorf("operation failed: %w", err)
+
+	fmt.Println(err.Error())
+
+	// Output:
+	// operation failed: could not create new user: unexpected error
+	// invalid name
+	// invalid age
+}
 
 func ExamplePrefixedGroup() {
 	err := errors.PrefixedGroup(
@@ -17,18 +43,25 @@ func ExamplePrefixedGroup() {
 
 	err = errors.PrefixedGroup(
 		"could not create new user: ",
-		err,
 		errors.New("unexpected error"),
+		err,
 	)
 
 	err = errors.PrefixedGroup("operation failed: ", err)
+
+	fmt.Println(err.Error())
+	fmt.Println()
 
 	for i, cErr := range errors.Collection(err) {
 		fmt.Printf("%d. %s\n", i+1, cErr.Error())
 	}
 
 	// Output:
-	// 1. operation failed: could not create new user: validation: invalid name
-	// 2. operation failed: could not create new user: validation: invalid age
-	// 3. operation failed: could not create new user: unexpected error
+	// operation failed: could not create new user: unexpected error
+	// operation failed: could not create new user: validation: invalid name
+	// operation failed: could not create new user: validation: invalid age
+	//
+	// 1. operation failed: could not create new user: unexpected error
+	// 2. operation failed: could not create new user: validation: invalid name
+	// 3. operation failed: could not create new user: validation: invalid age
 }

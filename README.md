@@ -104,7 +104,86 @@ fmt.Println(to)
 
 ## Errors
 
-[See examples](errors/examples_test.go)
+**Native approach**
+
+When errors are being joined using the standard library, the output may be unreadable:
+
+```go
+package main
+
+import (
+	"errors"
+	"fmt"
+)
+
+func main() {
+	err := errors.Join(
+		errors.New("invalid name"),
+		nil,
+		nil,
+		errors.New("invalid age"),
+	)
+
+	err = errors.Join(
+		errors.New("unexpected error"),
+		err,
+	)
+
+	err = fmt.Errorf("could not create new user: %w", err)
+
+	err = fmt.Errorf("operation failed: %w", err)
+
+	fmt.Println(err.Error())
+
+	// Output:
+	// operation failed: could not create new user: unexpected error
+	// invalid name
+	// invalid age
+}
+```
+
+**PrefixedGroup**
+
+Use `PrefixedGroup` to solve that:
+
+```go
+package main
+
+import (
+	"fmt"
+	
+	"github.com/gontainer/gontainer-helpers/errors"
+)
+
+func main()  {
+	err := errors.PrefixedGroup(
+		"validation: ",
+		errors.New("invalid name"),
+		nil, // nil-errors are being ignored
+		nil,
+		errors.New("invalid age"),
+	)
+
+	err = errors.PrefixedGroup(
+		"could not create new user: ",
+		errors.New("unexpected error"),
+		err,
+	)
+
+	err = errors.PrefixedGroup("operation failed: ", err)
+
+	fmt.Println(err.Error())
+	
+	// Output:
+	// operation failed: could not create new user: unexpected error
+	// operation failed: could not create new user: validation: invalid name
+	// operation failed: could not create new user: validation: invalid age
+	
+	// use errors.Collection to get a slice with all errors
+}
+```
+
+[More examples](errors/examples_test.go)
 
 ## Exporter
 
