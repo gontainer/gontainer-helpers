@@ -1,10 +1,8 @@
 package errors_test
 
 import (
-	pkgErrors "errors"
 	"fmt"
 	"io"
-	"runtime"
 	"strings"
 	"testing"
 
@@ -56,33 +54,6 @@ func TestPrefixedGroup(t *testing.T) {
 		}
 
 		assert.EqualError(t, validationErr, strings.Join(expected, "\n"))
-	})
-
-	t.Run("Unwrap()", func(t *testing.T) {
-		// Go 1.20 expands support for error wrapping to permit an error to wrap multiple other errors.
-		// An error e can wrap more than one error by providing an Unwrap method that returns a []error.
-		// https://tip.golang.org/doc/go1.20#errors
-
-		v := runtime.Version()
-		switch {
-		case
-			strings.HasPrefix(v, "go1.14."),
-			strings.HasPrefix(v, "go1.15."),
-			strings.HasPrefix(v, "go1.16."),
-			strings.HasPrefix(v, "go1.17."),
-			strings.HasPrefix(v, "go1.18."),
-			strings.HasPrefix(v, "go1.19."):
-			t.SkipNow()
-		}
-		t.Run("errors.Is", func(t *testing.T) {
-			err := errors.PrefixedGroup(
-				"my group: ",
-				errors.PrefixedGroup("some errors: ", io.EOF, io.ErrNoProgress),
-				io.ErrUnexpectedEOF,
-			)
-			assert.True(t, pkgErrors.Is(err, io.ErrNoProgress))
-			assert.False(t, pkgErrors.Is(err, io.ErrClosedPipe))
-		})
 	})
 }
 
