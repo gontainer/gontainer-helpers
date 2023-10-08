@@ -1,7 +1,7 @@
 package errors_test
 
 import (
-	pkgErrors "errors"
+	stdErrors "errors"
 	"fmt"
 	"io"
 	"net"
@@ -85,22 +85,22 @@ func Test_groupError_Unwrap(t *testing.T) {
 
 	t.Run("errors.Is", func(t *testing.T) {
 		for _, target := range []error{io.EOF, io.ErrNoProgress, io.ErrUnexpectedEOF} {
-			assert.True(t, pkgErrors.Is(err, target))
+			assert.True(t, stdErrors.Is(err, target))
 		}
-		assert.False(t, pkgErrors.Is(err, io.ErrClosedPipe))
+		assert.False(t, stdErrors.Is(err, io.ErrClosedPipe))
 	})
 
 	t.Run("errors.As", func(t *testing.T) {
 		t.Run("*os.PathError", func(t *testing.T) {
 			var target *os.PathError
-			if assert.True(t, pkgErrors.As(err, &target)) {
+			if assert.True(t, stdErrors.As(err, &target)) {
 				assert.Equal(t, wrongFileName, target.Path)
 			}
 		})
 		t.Run("*net.AddrError", func(t *testing.T) {
 			t.Run("false", func(t *testing.T) {
 				var target *net.AddrError
-				assert.False(t, pkgErrors.As(err, &target))
+				assert.False(t, stdErrors.As(err, &target))
 			})
 
 			t.Run("true", func(t *testing.T) {
@@ -109,7 +109,7 @@ func Test_groupError_Unwrap(t *testing.T) {
 				var target *net.AddrError
 				assert.True(
 					t,
-					pkgErrors.As(errors.Group(err, addrErr), &target),
+					stdErrors.As(errors.Group(err, addrErr), &target),
 				)
 			})
 		})
