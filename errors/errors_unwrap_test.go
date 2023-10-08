@@ -3,7 +3,6 @@ package errors_test
 import (
 	pkgErrors "errors"
 	"io"
-	"io/fs"
 	"os"
 	"testing"
 
@@ -36,7 +35,7 @@ func Test_groupError_Unwrap(t *testing.T) {
 	})
 
 	t.Run("errors.As", func(t *testing.T) {
-		var target *fs.PathError
+		var target *os.PathError
 		if assert.True(t, pkgErrors.As(err, &target)) {
 			assert.Equal(t, wrongFileName, target.Path)
 		}
