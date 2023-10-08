@@ -67,6 +67,24 @@ func (g *groupError) Collection() []error {
 	return errs
 }
 
+func (g *groupError) Is(target error) bool {
+	for _, err := range g.Collection() {
+		if errors.Is(err, target) {
+			return true
+		}
+	}
+	return false
+}
+
+func (g *groupError) As(target interface{}) bool {
+	for _, err := range g.Collection() {
+		if errors.As(err, target) {
+			return true
+		}
+	}
+	return false
+}
+
 func Collection(err error) []error {
 	if err == nil {
 		return nil
