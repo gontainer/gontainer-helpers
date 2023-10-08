@@ -4,6 +4,7 @@ import (
 	pkgErrors "errors"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"strings"
 	"testing"
@@ -90,9 +91,27 @@ func Test_groupError_Unwrap(t *testing.T) {
 	})
 
 	t.Run("errors.As", func(t *testing.T) {
-		var target *os.PathError
-		if assert.True(t, pkgErrors.As(err, &target)) {
-			assert.Equal(t, wrongFileName, target.Path)
-		}
+		t.Run("*os.PathError", func(t *testing.T) {
+			var target *os.PathError
+			if assert.True(t, pkgErrors.As(err, &target)) {
+				assert.Equal(t, wrongFileName, target.Path)
+			}
+		})
+		t.Run("*net.AddrError", func(t *testing.T) {
+			t.Run("false", func(t *testing.T) {
+				var target *net.AddrError
+				assert.False(t, pkgErrors.As(err, &target))
+			})
+
+			t.Run("true", func(t *testing.T) {
+				ip := make(net.IP, 1)
+				_, addrErr := ip.MarshalText() // address 00: invalid IP address
+				var target *net.AddrError
+				assert.True(
+					t,
+					pkgErrors.As(errors.Group(err, addrErr), &target),
+				)
+			})
+		})
 	})
 }
