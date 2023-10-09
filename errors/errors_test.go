@@ -1,8 +1,11 @@
 package errors_test
 
 import (
+	stdErrors "errors"
 	"fmt"
 	"io"
+	"net"
+	"os"
 	"strings"
 	"testing"
 
@@ -63,4 +66,57 @@ func TestCollection(t *testing.T) {
 
 func TestNew(t *testing.T) {
 	assert.EqualError(t, errors.New("my error"), "my error")
+}
+
+func Test_groupError_Unwrap(t *testing.T) {
+	const wrongFileName = "file does not exist"
+
+	getPathError := func() error {
+		_, err := os.Open(wrongFileName)
+		return err
+	}
+
+	err := errors.PrefixedGroup(
+		"my group: ",
+		errors.PrefixedGroup("some errors: ", io.EOF, io.ErrNoProgress),
+		io.ErrUnexpectedEOF,
+		getPathError(),
+	)
+
+	err = errors.PrefixedGroup("errors: ", err)
+
+	t.Run("errors.Is", func(t *testing.T) {
+		for _, target := range []error{io.EOF, io.ErrNoProgress, io.ErrUnexpectedEOF} {
+			assert.True(t, stdErrors.Is(err, target))
+		}
+		assert.False(t, stdErrors.Is(err, io.ErrClosedPipe))
+	})
+
+	t.Run("errors.As", func(t *testing.T) {
+		t.Run("*os.PathError", func(t *testing.T) {
+			var target *os.PathError
+			if assert.True(t, stdErrors.As(err, &target)) {
+				assert.Equal(t, wrongFileName, target.Path)
+			}
+		})
+		t.Run("*net.AddrError", func(t *testing.T) {
+			t.Run("false", func(t *testing.T) {
+				var target *net.AddrError
+				assert.False(t, stdErrors.As(err, &target))
+			})
+
+			t.Run("true", func(t *testing.T) {
+				ip := net.IP{1, 2, 3}
+				_, addrErr := ip.MarshalText() // address 010203: invalid IP address
+				var target *net.AddrError
+				assert.Nil(t, target)
+				assert.True(
+					t,
+					stdErrors.As(errors.Group(err, addrErr), &target),
+				)
+				assert.NotNil(t, target)
+				assert.EqualError(t, target, "address 010203: invalid IP address")
+			})
+		})
+	})
 }
