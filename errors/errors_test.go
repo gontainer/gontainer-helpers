@@ -83,6 +83,8 @@ func Test_groupError_Unwrap(t *testing.T) {
 		getPathError(),
 	)
 
+	err = errors.PrefixedGroup("errors: ", err)
+
 	t.Run("errors.Is", func(t *testing.T) {
 		for _, target := range []error{io.EOF, io.ErrNoProgress, io.ErrUnexpectedEOF} {
 			assert.True(t, stdErrors.Is(err, target))
