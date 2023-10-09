@@ -67,7 +67,7 @@ func (g *groupError) Collection() []error {
 	return errs
 }
 
-// Is supports errors.Is for go < 1.20
+// Is provides support for `errors.Is` in older versions of Go (<1.20)
 //
 // https://tip.golang.org/doc/go1.20#errors
 func (g *groupError) Is(target error) bool {
@@ -79,7 +79,7 @@ func (g *groupError) Is(target error) bool {
 	return false
 }
 
-// As supports errors.As for go < 1.20
+// As provides support for `errors.As` in older versions of Go (<1.20)
 //
 // https://tip.golang.org/doc/go1.20#errors
 func (g *groupError) As(target interface{}) bool {
