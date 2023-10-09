@@ -25,8 +25,6 @@ func (m mockExporter) export(interface{}) (string, error) {
 }
 
 func TestChainExporter_Export(t *testing.T) {
-	exporter := newDefaultExporter()
-
 	t.Run("Given scenarios", func(t *testing.T) {
 		scenarios := map[string]struct {
 			input  interface{}
@@ -95,7 +93,7 @@ func TestChainExporter_Export(t *testing.T) {
 			s := tmp
 			t.Run(k, func(t *testing.T) {
 				t.Parallel()
-				output, err := exporter.export(s.input)
+				output, err := Export(s.input)
 				if s.error != "" {
 					assert.EqualError(t, err, s.error)
 					assert.Equal(t, "", output)
@@ -232,7 +230,7 @@ func TestExport(t *testing.T) {
 	})
 }
 
-func TestToString(t *testing.T) {
+func TestCastToString(t *testing.T) {
 	scenarios := []struct {
 		input  interface{}
 		output string
@@ -268,8 +266,8 @@ func TestToString(t *testing.T) {
 		s := tmp
 		t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 			t.Parallel()
-			t.Run("ToString", func(t *testing.T) {
-				result, err := ToString(s.input)
+			t.Run("CastToString", func(t *testing.T) {
+				result, err := CastToString(s.input)
 
 				if s.error != "" {
 					assert.Empty(t, result)
@@ -281,7 +279,7 @@ func TestToString(t *testing.T) {
 				assert.Equal(t, s.output, result)
 			})
 
-			t.Run("MustToString", func(t *testing.T) {
+			t.Run("MustCastToString", func(t *testing.T) {
 				defer func() {
 					err := recover()
 					if s.error == "" {
@@ -302,7 +300,7 @@ func TestToString(t *testing.T) {
 					)
 				}()
 
-				assert.Equal(t, s.output, MustToString(s.input))
+				assert.Equal(t, s.output, MustCastToString(s.input))
 			})
 		})
 	}

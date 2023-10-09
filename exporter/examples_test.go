@@ -6,32 +6,32 @@ import (
 	"github.com/gontainer/gontainer-helpers/exporter"
 )
 
-func ExampleToString_string() {
-	s, _ := exporter.ToString("hello world")
+func ExampleCastToString_string() {
+	s, _ := exporter.CastToString("hello world")
 	fmt.Println(s)
 	// Output: hello world
 }
 
-func ExampleToString_bool() {
-	s, _ := exporter.ToString(false)
+func ExampleCastToString_bool() {
+	s, _ := exporter.CastToString(false)
 	fmt.Println(s)
 	// Output: false
 }
 
-func ExampleToString_pi() {
-	s, _ := exporter.ToString(float32(3.1416))
+func ExampleCastToString_pi() {
+	s, _ := exporter.CastToString(float32(3.1416))
 	fmt.Println(s)
 	// Output: 3.1416
 }
 
-func ExampleToString_nil() {
-	s, _ := exporter.ToString(nil)
+func ExampleCastToString_nil() {
+	s, _ := exporter.CastToString(nil)
 	fmt.Println(s)
 	// Output: nil
 }
 
-func ExampleToString_notSupported() {
-	_, err := exporter.ToString(struct{}{})
+func ExampleCastToString_notSupported() {
+	_, err := exporter.CastToString(struct{}{})
 	fmt.Println(err)
 	// Output: type `struct {}` is not supported
 }
