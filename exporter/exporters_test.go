@@ -170,6 +170,24 @@ func TestExport(t *testing.T) {
 			error: "type `struct {}` is not supported",
 			panic: "cannot export `struct {}` to string: type `struct {}` is not supported",
 		},
+		{
+			input: []interface{ Do() }{nil, nil, nil},
+			error: "type `[]interface { Do() }` is not supported",
+			panic: "cannot export `[]interface { Do() }` to string: type `[]interface { Do() }` is not supported",
+		},
+		{
+			input: [3]interface{ Do() }{},
+			error: "type `[3]interface { Do() }` is not supported",
+			panic: "cannot export `[3]interface { Do() }` to string: type `[3]interface { Do() }` is not supported",
+		},
+		{
+			input:  []interface{}{nil, nil, nil},
+			output: "[]interface{}{nil, nil, nil}",
+		},
+		{
+			input:  [3]interface{}{},
+			output: "[3]interface{}{nil, nil, nil}",
+		},
 	}
 
 	for i, tmp := range scenarios {
