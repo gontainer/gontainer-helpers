@@ -67,6 +67,30 @@ func (g *groupError) Collection() []error {
 	return errs
 }
 
+// Is provides support for `errors.Is` in older versions of Go (<1.20)
+//
+// https://tip.golang.org/doc/go1.20#errors
+func (g *groupError) Is(target error) bool {
+	for _, err := range g.Unwrap() {
+		if errors.Is(err, target) {
+			return true
+		}
+	}
+	return false
+}
+
+// As provides support for `errors.As` in older versions of Go (<1.20)
+//
+// https://tip.golang.org/doc/go1.20#errors
+func (g *groupError) As(target interface{}) bool {
+	for _, err := range g.Unwrap() {
+		if errors.As(err, target) {
+			return true
+		}
+	}
+	return false
+}
+
 func Collection(err error) []error {
 	if err == nil {
 		return nil
