@@ -1,41 +1,10 @@
-//go:build go1.20
-// +build go1.20
-
 package errors_test
 
 import (
-	stdErrors "errors"
 	"fmt"
 
 	"github.com/gontainer/gontainer-helpers/errors"
 )
-
-func ExamplePrefixedGroup_stdlib() {
-	err := stdErrors.Join(
-		errors.New("invalid name"),
-		nil,
-		nil,
-		errors.New("invalid age"),
-	)
-
-	err = fmt.Errorf("validation: %w", err)
-
-	err = stdErrors.Join(
-		errors.New("unexpected error"),
-		err,
-	)
-
-	err = fmt.Errorf("could not create new user: %w", err)
-
-	err = fmt.Errorf("operation failed: %w", err)
-
-	fmt.Println(err.Error())
-
-	// Output:
-	// operation failed: could not create new user: unexpected error
-	// validation: invalid name
-	// invalid age
-}
 
 func ExamplePrefixedGroup() {
 	err := errors.PrefixedGroup(
