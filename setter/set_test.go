@@ -190,6 +190,14 @@ func TestSet(t *testing.T) {
 			s.wallets,
 		)
 	})
+	t.Run("convert uint to int", func(t *testing.T) {
+		var p struct {
+			Age uint
+		}
+		err := Set(&p, "Age", int16(20))
+		assert.NoError(t, err)
+		assert.Equal(t, uint(20), p.Age)
+	})
 	t.Run("Given errors", func(t *testing.T) {
 		t.Run("Field does not exist", func(t *testing.T) {
 			p := person{}
