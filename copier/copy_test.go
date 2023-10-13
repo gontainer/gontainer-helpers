@@ -10,6 +10,66 @@ import (
 )
 
 func TestCopy(t *testing.T) {
+	t.Run("Convert value", func(t *testing.T) {
+		t.Run("Copy", func(t *testing.T) {
+			var (
+				from int = 5
+				to   uint
+			)
+			err := copier.Copy(from, &to)
+			assert.Empty(t, to)
+			assert.EqualError(t, err, "reflect.Set: value of type int is not assignable to type uint")
+		})
+		t.Run("ForceCopy", func(t *testing.T) {
+			var (
+				from int = 5
+				to   uint
+			)
+			err := copier.ForceCopy(from, &to)
+			assert.Equal(t, uint(5), to)
+			assert.NoError(t, err)
+		})
+	})
+	t.Run("Convert pointer", func(t *testing.T) {
+		t.Run("Copy", func(t *testing.T) {
+			var (
+				from *int
+				to   *uint
+			)
+			err := copier.Copy(from, &to)
+			assert.Empty(t, to)
+			assert.EqualError(t, err, "reflect.Set: value of type *int is not assignable to type *uint")
+		})
+		t.Run("ForceCopy", func(t *testing.T) {
+			var (
+				from *int
+				to   *uint
+			)
+			err := copier.ForceCopy(from, &to)
+			assert.Empty(t, to)
+			assert.EqualError(t, err, "cannot cast `*int` to `*uint`")
+		})
+	})
+	t.Run("ForceCopy non-empty interface", func(t *testing.T) {
+		t.Run("Copy", func(t *testing.T) {
+			var (
+				from interface{ Foo() }
+				to   interface{ Bar() } // even tho interfaces differ, it does not return an error
+			)
+			err := copier.Copy(from, &to)
+			assert.Empty(t, to)
+			assert.NoError(t, err)
+		})
+		t.Run("ForceCopy", func(t *testing.T) {
+			var (
+				from interface{ Foo() }
+				to   interface{ Bar() } // even tho interfaces differ, it does not return an error
+			)
+			err := copier.ForceCopy(from, &to)
+			assert.Empty(t, to)
+			assert.NoError(t, err)
+		})
+	})
 	t.Run("var from interface{}", func(t *testing.T) {
 		var from interface{} = car{age: 5}
 		var to car
