@@ -6,12 +6,12 @@ import (
 	"github.com/gontainer/gontainer-helpers/copier"
 )
 
-func ExampleForceCopy_ok() {
+func ExampleConvertAndCopy_ok() {
 	var (
 		from = int(5) // uint is not assignable to int,
-		to   uint     // but ForceCopy can convert the type
+		to   uint     // but ConvertAndCopy can convert the type
 	)
-	err := copier.ForceCopy(from, &to)
+	err := copier.ConvertAndCopy(from, &to)
 	fmt.Println(to)
 	fmt.Println(err)
 	// Output:

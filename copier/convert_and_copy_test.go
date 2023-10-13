@@ -7,14 +7,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestForceCopy(t *testing.T) {
+func TestConvertAndCopy(t *testing.T) {
 	t.Run("[]int to []interface{}", func(t *testing.T) {
 		var (
 			from = []int{1, 2, 3}
 			to   []interface{}
 		)
 
-		err := copier.ForceCopy(from, &to)
+		err := copier.ConvertAndCopy(from, &to)
 		assert.NoError(t, err)
 		assert.Equal(t, []interface{}{1, 2, 3}, to)
 	})
@@ -24,7 +24,7 @@ func TestForceCopy(t *testing.T) {
 			to   []int
 		)
 
-		err := copier.ForceCopy(from, &to)
+		err := copier.ConvertAndCopy(from, &to)
 		assert.NoError(t, err)
 		assert.Equal(t, []int{1, 2, 3}, to)
 	})
@@ -34,7 +34,7 @@ func TestForceCopy(t *testing.T) {
 			to   [3]int
 		)
 
-		err := copier.ForceCopy(from, &to)
+		err := copier.ConvertAndCopy(from, &to)
 		assert.NoError(t, err)
 		assert.Equal(t, [3]int{1, 2, 3}, to)
 	})
@@ -44,7 +44,7 @@ func TestForceCopy(t *testing.T) {
 			to   [2]int
 		)
 
-		err := copier.ForceCopy(from, &to)
+		err := copier.ConvertAndCopy(from, &to)
 		assert.EqualError(t, err, "cannot cast `[]int` (length 3) to `[2]int`")
 		assert.Empty(t, to)
 	})
@@ -54,7 +54,7 @@ func TestForceCopy(t *testing.T) {
 			to   [2]int
 		)
 
-		err := copier.ForceCopy(from, &to)
+		err := copier.ConvertAndCopy(from, &to)
 		assert.EqualError(t, err, "cannot cast `[3]int` to `[2]int`")
 		assert.Empty(t, to)
 	})
@@ -64,7 +64,7 @@ func TestForceCopy(t *testing.T) {
 			to   [4]int
 		)
 
-		err := copier.ForceCopy(from, &to)
+		err := copier.ConvertAndCopy(from, &to)
 		assert.NoError(t, err)
 		assert.Equal(t, [4]int{1, 2, 3, 0}, to)
 	})
@@ -74,7 +74,7 @@ func TestForceCopy(t *testing.T) {
 			to   [4]interface{}
 		)
 
-		err := copier.ForceCopy(from, &to)
+		err := copier.ConvertAndCopy(from, &to)
 		assert.NoError(t, err)
 		assert.Equal(t, [4]interface{}{6, 7, 8, nil}, to)
 	})
@@ -84,7 +84,7 @@ func TestForceCopy(t *testing.T) {
 			to   []int
 		)
 
-		err := copier.ForceCopy(from, &to)
+		err := copier.ConvertAndCopy(from, &to)
 		assert.NoError(t, err)
 		assert.Equal(t, []int{1, 2, 3}, to)
 	})
@@ -94,7 +94,7 @@ func TestForceCopy(t *testing.T) {
 			to   [3]uint
 		)
 
-		err := copier.ForceCopy(from, &to)
+		err := copier.ConvertAndCopy(from, &to)
 		assert.NoError(t, err)
 		assert.Equal(t, [3]uint{1, 2, 3}, to)
 	})
