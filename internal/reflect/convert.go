@@ -30,7 +30,7 @@ func Convert(value interface{}, to reflect.Type) (reflect.Value, error) {
 		return from.Convert(to), nil
 	}
 
-	if !isConvertibleSlice(from.Type(), to) {
+	if !isConvertibleSlice(from, to) {
 		return reflect.Value{}, fmt.Errorf("cannot cast `%s` to `%s`", from.Type().String(), to.String())
 	}
 
@@ -42,16 +42,22 @@ func Convert(value interface{}, to reflect.Type) (reflect.Value, error) {
 	return slice, nil
 }
 
-func isConvertibleSlice(from reflect.Type, to reflect.Type) bool {
-	if from.Kind() != reflect.Slice || to.Kind() != reflect.Slice {
+func isConvertibleSlice(from reflect.Value, to reflect.Type) bool {
+	// TODO add tests for arrays
+	if (from.Kind() != reflect.Slice && from.Kind() != reflect.Array) ||
+		(to.Kind() != reflect.Slice && to.Kind() != reflect.Array) {
 		return false
 	}
 
-	if from.Elem().Kind() == reflect.Interface || to.Elem().Kind() == reflect.Interface {
+	if to.Kind() == reflect.Array && to.Len() != from.Len() {
+		return false
+	}
+
+	if from.Type().Elem().Kind() == reflect.Interface || to.Elem().Kind() == reflect.Interface {
 		return true
 	}
 
-	if from.Elem().ConvertibleTo(to.Elem()) {
+	if from.Type().Elem().ConvertibleTo(to.Elem()) {
 		return true
 	}
 
@@ -63,7 +69,13 @@ func isConvertibleSlice(from reflect.Type, to reflect.Type) bool {
 }
 
 func convertSlice(from reflect.Value, to reflect.Type) (reflect.Value, error) {
-	cp := reflect.MakeSlice(to, 0, 0)
+	var cp reflect.Value
+	if to.Kind() == reflect.Array {
+		cp = reflect.New(reflect.ArrayOf(to.Len(), to.Elem())).Elem()
+	} else {
+		cp = reflect.MakeSlice(to, from.Len(), from.Cap())
+	}
+
 	for i := 0; i < from.Len(); i++ {
 		item := from.Index(i)
 		for item.Kind() == reflect.Interface {
@@ -77,7 +89,8 @@ func convertSlice(from reflect.Value, to reflect.Type) (reflect.Value, error) {
 		if err != nil {
 			return reflect.Value{}, fmt.Errorf("%d: %w", i, err)
 		}
-		cp = reflect.Append(cp, curr)
+		cp.Index(i).Set(curr)
+		//cp = reflect.Append(cp, curr)
 	}
 	return cp, nil
 }
