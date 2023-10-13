@@ -19,6 +19,14 @@ func Convert(value interface{}, to reflect.Type) (reflect.Value, error) {
 	}
 	from := reflect.ValueOf(value)
 	if from.Type().ConvertibleTo(to) {
+
+		// TODO check all edge cases
+		if to.Kind() == reflect.Array &&
+			from.Kind() == reflect.Slice &&
+			from.Len() > to.Len() {
+			return reflect.Value{}, fmt.Errorf("cannot cast `%T` (len %d) to `%s`", value, from.Len(), to.String())
+		}
+
 		return from.Convert(to), nil
 	}
 
