@@ -65,8 +65,18 @@ func TestForceCopy(t *testing.T) {
 		)
 
 		err := copier.ForceCopy(from, &to)
-		assert.EqualError(t, err, "cannot cast `[3]int` to `[4]int`")
-		assert.Empty(t, to)
+		assert.NoError(t, err)
+		assert.Equal(t, [4]int{1, 2, 3, 0}, to)
+	})
+	t.Run("[N]interface{} to [N+1]interface{}", func(t *testing.T) {
+		var (
+			from = [3]interface{}{6, 7, 8}
+			to   [4]interface{}
+		)
+
+		err := copier.ForceCopy(from, &to)
+		assert.NoError(t, err)
+		assert.Equal(t, [4]interface{}{6, 7, 8, nil}, to)
 	})
 	t.Run("[N]int to []int", func(t *testing.T) {
 		var (
@@ -78,7 +88,7 @@ func TestForceCopy(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, []int{1, 2, 3}, to)
 	})
-	t.Run("[N]int to [n]uint", func(t *testing.T) {
+	t.Run("[N]int to [N]uint", func(t *testing.T) {
 		var (
 			from = [3]int{1, 2, 3}
 			to   [3]uint

@@ -37,25 +37,24 @@ func TestConvert(t *testing.T) {
 				error:  "cannot cast `[][3]int` to `[][2]int`",
 			},
 			`[][3]int to [][3]int`: {
-				input:  [][3]int{},
-				output: [][3]int{},
+				input:  [][3]int{{5, 5, 5}, {6, 6, 6}},
+				output: [][3]int{{5, 5, 5}, {6, 6, 6}},
 			},
 			`[][3]int to [][3]uint`: {
-				input:  [][3]int{},
-				output: [][3]uint{},
+				input:  [][3]int{{1, 2, 3}},
+				output: [][3]uint{{1, 2, 3}},
 			},
 			`[][3]int to [][3]interface{}`: {
-				input:  [][3]int{},
-				output: [][3]interface{}{},
+				input:  [][3]int{{2, 2, 2}},
+				output: [][3]interface{}{{2, 2, 2}},
 			},
 			`[][3]interface{} to [][3]int`: {
-				input:  [][3]interface{}{},
-				output: [][3]int{},
+				input:  [][3]interface{}{{3, 5, 7}},
+				output: [][3]int{{3, 5, 7}},
 			},
 			`[]interface{}{[2]int{}} to [][3]int error`: {
-				input:  []interface{}{[2]int{}},
-				output: [][3]int{},
-				error:  "cannot cast `[]interface {}` to `[][3]int`: 0: cannot cast `[2]int` to `[3]int`",
+				input:  []interface{}{[2]int{5, 5}},
+				output: [][3]int{{5, 5, 0}},
 			},
 			`[][]interface{} to [][]int`: {
 				input:  [][]interface{}{{1, 2, 3}},

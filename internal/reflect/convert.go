@@ -21,7 +21,7 @@ func Convert(value interface{}, to reflect.Type) (reflect.Value, error) {
 
 	if to.Kind() == reflect.Array &&
 		from.Kind() == reflect.Slice &&
-		from.Len() != to.Len() {
+		from.Len() > to.Len() {
 		return reflect.Value{}, fmt.Errorf("cannot cast `%T` (length %d) to `%s`", value, from.Len(), to.String())
 	}
 
@@ -47,7 +47,7 @@ func isConvertibleSliceOrArray(from reflect.Type, to reflect.Type) bool {
 		return false
 	}
 
-	if from.Kind() == reflect.Array && to.Kind() == reflect.Array && from.Len() != to.Len() {
+	if from.Kind() == reflect.Array && to.Kind() == reflect.Array && from.Len() > to.Len() {
 		return false
 	}
 
