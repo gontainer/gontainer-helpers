@@ -10,7 +10,6 @@ import (
 )
 
 func TestConvert(t *testing.T) {
-	t.Parallel()
 	t.Run(`Convert parameters`, func(t *testing.T) {
 		float64Val := float64(5)
 
@@ -132,7 +131,6 @@ func TestConvert(t *testing.T) {
 		for n, tmp := range scenarios {
 			s := tmp
 			t.Run(n, func(t *testing.T) {
-				t.Parallel()
 				v, err := internalReflect.Convert(s.input, reflect.TypeOf(s.output))
 				if s.error != "" {
 					assert.EqualError(t, err, s.error)
