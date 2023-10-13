@@ -31,13 +31,13 @@ func PrefixedGroup(prefix string, errs ...error) error {
 
 	return &groupError{
 		prefix: prefix,
-		errs:   filtered,
+		errors: filtered,
 	}
 }
 
 type groupError struct {
 	prefix string
-	errs   []error
+	errors []error
 }
 
 func (g *groupError) Error() string {
@@ -55,7 +55,7 @@ func (g *groupError) Unwrap() []error {
 
 func (g *groupError) Collection() []error {
 	var errs []error
-	for _, err := range g.errs {
+	for _, err := range g.errors {
 		if subGroupErr, ok := err.(interface{ Collection() []error }); ok {
 			for _, nErr := range subGroupErr.Collection() {
 				errs = append(errs, fmt.Errorf("%s%w", g.prefix, nErr))
@@ -71,7 +71,7 @@ func (g *groupError) Collection() []error {
 //
 // https://tip.golang.org/doc/go1.20#errors
 func (g *groupError) Is(target error) bool {
-	for _, err := range g.Unwrap() {
+	for _, err := range g.errors {
 		if errors.Is(err, target) {
 			return true
 		}
@@ -83,7 +83,7 @@ func (g *groupError) Is(target error) bool {
 //
 // https://tip.golang.org/doc/go1.20#errors
 func (g *groupError) As(target interface{}) bool {
-	for _, err := range g.Unwrap() {
+	for _, err := range g.errors {
 		if errors.As(err, target) {
 			return true
 		}
