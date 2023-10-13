@@ -18,13 +18,14 @@ func Convert(value interface{}, to reflect.Type) (reflect.Value, error) {
 		return reflect.Value{}, fmt.Errorf("cannot cast `%T` to `%s`", value, to.String())
 	}
 	from := reflect.ValueOf(value)
-	if from.Type().ConvertibleTo(to) {
-		if to.Kind() == reflect.Array &&
-			from.Kind() == reflect.Slice &&
-			from.Len() != to.Len() {
-			return reflect.Value{}, fmt.Errorf("cannot cast `%T` (length %d) to `%s`", value, from.Len(), to.String())
-		}
 
+	if to.Kind() == reflect.Array &&
+		from.Kind() == reflect.Slice &&
+		from.Len() != to.Len() {
+		return reflect.Value{}, fmt.Errorf("cannot cast `%T` (length %d) to `%s`", value, from.Len(), to.String())
+	}
+
+	if from.Type().ConvertibleTo(to) {
 		return from.Convert(to), nil
 	}
 
