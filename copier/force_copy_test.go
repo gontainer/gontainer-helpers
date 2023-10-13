@@ -45,10 +45,10 @@ func TestForceCopy(t *testing.T) {
 		)
 
 		err := copier.ForceCopy(from, &to)
-		assert.EqualError(t, err, "cannot cast `[]int` (len 3) to `[2]int`")
+		assert.EqualError(t, err, "cannot cast `[]int` (length 3) to `[2]int`")
 		assert.Empty(t, to)
 	})
-	t.Run("[N]int to [N-2]int", func(t *testing.T) {
+	t.Run("[N]int to [N-1]int", func(t *testing.T) {
 		var (
 			from = [3]int{1, 2, 3}
 			to   [2]int
@@ -56,6 +56,16 @@ func TestForceCopy(t *testing.T) {
 
 		err := copier.ForceCopy(from, &to)
 		assert.EqualError(t, err, "cannot cast `[3]int` to `[2]int`")
+		assert.Empty(t, to)
+	})
+	t.Run("[N]int to [N+1]int", func(t *testing.T) {
+		var (
+			from = [3]int{1, 2, 3}
+			to   [4]int
+		)
+
+		err := copier.ForceCopy(from, &to)
+		assert.EqualError(t, err, "cannot cast `[3]int` to `[4]int`")
 		assert.Empty(t, to)
 	})
 	t.Run("[N]int to []int", func(t *testing.T) {
