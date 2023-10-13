@@ -7,15 +7,15 @@ import (
 	internalReflect "github.com/gontainer/gontainer-helpers/internal/reflect"
 )
 
-// ForceCopy works similar to Copy, but it converts the type whenever it is possible.
+// ConvertAndCopy works similar to Copy, but it converts the type whenever it is possible.
 //
 //	var (
 //		from int = 5
 //		to   uint
 //	)
-//	err := copier.ForceCopy(from, &to)
+//	err := copier.ConvertAndCopy(from, &to)
 //	fmt.Println(to) // 5
-func ForceCopy(from interface{}, to interface{}) error {
+func ConvertAndCopy(from interface{}, to interface{}) error {
 	return copyTo(from, to, true)
 }
 
