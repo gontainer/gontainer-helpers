@@ -6,10 +6,23 @@ import (
 	"github.com/gontainer/gontainer-helpers/copier"
 )
 
+func ExampleForceCopy_ok() {
+	var (
+		from = int(5) // uint is not assignable to int,
+		to   uint     // but ForceCopy can convert the type
+	)
+	err := copier.ForceCopy(from, &to)
+	fmt.Println(to)
+	fmt.Println(err)
+	// Output:
+	// 5
+	// <nil>
+}
+
 func ExampleCopy_ok() {
 	var (
 		from = 5         // the type of the variable `to` can be different from the type of the variable `from`
-		to   interface{} // as long as the value of `from` is assignable to the `to`
+		to   interface{} // as long as the value of the `from` is assignable to the `to`
 	)
 	err := copier.Copy(from, &to)
 	fmt.Println(to)
@@ -19,7 +32,20 @@ func ExampleCopy_ok() {
 	// <nil>
 }
 
-func ExampleCopy_err() {
+func ExampleCopy_err1() {
+	var (
+		from = int(5)
+		to   uint
+	)
+	err := copier.Copy(from, &to)
+	fmt.Println(to)
+	fmt.Println(err)
+	// Output:
+	// 0
+	// reflect.Set: value of type int is not assignable to type uint
+}
+
+func ExampleCopy_err2() {
 	var (
 		from float32 = 5
 		to   uint    = 0
