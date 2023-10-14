@@ -31,20 +31,19 @@ func (c *container) get(id string, contextualBag keyValue) (result interface{}, 
 	}
 	switch currentScope { // do not create cached objects more than once in concurrent invocations
 	case
-		scopeShared,     // cache in c.cacheShared
+		scopeShared: // cache in c.cacheShared
+		c.serviceLockers[id].Lock()
+		defer c.serviceLockers[id].Unlock()
+		if s, cached := c.cacheShared.get(id); cached {
+			return s, nil
+		}
+	case
 		scopeContextual: // cache in contextualBag (it can be shared for the same context.Context)
 		c.serviceLockers[id].Lock()
 		defer c.serviceLockers[id].Unlock()
-	}
-
-	// scopeShared: check whether the service is already created, if yes, return it
-	if s, cached := c.cacheShared.get(id); cached {
-		return s, nil
-	}
-
-	// scopeContextual: check whether the service is already created, if yes, return it
-	if s, cached := contextualBag.get(id); cached {
-		return s, nil
+		if s, cached := contextualBag.get(id); cached {
+			return s, nil
+		}
 	}
 
 	// constructor
