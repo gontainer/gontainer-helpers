@@ -37,12 +37,12 @@ func ExampleNewContainer_wrongContext() {
 	c.OverrideService("five", five)
 
 	defer func() {
-		fmt.Println(recover())
+		fmt.Println("panic:", recover())
 	}()
 	_, _ = c.GetContext(ctx, "five")
 
 	// Output:
-	// the given context is not attached to the given container, call `ctx = c.ContextWithContainer(ctx)`
+	// panic: the given context is not attached to the given container, call `ctx = c.ContextWithContainer(ctx)`
 }
 
 func ExampleNewContainer_getContext() {
