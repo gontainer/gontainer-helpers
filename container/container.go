@@ -28,9 +28,9 @@ type container struct {
 	id             ctxKey
 }
 
-type ctxKey int64
+type ctxKey uint64
 
-var currentContainerID int64
+var currentContainerID uint64
 
 // NewContainer creates a concurrent-safe DI container.
 func NewContainer() *container {
@@ -39,7 +39,7 @@ func NewContainer() *container {
 		cacheShared:    newSafeMap(),
 		serviceLockers: make(map[string]sync.Locker),
 		globalLocker:   &sync.RWMutex{},
-		id:             ctxKey(atomic.AddInt64(&currentContainerID, 1)),
+		id:             ctxKey(atomic.AddUint64(&currentContainerID, 1)),
 	}
 	c.graphBuilder = newGraphBuilder(c)
 	return c
