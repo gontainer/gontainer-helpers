@@ -8,7 +8,7 @@ import (
 	"github.com/gontainer/gontainer-helpers/setter"
 )
 
-func (c *container) get(id string, contextualBag map[string]interface{}) (result interface{}, err error) {
+func (c *container) get(id string, contextualBag keyValue) (result interface{}, err error) {
 	defer func() {
 		if err != nil {
 			err = errors.PrefixedGroup(fmt.Sprintf("container.get(%+q): ", id), err)
@@ -29,7 +29,10 @@ func (c *container) get(id string, contextualBag map[string]interface{}) (result
 	if currentScope == scopeDefault {
 		currentScope = c.graphBuilder.resolveScope(id)
 	}
-	if currentScope == scopeShared { // write operation only for scopeShared
+	switch currentScope { // do not create cached objects more than once in concurrent invocations
+	case
+		scopeShared,     // cache in c.cacheShared
+		scopeContextual: // cache in contextualBag (it can be shared for the same context.Context)
 		c.serviceLockers[id].Lock()
 		defer c.serviceLockers[id].Unlock()
 	}
@@ -40,7 +43,7 @@ func (c *container) get(id string, contextualBag map[string]interface{}) (result
 	}
 
 	// scopeContextual: check whether the s is already created, if yes, return it
-	if s, cached := contextualBag[id]; cached {
+	if s, cached := contextualBag.get(id); cached {
 		return s, nil
 	}
 
@@ -70,9 +73,8 @@ func (c *container) get(id string, contextualBag map[string]interface{}) (result
 
 	switch currentScope {
 	case scopeContextual:
-		// cache the given object only in the given context,
-		// the cache will be destroyed after returning the root Service
-		contextualBag[id] = result
+		// cache the given object only in the given context
+		contextualBag.set(id, result)
 	case scopeShared:
 		// the given instance is cached, and it will be re-used each time you call `container.Call(id)`
 		c.cacheShared.set(id, result)
@@ -81,7 +83,7 @@ func (c *container) get(id string, contextualBag map[string]interface{}) (result
 	return result, nil
 }
 
-func (c *container) createNewService(svc Service, contextualBag map[string]interface{}) (interface{}, error) {
+func (c *container) createNewService(svc Service, contextualBag keyValue) (interface{}, error) {
 	result := svc.value
 
 	if svc.constructor != nil {
@@ -101,7 +103,7 @@ func (c *container) createNewService(svc Service, contextualBag map[string]inter
 func (c *container) setServiceFields(
 	result interface{},
 	svc Service,
-	contextualBag map[string]interface{},
+	contextualBag keyValue,
 ) (interface{}, error) {
 	errs := make([]error, len(svc.fields))
 	for i, f := range svc.fields {
@@ -121,7 +123,7 @@ func (c *container) setServiceFields(
 func (c *container) executeServiceCalls(
 	result interface{},
 	svc Service,
-	contextualBag map[string]interface{},
+	contextualBag keyValue,
 ) (interface{}, error) {
 	errs := make([]error, len(svc.calls))
 
@@ -158,7 +160,7 @@ func (c *container) decorateService(
 	id string,
 	result interface{},
 	svc Service,
-	contextualBag map[string]interface{},
+	contextualBag keyValue,
 ) (interface{}, error) {
 	// for decorators, we have to stop execution on the very first error,
 	// because in case of error they may return a nil-value

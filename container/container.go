@@ -63,7 +63,8 @@ func (c *container) OverrideService(id string, s Service) {
 	switch s.scope {
 	case
 		scopeDefault,
-		scopeShared:
+		scopeShared,
+		scopeContextual:
 		c.serviceLockers[id] = &sync.Mutex{}
 	}
 }
@@ -101,12 +102,12 @@ func (c *container) CopyServiceTo(id string, dst interface{}) (err error) {
 	return copier.Copy(r, dst)
 }
 
-func (c *container) contextBag(ctx context.Context) map[string]interface{} {
+func (c *container) contextBag(ctx context.Context) keyValue {
 	bag := ctx.Value(c.id)
 	if bag == nil {
 		panic("the given context is not attached to the given container, call `ctx = container.ContextWithContainer(ctx, c)`")
 	}
-	return bag.(map[string]interface{})
+	return bag.(keyValue)
 }
 
 func (c *container) GetWithContext(ctx context.Context, id string) (interface{}, error) {
@@ -120,10 +121,10 @@ func (c *container) Get(id string) (interface{}, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
-	return c.get(id, make(map[string]interface{}))
+	return c.get(id, newSafeMap())
 }
 
-func (c *container) resolveDeps(contextualBag map[string]interface{}, deps ...Dependency) ([]interface{}, error) {
+func (c *container) resolveDeps(contextualBag keyValue, deps ...Dependency) ([]interface{}, error) {
 	r := make([]interface{}, len(deps))
 	errs := make([]error, len(deps))
 
@@ -136,7 +137,7 @@ func (c *container) resolveDeps(contextualBag map[string]interface{}, deps ...De
 	return r, errors.Group(errs...)
 }
 
-func (c *container) resolveDep(contextualBag map[string]interface{}, d Dependency) (interface{}, error) {
+func (c *container) resolveDep(contextualBag keyValue, d Dependency) (interface{}, error) {
 	switch d.type_ {
 	case dependencyNil:
 		return d.value, nil
@@ -167,7 +168,7 @@ func (c *container) GetTaggedBy(tag string) ([]interface{}, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
-	return c.getTaggedBy(tag, make(map[string]interface{}))
+	return c.getTaggedBy(tag, newSafeMap())
 }
 
 func (c *container) GetTaggedByWithContext(ctx context.Context, tag string) ([]interface{}, error) {
@@ -177,7 +178,7 @@ func (c *container) GetTaggedByWithContext(ctx context.Context, tag string) ([]i
 	return c.getTaggedBy(tag, c.contextBag(ctx))
 }
 
-func (c *container) getTaggedBy(tag string, contextualBag map[string]interface{}) (result []interface{}, err error) {
+func (c *container) getTaggedBy(tag string, contextualBag keyValue) (result []interface{}, err error) {
 	defer func() {
 		if err != nil {
 			err = errors.PrefixedGroup(fmt.Sprintf("container.getTaggedBy(%+q): ", tag), err)
