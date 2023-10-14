@@ -105,7 +105,7 @@ func (c *container) ContextWithContainer(ctx context.Context) context.Context {
 func (c *container) contextBag(ctx context.Context) map[string]interface{} {
 	bag := ctx.Value(c.contextID)
 	if bag == nil {
-		panic("the given context is not attached to the given container, call `ctx = container.ContextWithContainer(ctx)`")
+		panic("the given context is not attached to the given container, call `ctx = c.ContextWithContainer(ctx)`")
 	}
 	return bag.(map[string]interface{})
 }
