@@ -24,7 +24,7 @@ func (s safeMap) set(id string, v interface{}) {
 	s.data[id] = v
 }
 
-func (s safeMap) get(id string) (interface{}, bool) {
+func (s safeMap) get(id string) (value interface{}, exists bool) {
 	s.locker.RLock()
 	defer s.locker.RUnlock()
 
