@@ -51,11 +51,11 @@ func copyTo(from interface{}, to interface{}, convert bool) (err error) {
 			return err
 		}
 	} else {
-		f = reflect.ValueOf(from)
-	}
-
-	if from == nil && internalReflect.IsNilable(t.Elem().Kind()) {
-		f = reflect.Zero(t.Elem().Type())
+		if from == nil && internalReflect.IsNilable(t.Elem().Kind()) {
+			f = reflect.Zero(t.Elem().Type())
+		} else {
+			f = reflect.ValueOf(from)
+		}
 	}
 
 	t.Elem().Set(f)
