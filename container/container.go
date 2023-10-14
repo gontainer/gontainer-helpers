@@ -82,6 +82,9 @@ func (c *container) AddDecorator(tag string, decorator interface{}, deps ...Depe
 //
 //	var server *http.Server
 //	container.CopyServiceTo("server", &server)
+//
+// Deprecated: use copier.Copy or copier.ConvertAndCopy.
+// It's been deprecated to avoid adding a complex method `CopyServiceToContext`.
 func (c *container) CopyServiceTo(id string, dst interface{}) (err error) {
 	defer func() {
 		if err != nil {
