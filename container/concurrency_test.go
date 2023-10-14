@@ -1,6 +1,7 @@
 package container_test
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"testing"
@@ -59,6 +60,35 @@ func Test_container_concurrency(t *testing.T) {
 			go func() {
 				defer wg.Done()
 				_, _ = c.Get(fmt.Sprintf("service%d", i))
+			}()
+		}
+		wg.Wait()
+	})
+
+	t.Run("Cache for shared services with context", func(t *testing.T) {
+		// make sure we don't have the following errors
+		// when we cache contextual services in context
+		// fatal error: concurrent map read and map write
+		// fatal error: concurrent map writes
+
+		c := container.NewContainer()
+
+		for i := 0; i < max; i++ {
+			s := container.NewService()
+			s.SetValue(struct{}{})
+			s.ScopeContextual()
+			c.OverrideService(fmt.Sprintf("service%d", i), s)
+		}
+
+		ctx := container.ContextWithContainer(context.Background(), c)
+
+		wg := sync.WaitGroup{}
+		wg.Add(max)
+		for j := 0; j < max; j++ {
+			i := j
+			go func() {
+				defer wg.Done()
+				_, _ = c.GetWithContext(ctx, fmt.Sprintf("service%d", i))
 			}()
 		}
 		wg.Wait()
