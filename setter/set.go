@@ -17,6 +17,7 @@ func set(strct reflect.Value, field string, val interface{}) error {
 		return fmt.Errorf("field `%s` does not exist", field)
 	}
 
+	// TODO change func Set and add func ConvertAndSet
 	v, err := internalReflect.Convert(val, f.Type())
 	if err != nil {
 		return err
