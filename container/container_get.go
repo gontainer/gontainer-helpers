@@ -76,7 +76,7 @@ func (c *container) get(id string, contextualBag keyValue) (result interface{}, 
 		// cache the given object only in the given context
 		contextualBag.set(id, result)
 	case scopeShared:
-		// the given instance is cached, and it will be re-used each time you call `container.Call(id)`
+		// the given instance is cached, and it will be re-used each time you call `container.Get(id)`
 		c.cacheShared.set(id, result)
 	}
 
