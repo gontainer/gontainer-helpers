@@ -30,7 +30,7 @@ func ExampleNewContainer_wrongContext() {
 
 	ctx := context.Background()
 	// uncomment the following line to remove the panic:
-	// ctx = c.ContextWithContainer(ctx)
+	// ctx = container.ContextWithContainer(ctx)
 
 	five := container.NewService()
 	five.SetValue(5)
@@ -42,17 +42,17 @@ func ExampleNewContainer_wrongContext() {
 	_, _ = c.GetWithContext(ctx, "five")
 
 	// Output:
-	// panic: the given context is not attached to the given container, call `ctx = c.ContextWithContainer(ctx)`
+	// panic: the given context is not attached to the given container, call `ctx = container.ContextWithContainer(ctx, c)`
 }
 
 func ExampleNewContainer_getWithContext() {
 	c := container.NewContainer()
 
 	ctx := context.Background()
-	ctx = c.ContextWithContainer(ctx)
+	ctx = container.ContextWithContainer(ctx, c)
 	nestedCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	anotherCtx := c.ContextWithContainer(context.Background())
+	anotherCtx := container.ContextWithContainer(context.Background(), c)
 
 	pointer := container.NewService()
 	pointer.SetConstructor(func() *int {

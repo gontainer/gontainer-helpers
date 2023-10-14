@@ -101,17 +101,10 @@ func (c *container) CopyServiceTo(id string, dst interface{}) (err error) {
 	return copier.Copy(r, dst)
 }
 
-func (c *container) ContextWithContainer(ctx context.Context) context.Context {
-	if ctx.Value(c.id) != nil {
-		return ctx
-	}
-	return context.WithValue(ctx, c.id, make(map[string]interface{}))
-}
-
 func (c *container) contextBag(ctx context.Context) map[string]interface{} {
 	bag := ctx.Value(c.id)
 	if bag == nil {
-		panic("the given context is not attached to the given container, call `ctx = c.ContextWithContainer(ctx)`")
+		panic("the given context is not attached to the given container, call `ctx = container.ContextWithContainer(ctx, c)`")
 	}
 	return bag.(map[string]interface{})
 }
