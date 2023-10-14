@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"sync"
+	"sync/atomic"
 
 	"github.com/gontainer/gontainer-helpers/caller"
 	"github.com/gontainer/gontainer-helpers/copier"
@@ -24,10 +25,12 @@ type container struct {
 	serviceLockers map[string]sync.Locker
 	globalLocker   rwlocker
 	decorators     []serviceDecorator
-	contextID      ctxKey
+	id             ctxKey
 }
 
-type ctxKey string
+type ctxKey int64
+
+var currentContainerID int64
 
 // NewContainer creates a concurrent-safe DI container.
 func NewContainer() *container {
@@ -36,9 +39,9 @@ func NewContainer() *container {
 		cacheShared:    newSafeMap(),
 		serviceLockers: make(map[string]sync.Locker),
 		globalLocker:   &sync.RWMutex{},
+		id:             ctxKey(atomic.AddInt64(&currentContainerID, 1)),
 	}
 	c.graphBuilder = newGraphBuilder(c)
-	c.contextID = ctxKey(fmt.Sprintf("container-%p", c))
 	return c
 }
 
@@ -99,14 +102,14 @@ func (c *container) CopyServiceTo(id string, dst interface{}) (err error) {
 }
 
 func (c *container) ContextWithContainer(ctx context.Context) context.Context {
-	if ctx.Value(c.contextID) != nil {
+	if ctx.Value(c.id) != nil {
 		return ctx
 	}
-	return context.WithValue(ctx, c.contextID, make(map[string]interface{}))
+	return context.WithValue(ctx, c.id, make(map[string]interface{}))
 }
 
 func (c *container) contextBag(ctx context.Context) map[string]interface{} {
-	bag := ctx.Value(c.contextID)
+	bag := ctx.Value(c.id)
 	if bag == nil {
 		panic("the given context is not attached to the given container, call `ctx = c.ContextWithContainer(ctx)`")
 	}
