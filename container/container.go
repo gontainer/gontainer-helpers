@@ -3,7 +3,6 @@ package container
 import (
 	"context"
 	"fmt"
-	"reflect"
 	"sort"
 	"sync"
 
@@ -25,8 +24,10 @@ type container struct {
 	serviceLockers map[string]sync.Locker
 	globalLocker   rwlocker
 	decorators     []serviceDecorator
-	contextID      string
+	contextID      ctxKey
 }
+
+type ctxKey string
 
 // NewContainer creates a concurrent-safe DI container.
 func NewContainer() *container {
@@ -37,7 +38,7 @@ func NewContainer() *container {
 		globalLocker:   &sync.RWMutex{},
 	}
 	c.graphBuilder = newGraphBuilder(c)
-	c.contextID = fmt.Sprintf("%s#gontainer-%p", reflect.ValueOf(c).Elem().Type().PkgPath(), c)
+	c.contextID = ctxKey(fmt.Sprintf("container-%p", c))
 	return c
 }
 
