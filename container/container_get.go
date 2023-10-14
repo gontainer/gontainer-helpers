@@ -37,12 +37,12 @@ func (c *container) get(id string, contextualBag keyValue) (result interface{}, 
 		defer c.serviceLockers[id].Unlock()
 	}
 
-	// scopeShared
+	// scopeShared: check whether the service is already created, if yes, return it
 	if s, cached := c.cacheShared.get(id); cached {
 		return s, nil
 	}
 
-	// scopeContextual: check whether the s is already created, if yes, return it
+	// scopeContextual: check whether the service is already created, if yes, return it
 	if s, cached := contextualBag.get(id); cached {
 		return s, nil
 	}
