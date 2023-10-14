@@ -27,7 +27,7 @@ func newMyContainerWithOverriddenFunc() *myContainerWithOverriddenFunc {
 	}
 }
 
-func (*myContainerWithOverriddenFunc) getContainerID() int {
+func (*myContainerWithOverriddenFunc) getContainerID() int { //nolint:all
 	panic("it should not be invoked")
 }
 
