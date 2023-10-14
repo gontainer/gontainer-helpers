@@ -42,7 +42,7 @@ func ExampleNewContainer_wrongContext() {
 	_, _ = c.GetContext(ctx, "five")
 
 	// Output:
-	// the given context is not attached to the given container, call `ctx = container.ContextWithContainer(ctx)`
+	// the given context is not attached to the given container, call `ctx = c.ContextWithContainer(ctx)`
 }
 
 func ExampleNewContainer_getContext() {
