@@ -13,7 +13,7 @@ import (
 func Test_paramContainer_concurrency(t *testing.T) {
 	const max = 100
 
-	t.Run("Cache for shared services", func(t *testing.T) {
+	t.Run("Cache for shared params", func(t *testing.T) {
 		// fatal error: concurrent map writes
 
 		c := container.NewParamContainer()
