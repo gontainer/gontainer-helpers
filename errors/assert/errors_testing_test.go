@@ -155,4 +155,37 @@ func TestEqualErrorGroup(t *testing.T) {
 			mt.String(),
 		)
 	})
+
+	t.Run("Equal errors [error #5]", func(t *testing.T) {
+		mt := new(mockTesting)
+		errAssert.EqualErrorGroup(
+			mt,
+			errors.Group(os.ErrClosed, os.ErrInvalid),
+			[]string{
+				"invalid argument",
+				"file already exists",
+				"file already closed",
+			},
+		)
+		assert.Equal(
+			t,
+			`
+	Error Trace:	
+	Error:      	Error message not equal:
+	            	expected: "invalid argument"
+	            	actual  : "file already closed"
+
+	Error Trace:	
+	Error:      	Error message not equal:
+	            	expected: "file already exists"
+	            	actual  : "invalid argument"
+
+	Error Trace:	
+	Error:      	"[file already closed invalid argument]" should have 3 item(s), but has 2
+	Messages:   	file already closed
+	            	invalid argument
+`,
+			mt.String(),
+		)
+	})
 }
