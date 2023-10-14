@@ -37,6 +37,10 @@ func (c *container) get(id string, contextualBag keyValue) (result interface{}, 
 		if s, cached := c.cacheShared.get(id); cached {
 			return s, nil
 		}
+		// the given instance is cached, and it will be re-used each time you call `container.Get(id)`
+		defer func() {
+			c.cacheShared.set(id, result)
+		}()
 	case
 		scopeContextual: // cache in contextualBag (it can be shared for the same context.Context)
 		c.serviceLockers[id].Lock()
@@ -44,6 +48,10 @@ func (c *container) get(id string, contextualBag keyValue) (result interface{}, 
 		if s, cached := contextualBag.get(id); cached {
 			return s, nil
 		}
+		// cache the given object only in the given context
+		defer func() {
+			contextualBag.set(id, result)
+		}()
 	}
 
 	// constructor
@@ -68,15 +76,6 @@ func (c *container) get(id string, contextualBag keyValue) (result interface{}, 
 	result, err = c.decorateService(id, result, svc, contextualBag)
 	if err != nil {
 		return nil, err
-	}
-
-	switch currentScope {
-	case scopeContextual:
-		// cache the given object only in the given context
-		contextualBag.set(id, result)
-	case scopeShared:
-		// the given instance is cached, and it will be re-used each time you call `container.Get(id)`
-		c.cacheShared.set(id, result)
 	}
 
 	return result, nil
