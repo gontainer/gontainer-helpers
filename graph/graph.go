@@ -112,6 +112,10 @@ func New() *graph {
 	}
 }
 
+// sortCycle sorts the given cycles.
+//
+// Gonum uses maps internally, so the result of topo.DirectedCyclesIn is unpredictable.
+// To make results consistent with each execution, we need to sort them.
 func sortCycle(cycles [][]gonumGraph.Node) {
 	sort.SliceStable(cycles, func(i, j int) bool {
 		l := len(cycles[i])
