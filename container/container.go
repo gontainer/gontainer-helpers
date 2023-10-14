@@ -116,7 +116,7 @@ func (c *container) contextBag(ctx context.Context) map[string]interface{} {
 	return bag.(map[string]interface{})
 }
 
-func (c *container) GetContextual(ctx context.Context, id string) (interface{}, error) {
+func (c *container) GetWithContext(ctx context.Context, id string) (interface{}, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
@@ -177,7 +177,7 @@ func (c *container) GetTaggedBy(tag string) ([]interface{}, error) {
 	return c.getTaggedBy(tag, make(map[string]interface{}))
 }
 
-func (c *container) GetTaggedByContextual(ctx context.Context, tag string) ([]interface{}, error) {
+func (c *container) GetTaggedByWithContext(ctx context.Context, tag string) ([]interface{}, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
