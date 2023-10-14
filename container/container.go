@@ -1,7 +1,9 @@
 package container
 
 import (
+	"context"
 	"fmt"
+	"reflect"
 	"sort"
 	"sync"
 
@@ -23,6 +25,7 @@ type container struct {
 	serviceLockers map[string]sync.Locker
 	globalLocker   rwlocker
 	decorators     []serviceDecorator
+	contextID      string
 }
 
 // NewContainer creates a concurrent-safe DI container.
@@ -34,6 +37,7 @@ func NewContainer() *container {
 		globalLocker:   &sync.RWMutex{},
 	}
 	c.graphBuilder = newGraphBuilder(c)
+	c.contextID = fmt.Sprintf("%s#gontainer-%p", reflect.ValueOf(c).Elem().Type().PkgPath(), c)
 	return c
 }
 
@@ -90,6 +94,28 @@ func (c *container) CopyServiceTo(id string, dst interface{}) (err error) {
 	return copier.Copy(r, dst)
 }
 
+func (c *container) ContextWithContainer(ctx context.Context) context.Context {
+	if ctx.Value(c.contextID) != nil {
+		return ctx
+	}
+	return context.WithValue(ctx, c.contextID, make(map[string]interface{}))
+}
+
+func (c *container) contextBag(ctx context.Context) map[string]interface{} {
+	bag := ctx.Value(c.contextID)
+	if bag == nil {
+		panic("the given context is not attached to the given container, call `ctx = container.ContextWithContainer(ctx)`")
+	}
+	return bag.(map[string]interface{})
+}
+
+func (c *container) GetContext(ctx context.Context, id string) (interface{}, error) {
+	c.globalLocker.RLock()
+	defer c.globalLocker.RUnlock()
+
+	return c.get(id, c.contextBag(ctx))
+}
+
 func (c *container) Get(id string) (interface{}, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
@@ -142,6 +168,13 @@ func (c *container) GetTaggedBy(tag string) ([]interface{}, error) {
 	defer c.globalLocker.RUnlock()
 
 	return c.getTaggedBy(tag, make(map[string]interface{}))
+}
+
+func (c *container) GetTaggedByContext(ctx context.Context, tag string) ([]interface{}, error) {
+	c.globalLocker.RLock()
+	defer c.globalLocker.RUnlock()
+
+	return c.getTaggedBy(tag, c.contextBag(ctx))
 }
 
 func (c *container) getTaggedBy(tag string, contextualBag map[string]interface{}) (result []interface{}, err error) {
