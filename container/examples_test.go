@@ -64,28 +64,28 @@ func ExampleNewContainer_getContext() {
 	c.OverrideService("pointer", pointer)
 
 	var (
-		pointerFromGetContext1, _            = c.GetContext(ctx, "pointer")
-		pointerFromGetContext2, _            = c.GetContext(ctx, "pointer")
-		pointerFromGetContextUsingNested, _  = c.GetContext(nestedCtx, "pointer")
-		pointerFromGetContextUsingAnother, _ = c.GetContext(anotherCtx, "pointer")
-		pointerFromGet, _                    = c.Get("pointer")
+		ptrFromGetContext1, _            = c.GetContext(ctx, "pointer")
+		ptrFromGetContext2, _            = c.GetContext(ctx, "pointer")
+		ptrFromGetContextUsingNested, _  = c.GetContext(nestedCtx, "pointer")
+		ptrFromGetContextUsingAnother, _ = c.GetContext(anotherCtx, "pointer")
+		ptrFromGet, _                    = c.Get("pointer")
 	)
 
 	fmt.Println(
 		"GetContext() returns the same value for the same context:",
-		pointerFromGetContext1 == pointerFromGetContext2,
+		ptrFromGetContext1 == ptrFromGetContext2,
 	)
 	fmt.Println(
 		"GetContext() returns the same value for parent and nested one:",
-		pointerFromGetContext1 == pointerFromGetContextUsingNested,
+		ptrFromGetContext1 == ptrFromGetContextUsingNested,
 	)
 	fmt.Println(
 		"GetContext() returns different values for different contexts:",
-		pointerFromGetContext1 != pointerFromGetContextUsingAnother,
+		ptrFromGetContext1 != ptrFromGetContextUsingAnother,
 	)
 	fmt.Println(
 		"GetContext() and Get() return different values:",
-		pointerFromGetContext1 != pointerFromGet,
+		ptrFromGetContext1 != ptrFromGet,
 	)
 
 	// Output:
