@@ -114,6 +114,15 @@ func (c *container) contextBag(ctx context.Context) keyValue {
 	return bag.(keyValue)
 }
 
+type _ interface {
+	GetWithContext(ctx context.Context, id string) (interface{}, error)
+	Get(id string) (interface{}, error)
+}
+
+type _ interface {
+	IsTaggedBy(id string, tag string) bool
+}
+
 func (c *container) GetWithContext(ctx context.Context, id string) (interface{}, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
