@@ -155,22 +155,22 @@ func Test_container_get_doNotCacheOnError(t *testing.T) {
 
 			ctx := container.ContextWithContainer(context.Background(), c)
 
-			five, err := c.GetWithContext(ctx, "five")
+			five, err := c.GetInContext(ctx, "five")
 			assert.EqualError(t, err, `container.get("five"): constructor: my error`)
 			assert.Nil(t, five)
 
 			// second invocation does not return error
-			five, err = c.GetWithContext(ctx, "five")
+			five, err = c.GetInContext(ctx, "five")
 			assert.NoError(t, err)
 			assert.Equal(t, 5, five)
 
 			// third invocation should be cached
-			five, err = c.GetWithContext(ctx, "five")
+			five, err = c.GetInContext(ctx, "five")
 			assert.NoError(t, err)
 			assert.Equal(t, 5, five)
 
 			// constructor has been invoked twice,
-			// even tho `c.GetWithContext(ctx, "five)` has been executed 3 times
+			// even tho `c.GetInContext(ctx, "five)` has been executed 3 times
 			// because the result of the second invocation has been cached
 			assert.Equal(t, uint64(2), *counter)
 		})
@@ -210,19 +210,19 @@ func Test_container_get_cache(t *testing.T) {
 		go func() {
 			defer wg.Done()
 
-			_, err := c.GetWithContext(ctx1, "serviceCtx")
+			_, err := c.GetInContext(ctx1, "serviceCtx")
 			assert.NoError(t, err)
 		}()
 		go func() {
 			defer wg.Done()
 
-			_, err := c.GetWithContext(ctx2, "serviceCtx")
+			_, err := c.GetInContext(ctx2, "serviceCtx")
 			assert.NoError(t, err)
 		}()
 		go func() {
 			defer wg.Done()
 
-			_, err := c.GetWithContext(ctx3, "serviceCtx")
+			_, err := c.GetInContext(ctx3, "serviceCtx")
 			assert.NoError(t, err)
 		}()
 		go func() {
