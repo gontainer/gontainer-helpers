@@ -39,13 +39,13 @@ func ExampleNewContainer_wrongContext() {
 	defer func() {
 		fmt.Println("panic:", recover())
 	}()
-	_, _ = c.GetWithContext(ctx, "five")
+	_, _ = c.GetInContext(ctx, "five")
 
 	// Output:
 	// panic: the given context is not attached to the given container, call `ctx = container.ContextWithContainer(ctx, c)`
 }
 
-func ExampleNewContainer_getWithContext() {
+func ExampleNewContainer_getInContext() {
 	c := container.NewContainer()
 
 	ctx := context.Background()
@@ -64,35 +64,35 @@ func ExampleNewContainer_getWithContext() {
 	c.OverrideService("pointer", pointer)
 
 	var (
-		ptrFromGetContext1, _            = c.GetWithContext(ctx, "pointer")
-		ptrFromGetContext2, _            = c.GetWithContext(ctx, "pointer")
-		ptrFromGetContextUsingNested, _  = c.GetWithContext(nestedCtx, "pointer")
-		ptrFromGetContextUsingAnother, _ = c.GetWithContext(anotherCtx, "pointer")
+		ptrFromGetContext1, _            = c.GetInContext(ctx, "pointer")
+		ptrFromGetContext2, _            = c.GetInContext(ctx, "pointer")
+		ptrFromGetContextUsingNested, _  = c.GetInContext(nestedCtx, "pointer")
+		ptrFromGetContextUsingAnother, _ = c.GetInContext(anotherCtx, "pointer")
 		ptrFromGet, _                    = c.Get("pointer")
 	)
 
 	fmt.Println(
-		"GetWithContext() returns the same value for the same context:",
+		"GetInContext() returns the same value for the same context:",
 		ptrFromGetContext1 == ptrFromGetContext2,
 	)
 	fmt.Println(
-		"GetWithContext() returns the same value for parent and nested one:",
+		"GetInContext() returns the same value for parent and nested one:",
 		ptrFromGetContext1 == ptrFromGetContextUsingNested,
 	)
 	fmt.Println(
-		"GetWithContext() returns different values for different contexts:",
+		"GetInContext() returns different values for different contexts:",
 		ptrFromGetContext1 != ptrFromGetContextUsingAnother,
 	)
 	fmt.Println(
-		"GetWithContext() and Get() return different values:",
+		"GetInContext() and Get() return different values:",
 		ptrFromGetContext1 != ptrFromGet,
 	)
 
 	// Output:
-	// GetWithContext() returns the same value for the same context: true
-	// GetWithContext() returns the same value for parent and nested one: true
-	// GetWithContext() returns different values for different contexts: true
-	// GetWithContext() and Get() return different values: true
+	// GetInContext() returns the same value for the same context: true
+	// GetInContext() returns the same value for parent and nested one: true
+	// GetInContext() returns different values for different contexts: true
+	// GetInContext() and Get() return different values: true
 }
 
 func ExampleNewContainer_simple() {

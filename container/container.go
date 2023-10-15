@@ -114,11 +114,16 @@ func (c *container) contextBag(ctx context.Context) keyValue {
 	return bag.(keyValue)
 }
 
-func (c *container) GetWithContext(ctx context.Context, id string) (interface{}, error) {
+func (c *container) GetInContext(ctx context.Context, id string) (interface{}, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
 	return c.get(id, c.contextBag(ctx))
+}
+
+// Deprecated: use GetInContext()
+func (c *container) GetWithContext(ctx context.Context, id string) (interface{}, error) {
+	return c.GetInContext(ctx, id)
 }
 
 func (c *container) Get(id string) (interface{}, error) {
@@ -175,11 +180,16 @@ func (c *container) GetTaggedBy(tag string) ([]interface{}, error) {
 	return c.getTaggedBy(tag, newSafeMap())
 }
 
-func (c *container) GetTaggedByWithContext(ctx context.Context, tag string) ([]interface{}, error) {
+func (c *container) GetTaggedByInContext(ctx context.Context, tag string) ([]interface{}, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
 	return c.getTaggedBy(tag, c.contextBag(ctx))
+}
+
+// Deprecated: use GetTaggedByInContext()
+func (c *container) GetTaggedByWithContext(ctx context.Context, tag string) ([]interface{}, error) {
+	return c.GetTaggedByInContext(ctx, tag)
 }
 
 func (c *container) getTaggedBy(tag string, contextualBag keyValue) (result []interface{}, err error) {

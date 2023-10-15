@@ -88,7 +88,7 @@ func Test_container_concurrency(t *testing.T) {
 			i := j
 			go func() {
 				defer wg.Done()
-				_, _ = c.GetWithContext(ctx, fmt.Sprintf("service-context%d", i))
+				_, _ = c.GetInContext(ctx, fmt.Sprintf("service-context%d", i))
 			}()
 		}
 		wg.Wait()
@@ -231,14 +231,14 @@ func Test_container_concurrency(t *testing.T) {
 			go func() {
 				defer wg.Done()
 
-				_, err := c.GetWithContext(ctx, nCtx)
+				_, err := c.GetInContext(ctx, nCtx)
 				assert.NoError(t, err)
 			}()
 
 			go func() {
 				defer wg.Done()
 
-				tagged, err := c.GetTaggedByWithContext(ctx, "tag-context")
+				tagged, err := c.GetTaggedByInContext(ctx, "tag-context")
 
 				assert.NoError(t, err)
 				assert.Len(t, tagged, max)
