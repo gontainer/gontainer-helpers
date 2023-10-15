@@ -139,9 +139,9 @@ func Test_container_concurrency(t *testing.T) {
 
 	t.Run("All", func(t *testing.T) {
 		c := container.NewContainer()
-		n := container.NewService()
-		n.SetValue("Johnny")
-		c.OverrideService("name", n)
+		name := container.NewService()
+		name.SetValue("Johnny")
+		c.OverrideService("name", name)
 
 		newService := func(tag string) container.Service {
 			s := container.NewService()
@@ -167,8 +167,10 @@ func Test_container_concurrency(t *testing.T) {
 
 		wg := sync.WaitGroup{}
 		wg.Add(max * 9)
-		for i := 0; i < max; i++ {
+		for j := 0; j < max; j++ {
+			i := j
 			n := fmt.Sprintf("service%d", i)
+			nCtx := fmt.Sprintf("service-context%d", i)
 
 			go func() {
 				defer wg.Done()
@@ -221,7 +223,7 @@ func Test_container_concurrency(t *testing.T) {
 
 			go func() {
 				defer wg.Done()
-				_, _ = c.GetWithContext(ctx, fmt.Sprintf("service-context%d", i))
+				_, _ = c.GetWithContext(ctx, nCtx)
 			}()
 
 			go func() {
