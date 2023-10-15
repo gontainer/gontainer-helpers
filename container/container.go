@@ -65,7 +65,11 @@ func (c *container) OverrideService(id string, s Service) {
 		scopeDefault,
 		scopeShared,
 		scopeContextual:
-		c.serviceLockers[id] = &sync.Mutex{}
+		if _, ok := c.serviceLockers[id]; !ok {
+			c.serviceLockers[id] = &sync.Mutex{}
+		}
+	default:
+		delete(c.serviceLockers, id)
 	}
 }
 
