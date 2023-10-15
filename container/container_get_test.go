@@ -1,8 +1,12 @@
 package container_test
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"os"
+	"sync"
+	"sync/atomic"
 	"testing"
 
 	"github.com/gontainer/gontainer-helpers/container"
@@ -117,4 +121,122 @@ func Test_container_setServiceFields(t *testing.T) {
 		assert.Nil(t, svc)
 		assertErr.EqualErrorGroup(t, err, expected)
 	})
+}
+
+func Test_container_get_doNotCacheOnError(t *testing.T) {
+	for _, tmp := range []string{"shared", "contextual", "default"} {
+		scope := tmp
+		t.Run(fmt.Sprintf("Scope %s", scope), func(t *testing.T) {
+			counter := new(uint64)
+
+			first := true
+			fiveSvc := container.NewService()
+			fiveSvc.SetConstructor(func() (interface{}, error) {
+				atomic.AddUint64(counter, 1)
+
+				if first {
+					first = false
+					return nil, errors.New("my error")
+				}
+
+				return 5, nil
+			})
+			switch scope {
+			case "shared":
+				fiveSvc.ScopeShared()
+			case "contextual":
+				fiveSvc.ScopeContextual()
+			case "default":
+				fiveSvc.ScopeDefault()
+			}
+
+			c := container.NewContainer()
+			c.OverrideService("five", fiveSvc)
+
+			ctx := container.ContextWithContainer(context.Background(), c)
+
+			five, err := c.GetWithContext(ctx, "five")
+			assert.EqualError(t, err, `container.get("five"): constructor: my error`)
+			assert.Nil(t, five)
+
+			// second invocation does not return error
+			five, err = c.GetWithContext(ctx, "five")
+			assert.NoError(t, err)
+			assert.Equal(t, 5, five)
+
+			// third invocation should be cached
+			five, err = c.GetWithContext(ctx, "five")
+			assert.NoError(t, err)
+			assert.Equal(t, 5, five)
+
+			// constructor has been invoked twice,
+			// even tho `c.GetWithContext(ctx, "five)` has been executed 3 times
+			// because the result of the second invocation has been cached
+			assert.Equal(t, uint64(2), *counter)
+		})
+	}
+}
+
+func Test_container_get_cache(t *testing.T) {
+	counterCtx := new(uint64)
+	counterShared := new(uint64)
+
+	serviceCtx := container.NewService()
+	serviceCtx.SetConstructor(func() interface{} {
+		atomic.AddUint64(counterCtx, 1)
+		return nil
+	})
+	serviceCtx.ScopeContextual()
+
+	serviceShared := container.NewService()
+	serviceShared.SetConstructor(func() interface{} {
+		atomic.AddUint64(counterShared, 1)
+		return nil
+	})
+
+	c := container.NewContainer()
+	c.OverrideService("serviceCtx", serviceCtx)
+	c.OverrideService("serviceShared", serviceShared)
+
+	ctx1 := container.ContextWithContainer(context.Background(), c)
+	ctx2 := container.ContextWithContainer(context.Background(), c)
+	ctx3 := container.ContextWithContainer(context.Background(), c)
+
+	max := 100
+	wg := sync.WaitGroup{}
+	wg.Add(max * 4)
+
+	for i := 0; i < max; i++ {
+		go func() {
+			defer wg.Done()
+
+			_, err := c.GetWithContext(ctx1, "serviceCtx")
+			assert.NoError(t, err)
+		}()
+		go func() {
+			defer wg.Done()
+
+			_, err := c.GetWithContext(ctx2, "serviceCtx")
+			assert.NoError(t, err)
+		}()
+		go func() {
+			defer wg.Done()
+
+			_, err := c.GetWithContext(ctx3, "serviceCtx")
+			assert.NoError(t, err)
+		}()
+		go func() {
+			defer wg.Done()
+
+			_, err := c.Get("serviceShared")
+			assert.NoError(t, err)
+		}()
+	}
+	wg.Wait()
+
+	// serviceCtx is cached 3 times, in a scope of 3 different requests
+	assert.Equal(t, uint64(3), *counterCtx)
+
+	// serviceShared is shared, so will be cached once, globally
+	assert.Equal(t, uint64(1), *counterShared)
 }

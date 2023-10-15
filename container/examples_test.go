@@ -1,6 +1,7 @@
 package container_test
 
 import (
+	"context"
 	"fmt"
 	"math"
 
@@ -22,6 +23,76 @@ func (p Person) WithName(n string) Person {
 
 type People struct {
 	People []Person
+}
+
+func ExampleNewContainer_wrongContext() {
+	c := container.NewContainer()
+
+	ctx := context.Background()
+	// uncomment the following line to remove the panic:
+	// ctx = container.ContextWithContainer(ctx)
+
+	five := container.NewService()
+	five.SetValue(5)
+	c.OverrideService("five", five)
+
+	defer func() {
+		fmt.Println("panic:", recover())
+	}()
+	_, _ = c.GetWithContext(ctx, "five")
+
+	// Output:
+	// panic: the given context is not attached to the given container, call `ctx = container.ContextWithContainer(ctx, c)`
+}
+
+func ExampleNewContainer_getWithContext() {
+	c := container.NewContainer()
+
+	ctx := context.Background()
+	ctx = container.ContextWithContainer(ctx, c)
+	nestedCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	anotherCtx := container.ContextWithContainer(context.Background(), c)
+
+	pointer := container.NewService()
+	pointer.SetConstructor(func() *int {
+		// we use a pointer, so each invocation of the constructor returns a new pointer,
+		// we know whether it is a new or cached one by comparing them
+		return new(int)
+	})
+	pointer.ScopeContextual() // make it contextual!
+	c.OverrideService("pointer", pointer)
+
+	var (
+		ptrFromGetContext1, _            = c.GetWithContext(ctx, "pointer")
+		ptrFromGetContext2, _            = c.GetWithContext(ctx, "pointer")
+		ptrFromGetContextUsingNested, _  = c.GetWithContext(nestedCtx, "pointer")
+		ptrFromGetContextUsingAnother, _ = c.GetWithContext(anotherCtx, "pointer")
+		ptrFromGet, _                    = c.Get("pointer")
+	)
+
+	fmt.Println(
+		"GetWithContext() returns the same value for the same context:",
+		ptrFromGetContext1 == ptrFromGetContext2,
+	)
+	fmt.Println(
+		"GetWithContext() returns the same value for parent and nested one:",
+		ptrFromGetContext1 == ptrFromGetContextUsingNested,
+	)
+	fmt.Println(
+		"GetWithContext() returns different values for different contexts:",
+		ptrFromGetContext1 != ptrFromGetContextUsingAnother,
+	)
+	fmt.Println(
+		"GetWithContext() and Get() return different values:",
+		ptrFromGetContext1 != ptrFromGet,
+	)
+
+	// Output:
+	// GetWithContext() returns the same value for the same context: true
+	// GetWithContext() returns the same value for parent and nested one: true
+	// GetWithContext() returns different values for different contexts: true
+	// GetWithContext() and Get() return different values: true
 }
 
 func ExampleNewContainer_simple() {

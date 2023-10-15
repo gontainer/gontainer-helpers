@@ -1,6 +1,7 @@
 package container_test
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"testing"
@@ -12,7 +13,7 @@ import (
 func Test_paramContainer_concurrency(t *testing.T) {
 	const max = 100
 
-	t.Run("Cache for shared services", func(t *testing.T) {
+	t.Run("Cache for shared params", func(t *testing.T) {
 		// fatal error: concurrent map writes
 
 		c := container.NewParamContainer()
@@ -64,6 +65,35 @@ func Test_container_concurrency(t *testing.T) {
 		wg.Wait()
 	})
 
+	t.Run("Cache for shared services with context", func(t *testing.T) {
+		// make sure we don't have the following errors
+		// when we cache contextual services in context
+		// fatal error: concurrent map read and map write
+		// fatal error: concurrent map writes
+
+		c := container.NewContainer()
+
+		for i := 0; i < max; i++ {
+			s := container.NewService()
+			s.SetValue(struct{}{})
+			s.ScopeContextual()
+			c.OverrideService(fmt.Sprintf("service-context%d", i), s)
+		}
+
+		ctx := container.ContextWithContainer(context.Background(), c)
+
+		wg := sync.WaitGroup{}
+		wg.Add(max)
+		for j := 0; j < max; j++ {
+			i := j
+			go func() {
+				defer wg.Done()
+				_, _ = c.GetWithContext(ctx, fmt.Sprintf("service-context%d", i))
+			}()
+		}
+		wg.Wait()
+	})
+
 	t.Run("OverrideService", func(t *testing.T) {
 		// fatal error: concurrent map writes
 
@@ -109,11 +139,11 @@ func Test_container_concurrency(t *testing.T) {
 
 	t.Run("All", func(t *testing.T) {
 		c := container.NewContainer()
-		n := container.NewService()
-		n.SetValue("Johnny")
-		c.OverrideService("name", n)
+		name := container.NewService()
+		name.SetValue("Johnny")
+		c.OverrideService("name", name)
 
-		newService := func() container.Service {
+		newService := func(tag string) container.Service {
 			s := container.NewService()
 			s.SetConstructor(func() interface{} {
 				return struct {
@@ -121,24 +151,38 @@ func Test_container_concurrency(t *testing.T) {
 				}{}
 			})
 			s.SetField("Name", container.NewDependencyService("name"))
-			s.Tag("tag", 0)
+			s.Tag(tag, 0)
 			return s
 		}
 
 		for i := 0; i < max; i++ {
-			n := fmt.Sprintf("service%d", i)
-			c.OverrideService(n, newService())
+			c.OverrideService(fmt.Sprintf("service%d", i), newService("tag"))
+
+			sCtx := newService("tag-context")
+			sCtx.ScopeContextual()
+			c.OverrideService(fmt.Sprintf("service-context%d", i), sCtx)
 		}
 
+		ctx := container.ContextWithContainer(context.Background(), c)
+
 		wg := sync.WaitGroup{}
-		wg.Add(max * 7)
+		wg.Add(max * 10)
 		for i := 0; i < max; i++ {
 			n := fmt.Sprintf("service%d", i)
+			nCtx := fmt.Sprintf("service-context%d", i)
 
 			go func() {
 				defer wg.Done()
 
-				c.OverrideService(n, newService())
+				c.OverrideService(n, newService("tag"))
+			}()
+
+			go func() {
+				defer wg.Done()
+
+				s := newService("tag-context")
+				s.ScopeContextual()
+				c.OverrideService(nCtx, s)
 			}()
 
 			go func() {
@@ -179,6 +223,22 @@ func Test_container_concurrency(t *testing.T) {
 				defer wg.Done()
 
 				tagged, err := c.GetTaggedBy("tag")
+
+				assert.NoError(t, err)
+				assert.Len(t, tagged, max)
+			}()
+
+			go func() {
+				defer wg.Done()
+
+				_, err := c.GetWithContext(ctx, nCtx)
+				assert.NoError(t, err)
+			}()
+
+			go func() {
+				defer wg.Done()
+
+				tagged, err := c.GetTaggedByWithContext(ctx, "tag-context")
 
 				assert.NoError(t, err)
 				assert.Len(t, tagged, max)
