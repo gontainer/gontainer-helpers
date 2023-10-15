@@ -39,7 +39,9 @@ func (c *container) get(id string, contextualBag keyValue) (result interface{}, 
 		}
 		// the given instance is cached, and it will be re-used each time you call `container.Get(id)`
 		defer func() {
-			c.cacheShared.set(id, result)
+			if err == nil { // do not cache on error
+				c.cacheShared.set(id, result)
+			}
 		}()
 	case
 		scopeContextual: // cache in contextualBag (it can be shared for the same context.Context)
@@ -50,7 +52,9 @@ func (c *container) get(id string, contextualBag keyValue) (result interface{}, 
 		}
 		// cache the given object only in the given context
 		defer func() {
-			contextualBag.set(id, result)
+			if err == nil { // do not cache on error
+				contextualBag.set(id, result)
+			}
 		}()
 	}
 

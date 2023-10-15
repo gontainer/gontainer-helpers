@@ -1,6 +1,8 @@
 package container_test
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -117,4 +119,44 @@ func Test_container_setServiceFields(t *testing.T) {
 		assert.Nil(t, svc)
 		assertErr.EqualErrorGroup(t, err, expected)
 	})
+}
+
+func Test_container_get_doNotCacheOnError(t *testing.T) {
+	for _, tmp := range []string{"shared", "contextual", "default"} {
+		scope := tmp
+		t.Run(fmt.Sprintf("Scope %s", scope), func(t *testing.T) {
+			firstDone := false
+			fiveSvc := container.NewService()
+			fiveSvc.SetConstructor(func() (interface{}, error) {
+				if !firstDone {
+					firstDone = true
+					return nil, errors.New("my error")
+				}
+
+				return 5, nil
+			})
+			switch scope {
+			case "shared":
+				fiveSvc.ScopeShared()
+			case "contextual":
+				fiveSvc.ScopeContextual()
+			case "default":
+				fiveSvc.ScopeDefault()
+			}
+
+			c := container.NewContainer()
+			c.OverrideService("five", fiveSvc)
+
+			ctx := container.ContextWithContainer(context.Background(), c)
+
+			five, err := c.GetWithContext(ctx, "five")
+			assert.EqualError(t, err, `container.get("five"): constructor: my error`)
+			assert.Nil(t, five)
+
+			// second invocation does not return error
+			five, err = c.GetWithContext(ctx, "five")
+			assert.NoError(t, err)
+			assert.Equal(t, 5, five)
+		})
+	}
 }
