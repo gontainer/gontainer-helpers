@@ -127,11 +127,11 @@ func Test_container_get_doNotCacheOnError(t *testing.T) {
 	for _, tmp := range []string{"shared", "contextual", "default"} {
 		scope := tmp
 		t.Run(fmt.Sprintf("Scope %s", scope), func(t *testing.T) {
-			firstDone := false
+			first := true
 			fiveSvc := container.NewService()
 			fiveSvc.SetConstructor(func() (interface{}, error) {
-				if !firstDone {
-					firstDone = true
+				if first {
+					first = false
 					return nil, errors.New("my error")
 				}
 
