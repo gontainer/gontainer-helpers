@@ -32,9 +32,8 @@ func (*myContainerWithOverriddenFunc) getContainerID() int { //nolint:all
 }
 
 func TestContextWithContainer(t *testing.T) {
-	// Make sure the interface with unexported func works on all GO versions,
-	// it won't cause errors when there is a conflict name
-	// in a struct that embeds the type that implements the interface.
+	// Make sure that approach (embedding struct implementing an interface with unexported methods)
+	// works in all GO's versions
 
 	t.Run("SuperContainer", func(t *testing.T) {
 		container.ContextWithContainer(context.Background(), container.NewSuperContainer())
