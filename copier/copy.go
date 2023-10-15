@@ -30,6 +30,8 @@ func Copy(from interface{}, to interface{}) error {
 }
 
 func copyTo(from interface{}, to interface{}, convert bool) (err error) {
+	// TODO check whether the given value is assignable,
+	// so `recover()` won't be required
 	defer func() {
 		r := recover()
 		if r == nil {
