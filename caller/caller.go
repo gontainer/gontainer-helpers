@@ -42,6 +42,7 @@ func call(fn reflect.Value, params ...interface{}) (res []interface{}, err error
 		return nil, errors.Group(errs...)
 	}
 
+	// todo don't use `recover()`
 	defer func() {
 		r := recover()
 		if r == nil {
