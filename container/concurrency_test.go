@@ -230,7 +230,9 @@ func Test_container_concurrency(t *testing.T) {
 
 			go func() {
 				defer wg.Done()
-				_, _ = c.GetWithContext(ctx, nCtx)
+
+				_, err := c.GetWithContext(ctx, nCtx)
+				assert.NoError(t, err)
 			}()
 
 			go func() {
