@@ -195,17 +195,20 @@ func Test_container_get_cache(t *testing.T) {
 		go func() {
 			defer wg.Done()
 
-			_, _ = c.GetWithContext(ctx1, "serviceCtx")
+			_, err := c.GetWithContext(ctx1, "serviceCtx")
+			assert.NoError(t, err)
 		}()
 		go func() {
 			defer wg.Done()
 
-			_, _ = c.GetWithContext(ctx2, "serviceCtx")
+			_, err := c.GetWithContext(ctx2, "serviceCtx")
+			assert.NoError(t, err)
 		}()
 		go func() {
 			defer wg.Done()
 
-			_, _ = c.Get("serviceShared")
+			_, err := c.Get("serviceShared")
+			assert.NoError(t, err)
 		}()
 	}
 	wg.Wait()
