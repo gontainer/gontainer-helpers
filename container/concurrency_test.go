@@ -77,7 +77,7 @@ func Test_container_concurrency(t *testing.T) {
 			s := container.NewService()
 			s.SetValue(struct{}{})
 			s.ScopeContextual()
-			c.OverrideService(fmt.Sprintf("service%d", i), s)
+			c.OverrideService(fmt.Sprintf("service-context%d", i), s)
 		}
 
 		ctx := container.ContextWithContainer(context.Background(), c)
@@ -88,7 +88,7 @@ func Test_container_concurrency(t *testing.T) {
 			i := j
 			go func() {
 				defer wg.Done()
-				_, _ = c.GetWithContext(ctx, fmt.Sprintf("service%d", i))
+				_, _ = c.GetWithContext(ctx, fmt.Sprintf("service-context%d", i))
 			}()
 		}
 		wg.Wait()
@@ -143,7 +143,7 @@ func Test_container_concurrency(t *testing.T) {
 		n.SetValue("Johnny")
 		c.OverrideService("name", n)
 
-		newService := func() container.Service {
+		newService := func(tag string) container.Service {
 			s := container.NewService()
 			s.SetConstructor(func() interface{} {
 				return struct {
@@ -151,24 +151,29 @@ func Test_container_concurrency(t *testing.T) {
 				}{}
 			})
 			s.SetField("Name", container.NewDependencyService("name"))
-			s.Tag("tag", 0)
+			s.Tag(tag, 0)
 			return s
 		}
 
 		for i := 0; i < max; i++ {
-			n := fmt.Sprintf("service%d", i)
-			c.OverrideService(n, newService())
+			c.OverrideService(fmt.Sprintf("service%d", i), newService("tag"))
+
+			sCtx := newService("tag-context")
+			sCtx.ScopeContextual()
+			c.OverrideService(fmt.Sprintf("service-context%d", i), sCtx)
 		}
 
+		ctx := container.ContextWithContainer(context.Background(), c)
+
 		wg := sync.WaitGroup{}
-		wg.Add(max * 7)
+		wg.Add(max * 9)
 		for i := 0; i < max; i++ {
 			n := fmt.Sprintf("service%d", i)
 
 			go func() {
 				defer wg.Done()
 
-				c.OverrideService(n, newService())
+				c.OverrideService(n, newService("tag"))
 			}()
 
 			go func() {
@@ -209,6 +214,20 @@ func Test_container_concurrency(t *testing.T) {
 				defer wg.Done()
 
 				tagged, err := c.GetTaggedBy("tag")
+
+				assert.NoError(t, err)
+				assert.Len(t, tagged, max)
+			}()
+
+			go func() {
+				defer wg.Done()
+				_, _ = c.GetWithContext(ctx, fmt.Sprintf("service-context%d", i))
+			}()
+
+			go func() {
+				defer wg.Done()
+
+				tagged, err := c.GetTaggedByWithContext(ctx, "tag-context")
 
 				assert.NoError(t, err)
 				assert.Len(t, tagged, max)
