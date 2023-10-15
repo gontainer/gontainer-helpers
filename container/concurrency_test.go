@@ -167,8 +167,7 @@ func Test_container_concurrency(t *testing.T) {
 
 		wg := sync.WaitGroup{}
 		wg.Add(max * 9)
-		for j := 0; j < max; j++ {
-			i := j
+		for i := 0; i < max; i++ {
 			n := fmt.Sprintf("service%d", i)
 			nCtx := fmt.Sprintf("service-context%d", i)
 
