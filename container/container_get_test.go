@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
+	"sync/atomic"
 	"testing"
 
 	"github.com/gontainer/gontainer-helpers/container"
@@ -159,4 +161,58 @@ func Test_container_get_doNotCacheOnError(t *testing.T) {
 			assert.Equal(t, 5, five)
 		})
 	}
+}
+
+func Test_container_get_cache(t *testing.T) {
+	counterCtx := new(uint64)
+	counterShared := new(uint64)
+
+	serviceCtx := container.NewService()
+	serviceCtx.SetConstructor(func() interface{} {
+		atomic.AddUint64(counterCtx, 1)
+		return nil
+	})
+	serviceCtx.ScopeContextual()
+
+	serviceShared := container.NewService()
+	serviceShared.SetConstructor(func() interface{} {
+		atomic.AddUint64(counterShared, 1)
+		return nil
+	})
+
+	c := container.NewContainer()
+	c.OverrideService("serviceCtx", serviceCtx)
+	c.OverrideService("serviceShared", serviceShared)
+
+	ctx1 := container.ContextWithContainer(context.Background(), c)
+	ctx2 := container.ContextWithContainer(context.Background(), c)
+
+	max := 100
+	wg := sync.WaitGroup{}
+	wg.Add(max * 3)
+
+	for i := 0; i < max; i++ {
+		go func() {
+			defer wg.Done()
+
+			_, _ = c.GetWithContext(ctx1, "serviceCtx")
+		}()
+		go func() {
+			defer wg.Done()
+
+			_, _ = c.GetWithContext(ctx2, "serviceCtx")
+		}()
+		go func() {
+			defer wg.Done()
+
+			_, _ = c.Get("serviceShared")
+		}()
+	}
+	wg.Wait()
+
+	// serviceCtx is cached twice, in a scope of 2 different requests
+	assert.Equal(t, uint64(2), *counterCtx)
+
+	// serviceShared is shared, so will be cached once, globally
+	assert.Equal(t, uint64(1), *counterShared)
 }
