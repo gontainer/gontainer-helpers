@@ -127,9 +127,13 @@ func Test_container_get_doNotCacheOnError(t *testing.T) {
 	for _, tmp := range []string{"shared", "contextual", "default"} {
 		scope := tmp
 		t.Run(fmt.Sprintf("Scope %s", scope), func(t *testing.T) {
+			counter := new(uint64)
+
 			first := true
 			fiveSvc := container.NewService()
 			fiveSvc.SetConstructor(func() (interface{}, error) {
+				atomic.AddUint64(counter, 1)
+
 				if first {
 					first = false
 					return nil, errors.New("my error")
@@ -159,6 +163,16 @@ func Test_container_get_doNotCacheOnError(t *testing.T) {
 			five, err = c.GetWithContext(ctx, "five")
 			assert.NoError(t, err)
 			assert.Equal(t, 5, five)
+
+			// third invocation should be cached
+			five, err = c.GetWithContext(ctx, "five")
+			assert.NoError(t, err)
+			assert.Equal(t, 5, five)
+
+			// constructor has been invoked twice,
+			// even tho `c.GetWithContext(ctx, "five)` has been executed 3 times
+			// because the result of the second invocation has been cached
+			assert.Equal(t, uint64(2), *counter)
 		})
 	}
 }
