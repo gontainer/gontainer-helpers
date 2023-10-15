@@ -186,10 +186,11 @@ func Test_container_get_cache(t *testing.T) {
 
 	ctx1 := container.ContextWithContainer(context.Background(), c)
 	ctx2 := container.ContextWithContainer(context.Background(), c)
+	ctx3 := container.ContextWithContainer(context.Background(), c)
 
 	max := 100
 	wg := sync.WaitGroup{}
-	wg.Add(max * 3)
+	wg.Add(max * 4)
 
 	for i := 0; i < max; i++ {
 		go func() {
@@ -207,14 +208,20 @@ func Test_container_get_cache(t *testing.T) {
 		go func() {
 			defer wg.Done()
 
+			_, err := c.GetWithContext(ctx3, "serviceCtx")
+			assert.NoError(t, err)
+		}()
+		go func() {
+			defer wg.Done()
+
 			_, err := c.Get("serviceShared")
 			assert.NoError(t, err)
 		}()
 	}
 	wg.Wait()
 
-	// serviceCtx is cached twice, in a scope of 2 different requests
-	assert.Equal(t, uint64(2), *counterCtx)
+	// serviceCtx is cached 3 times, in a scope of 3 different requests
+	assert.Equal(t, uint64(3), *counterCtx)
 
 	// serviceShared is shared, so will be cached once, globally
 	assert.Equal(t, uint64(1), *counterShared)
