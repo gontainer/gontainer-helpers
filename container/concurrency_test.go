@@ -166,7 +166,7 @@ func Test_container_concurrency(t *testing.T) {
 		ctx := container.ContextWithContainer(context.Background(), c)
 
 		wg := sync.WaitGroup{}
-		wg.Add(max * 9)
+		wg.Add(max * 10)
 		for i := 0; i < max; i++ {
 			n := fmt.Sprintf("service%d", i)
 			nCtx := fmt.Sprintf("service-context%d", i)
@@ -175,6 +175,14 @@ func Test_container_concurrency(t *testing.T) {
 				defer wg.Done()
 
 				c.OverrideService(n, newService("tag"))
+			}()
+
+			go func() {
+				defer wg.Done()
+
+				s := newService("tag-context")
+				s.ScopeContextual()
+				c.OverrideService(nCtx, s)
 			}()
 
 			go func() {
