@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gontainer/gontainer-helpers/errors"
+	"github.com/gontainer/gontainer-helpers/grouperror"
 )
 
 func CircularDepsToError(circularDeps [][]Dependency) error {
@@ -18,5 +18,5 @@ func CircularDepsToError(circularDeps [][]Dependency) error {
 		errs = append(errs, fmt.Errorf("%s", strings.Join(ids, " -> ")))
 	}
 
-	return errors.Group(errs...)
+	return grouperror.Join(errs...)
 }

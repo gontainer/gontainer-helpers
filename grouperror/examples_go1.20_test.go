@@ -1,14 +1,14 @@
 //go:build go1.20
 // +build go1.20
 
-package errors_test
+package grouperror_test
 
 import (
 	"errors"
 	"fmt"
 )
 
-func ExamplePrefixedGroup_stdlib() {
+func ExamplePrefix_stdlib() {
 	// we need the following build tags:
 	//
 	// //go:build go1.20

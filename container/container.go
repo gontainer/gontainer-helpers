@@ -2,6 +2,7 @@ package container
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sort"
 	"sync"
@@ -9,7 +10,7 @@ import (
 
 	"github.com/gontainer/gontainer-helpers/caller"
 	"github.com/gontainer/gontainer-helpers/copier"
-	"github.com/gontainer/gontainer-helpers/errors"
+	"github.com/gontainer/gontainer-helpers/grouperror"
 )
 
 type serviceDecorator struct {
@@ -49,7 +50,7 @@ func (c *container) CircularDeps() error {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
-	return errors.PrefixedGroup("container.CircularDeps(): ", c.graphBuilder.circularDeps())
+	return grouperror.Prefix("container.CircularDeps(): ", c.graphBuilder.circularDeps())
 }
 
 func (c *container) OverrideService(id string, s Service) {
@@ -96,7 +97,7 @@ func (c *container) AddDecorator(tag string, decorator interface{}, deps ...Depe
 func (c *container) CopyServiceTo(id string, dst interface{}) (err error) {
 	defer func() {
 		if err != nil {
-			err = errors.PrefixedGroup(fmt.Sprintf("container.CopyServiceTo(%+q): ", id), err)
+			err = grouperror.Prefix(fmt.Sprintf("container.CopyServiceTo(%+q): ", id), err)
 		}
 	}()
 	r, err := c.Get(id)
@@ -140,10 +141,10 @@ func (c *container) resolveDeps(contextualBag keyValue, deps ...Dependency) ([]i
 	for i, d := range deps {
 		var err error
 		r[i], err = c.resolveDep(contextualBag, d)
-		errs[i] = errors.PrefixedGroup(fmt.Sprintf("arg #%d: ", i), err)
+		errs[i] = grouperror.Prefix(fmt.Sprintf("arg #%d: ", i), err)
 	}
 
-	return r, errors.Group(errs...)
+	return r, grouperror.Join(errs...)
 }
 
 func (c *container) resolveDep(contextualBag keyValue, d Dependency) (interface{}, error) {
@@ -195,7 +196,7 @@ func (c *container) GetTaggedByWithContext(ctx context.Context, tag string) ([]i
 func (c *container) getTaggedBy(tag string, contextualBag keyValue) (result []interface{}, err error) {
 	defer func() {
 		if err != nil {
-			err = errors.PrefixedGroup(fmt.Sprintf("container.getTaggedBy(%+q): ", tag), err)
+			err = grouperror.Prefix(fmt.Sprintf("container.getTaggedBy(%+q): ", tag), err)
 		}
 	}()
 
