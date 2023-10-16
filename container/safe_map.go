@@ -17,14 +17,14 @@ func newSafeMap() *safeMap {
 	}
 }
 
-func (s safeMap) set(id string, v interface{}) {
+func (s *safeMap) set(id string, v interface{}) {
 	s.locker.Lock()
 	defer s.locker.Unlock()
 
 	s.data[id] = v
 }
 
-func (s safeMap) get(id string) (value interface{}, exists bool) {
+func (s *safeMap) get(id string) (value interface{}, exists bool) {
 	s.locker.RLock()
 	defer s.locker.RUnlock()
 
@@ -32,7 +32,7 @@ func (s safeMap) get(id string) (value interface{}, exists bool) {
 	return v, ok
 }
 
-func (s safeMap) delete(id string) {
+func (s *safeMap) delete(id string) {
 	s.locker.Lock()
 	defer s.locker.Unlock()
 
