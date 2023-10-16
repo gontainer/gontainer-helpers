@@ -133,7 +133,7 @@ fmt.Println(g.CircularDeps())
 
 [More examples](graph/examples_test.go)
 
-## Errors
+## Grouperror
 
 **Native approach**
 
@@ -175,9 +175,9 @@ func main() {
 }
 ```
 
-**PrefixedGroup**
+**Prefix**
 
-Use `PrefixedGroup` to solve that:
+Use `Prefix` to solve that:
 
 ```go
 package main
