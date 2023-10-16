@@ -102,6 +102,37 @@ fmt.Println(to)
 
 [More examples](copier/examples_test.go)
 
+## Exporter
+
+Export the given variable to a GO code.
+
+```go
+var s string
+s, _ = exporter.Export([]uint{1, 2, 3})
+fmt.Println(s)
+// Output: []uint{uint(1), uint(2), uint(3)}
+```
+
+[More examples](exporter/examples_test.go)
+
+## Graph
+
+```go
+g := graph.New()
+g.AddDep("company", "tech-team")
+g.AddDep("tech-team", "cto")
+g.AddDep("cto", "company")
+g.AddDep("cto", "ceo")
+g.AddDep("ceo", "company")
+
+fmt.Println(g.CircularDeps())
+
+// Output:
+// [[company tech-team cto company] [company tech-team cto ceo company]]
+```
+
+[More examples](graph/examples_test.go)
+
 ## Errors
 
 **Native approach**
@@ -154,11 +185,11 @@ package main
 import (
 	"fmt"
 	
-	"github.com/gontainer/gontainer-helpers/errors"
+	"github.com/gontainer/gontainer-helpers/grouperror"
 )
 
 func main()  {
-	err := errors.PrefixedGroup(
+	err := grouperror.Prefix(
 		"validation: ",
 		errors.New("invalid name"),
 		nil, // nil-errors are being ignored
@@ -166,13 +197,13 @@ func main()  {
 		errors.New("invalid age"),
 	)
 
-	err = errors.PrefixedGroup(
+	err = grouperror.Prefix(
 		"could not create new user: ",
 		errors.New("unexpected error"),
 		err,
 	)
 
-	err = errors.PrefixedGroup("operation failed: ", err)
+	err = grouperror.Prefix("operation failed: ", err)
 
 	fmt.Println(err.Error())
 	
@@ -181,42 +212,11 @@ func main()  {
 	// operation failed: could not create new user: validation: invalid name
 	// operation failed: could not create new user: validation: invalid age
 	
-	// use errors.Collection(err) to get a slice with all errors
+	// use grouperror.Collection(err) to get a slice with all errors
 }
 ```
 
 [More examples](errors/examples_test.go)
-
-## Exporter
-
-Export the given variable to a GO code.
-
-```go
-var s string
-s, _ = exporter.Export([]uint{1, 2, 3})
-fmt.Println(s)
-// Output: []uint{uint(1), uint(2), uint(3)}
-```
-
-[More examples](exporter/examples_test.go)
-
-## Graph
-
-```go
-g := graph.New()
-g.AddDep("company", "tech-team")
-g.AddDep("tech-team", "cto")
-g.AddDep("cto", "company")
-g.AddDep("cto", "ceo")
-g.AddDep("ceo", "company")
-
-fmt.Println(g.CircularDeps())
-
-// Output:
-// [[company tech-team cto company] [company tech-team cto ceo company]]
-```
-
-[More examples](graph/examples_test.go)
 
 ## Setter
 
