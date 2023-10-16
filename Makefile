@@ -9,3 +9,6 @@ doc:
 
 lint:
 	golangci-lint run
+
+deprecations:
+	grep "Deprecated: " -A 3 -R -n . | grep ".go"
