@@ -95,6 +95,35 @@ func ExampleNewContainer_getInContext() {
 	// GetInContext() and Get() return different values: true
 }
 
+func ExampleNewContainer_oneContextManyContainers() {
+	c1 := container.NewContainer()
+	s1 := container.NewService()
+	s1.SetValue(5)
+	s1.ScopeContextual()
+	c1.OverrideService("number", s1)
+
+	c2 := container.NewContainer()
+	s2 := container.NewService()
+	s2.SetValue(6)
+	s2.ScopeContextual()
+	c2.OverrideService("number", s2)
+
+	// attach two containers to the same context
+	ctx := container.ContextWithContainer(context.Background(), c1)
+	ctx = container.ContextWithContainer(ctx, c2)
+
+	// invoke `GetInContext` to cache the value
+	_, _ = c1.GetInContext(ctx, "number")
+	_, _ = c2.GetInContext(ctx, "number")
+
+	fmt.Println(c1.GetInContext(ctx, "number"))
+	fmt.Println(c2.GetInContext(ctx, "number"))
+
+	// Output:
+	// 5 <nil>
+	// 6 <nil>
+}
+
 func ExampleNewContainer_simple() {
 	// create Mary Jane
 	mary := container.NewService()
