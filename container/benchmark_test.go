@@ -11,7 +11,7 @@ type Employee struct {
 	Name string
 }
 
-func BenchmarkNewContainer_container_shared(b *testing.B) {
+func BenchmarkNewContainer_container_default(b *testing.B) {
 	c := container.NewContainer()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
