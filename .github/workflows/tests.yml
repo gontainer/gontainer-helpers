@@ -37,3 +37,6 @@ jobs:
       with:
         path-to-profile: coverage.out
         flag-name: Go-${{ matrix.go }}
+
+    - name: Deprecations
+      run: make deprecations
