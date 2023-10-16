@@ -14,14 +14,20 @@ func Join(errs ...error) error {
 
 // Prefix joins error the same way as Join, and adds a prefix to the group.
 func Prefix(prefix string, errs ...error) error {
-	filtered := make([]error, 0, len(errs))
+	n := 0
+	for _, err := range errs {
+		if err != nil {
+			n++
+		}
+	}
+	if n == 0 {
+		return nil
+	}
+	filtered := make([]error, 0, n)
 	for _, err := range errs {
 		if err != nil {
 			filtered = append(filtered, err)
 		}
-	}
-	if len(filtered) == 0 {
-		return nil
 	}
 
 	return &groupError{
