@@ -40,3 +40,6 @@ jobs:
 
     - name: Deprecations
       run: make deprecations
+
+    - name: Benchmark
+      run: make benchmark
