@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/gontainer/gontainer-helpers/container"
-	errAssert "github.com/gontainer/gontainer-helpers/errors/assert"
+	errAssert "github.com/gontainer/gontainer-helpers/grouperror/assert"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -2,6 +2,7 @@ package container_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -10,8 +11,7 @@ import (
 	"testing"
 
 	"github.com/gontainer/gontainer-helpers/container"
-	"github.com/gontainer/gontainer-helpers/errors"
-	assertErr "github.com/gontainer/gontainer-helpers/errors/assert"
+	assertErr "github.com/gontainer/gontainer-helpers/grouperror/assert"
 	"github.com/stretchr/testify/assert"
 )
 

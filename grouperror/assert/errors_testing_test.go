@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/gontainer/gontainer-helpers/errors"
-	errAssert "github.com/gontainer/gontainer-helpers/errors/assert"
+	"github.com/gontainer/gontainer-helpers/grouperror"
+	errAssert "github.com/gontainer/gontainer-helpers/grouperror/assert"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -45,7 +45,7 @@ func TestEqualErrorGroup(t *testing.T) {
 		mt := new(mockTesting)
 		errAssert.EqualErrorGroup(
 			mt,
-			errors.Group(os.ErrClosed, os.ErrExist),
+			grouperror.Join(os.ErrClosed, os.ErrExist),
 			[]string{
 				"file already closed",
 				"file already exists",
@@ -58,7 +58,7 @@ func TestEqualErrorGroup(t *testing.T) {
 		mt := new(mockTesting)
 		errAssert.EqualErrorGroup(
 			mt,
-			errors.Group(os.ErrClosed, os.ErrExist),
+			grouperror.Join(os.ErrClosed, os.ErrExist),
 			[]string{
 				"file already closed",
 			},
@@ -79,7 +79,7 @@ func TestEqualErrorGroup(t *testing.T) {
 		mt := new(mockTesting)
 		errAssert.EqualErrorGroup(
 			mt,
-			errors.Group(os.ErrClosed),
+			grouperror.Join(os.ErrClosed),
 			[]string{
 				"file already closed",
 				"file already exists",
@@ -100,7 +100,7 @@ func TestEqualErrorGroup(t *testing.T) {
 		mt := new(mockTesting)
 		errAssert.EqualErrorGroup(
 			mt,
-			errors.Group(os.ErrClosed, os.ErrExist),
+			grouperror.Join(os.ErrClosed, os.ErrExist),
 			[]string{
 				"file already exists",
 				"file already closed",
@@ -127,7 +127,7 @@ func TestEqualErrorGroup(t *testing.T) {
 		mt := new(mockTesting)
 		errAssert.EqualErrorGroup(
 			mt,
-			errors.Group(os.ErrClosed, os.ErrInvalid, os.ErrExist),
+			grouperror.Join(os.ErrClosed, os.ErrInvalid, os.ErrExist),
 			[]string{
 				"file already exists",
 				"file already closed",
@@ -160,7 +160,7 @@ func TestEqualErrorGroup(t *testing.T) {
 		mt := new(mockTesting)
 		errAssert.EqualErrorGroup(
 			mt,
-			errors.Group(os.ErrClosed, os.ErrInvalid),
+			grouperror.Join(os.ErrClosed, os.ErrInvalid),
 			[]string{
 				"invalid argument",
 				"file already exists",

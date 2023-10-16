@@ -1,11 +1,12 @@
 package container
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 
 	"github.com/gontainer/gontainer-helpers/caller"
-	"github.com/gontainer/gontainer-helpers/errors"
+	"github.com/gontainer/gontainer-helpers/grouperror"
 )
 
 type paramContainer struct {
@@ -51,7 +52,7 @@ func (p *paramContainer) GetParam(id string) (result interface{}, err error) {
 
 	defer func() {
 		if err != nil {
-			err = errors.PrefixedGroup(fmt.Sprintf("paramContainer.GetParam(%+q): ", id), err)
+			err = grouperror.Prefix(fmt.Sprintf("paramContainer.GetParam(%+q): ", id), err)
 		}
 	}()
 

@@ -1,10 +1,11 @@
 package caller
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 
-	"github.com/gontainer/gontainer-helpers/errors"
+	"github.com/gontainer/gontainer-helpers/grouperror"
 	helpersReflect "github.com/gontainer/gontainer-helpers/internal/reflect"
 )
 
@@ -34,12 +35,12 @@ func call(fn reflect.Value, params ...interface{}) (res []interface{}, err error
 		// TODO don't convert for existing funcs, add new funcs prefixed by `Convert`
 		v, errC := helpersReflect.Convert(p, convertTo)
 		if errC != nil {
-			errs = append(errs, errors.PrefixedGroup(fmt.Sprintf("arg%d: ", i), errC))
+			errs = append(errs, grouperror.Prefix(fmt.Sprintf("arg%d: ", i), errC))
 		}
 		paramsRef[i] = v
 	}
 	if len(errs) > 0 {
-		return nil, errors.Group(errs...)
+		return nil, grouperror.Join(errs...)
 	}
 
 	// todo don't use `recover()`

@@ -1,13 +1,14 @@
-package errors_test
+package grouperror_test
 
 import (
+	"errors"
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/errors"
+	"github.com/gontainer/gontainer-helpers/grouperror"
 )
 
-func ExamplePrefixedGroup() {
-	err := errors.PrefixedGroup(
+func ExamplePrefix() {
+	err := grouperror.Prefix(
 		"validation: ",
 		errors.New("invalid name"),
 		nil, // nil-errors are being ignored
@@ -15,18 +16,18 @@ func ExamplePrefixedGroup() {
 		errors.New("invalid age"),
 	)
 
-	err = errors.PrefixedGroup(
+	err = grouperror.Prefix(
 		"could not create new user: ",
 		errors.New("unexpected error"),
 		err,
 	)
 
-	err = errors.PrefixedGroup("operation failed: ", err)
+	err = grouperror.Prefix("operation failed: ", err)
 
 	fmt.Println(err.Error())
 	fmt.Println()
 
-	for i, cErr := range errors.Collection(err) {
+	for i, cErr := range grouperror.Collection(err) {
 		fmt.Printf("%d. %s\n", i+1, cErr.Error())
 	}
 
