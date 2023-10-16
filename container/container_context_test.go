@@ -2,9 +2,6 @@ package container_test
 
 import (
 	"context"
-	"fmt"
-	"sync"
-	"sync/atomic"
 	"testing"
 
 	"github.com/gontainer/gontainer-helpers/container"
@@ -47,45 +44,4 @@ func TestContextWithContainer(t *testing.T) {
 	t.Run("Wrapped container with overridden func", func(t *testing.T) {
 		container.ContextWithContainer(context.Background(), newMyContainerWithOverriddenFunc())
 	})
-}
-
-func TestContextWithContainer1(t *testing.T) {
-	c := container.NewContainer()
-	s := container.NewService()
-	s.SetValue(5)
-	c.OverrideService("five", s)
-
-	fives := new(uint64)
-	sixes := new(uint64)
-	wg := &sync.WaitGroup{}
-
-	run := func() {
-		for i := 0; i < 100; i++ {
-			wg.Add(1)
-			go func() {
-				defer func() {
-					go wg.Done()
-				}()
-
-				v, _ := c.Get("five")
-				if v == 5 {
-					atomic.AddUint64(fives, 1)
-				} else {
-					atomic.AddUint64(sixes, 1)
-				}
-			}()
-		}
-	}
-
-	run()
-
-	go func() {
-		s.SetValue(6)
-		c.OverrideService("five", s)
-	}()
-
-	run()
-
-	wg.Wait()
-	fmt.Println(*fives, *sixes)
 }
