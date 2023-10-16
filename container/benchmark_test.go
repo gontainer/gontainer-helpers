@@ -34,6 +34,6 @@ func BenchmarkNewContainer_map(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		_, _ = m["employee"]
+		_, _ = m["employee"] //nolint:gosimple
 	}
 }
