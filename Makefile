@@ -12,3 +12,6 @@ lint:
 
 deprecations:
 	grep "Deprecated: " -A 3 -R -n . | grep ".go"
+
+benchmark:
+	go test -bench=Container container/benchmark_test.go
