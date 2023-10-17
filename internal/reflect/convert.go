@@ -5,19 +5,13 @@ import (
 	"reflect"
 )
 
-// Convert converts given value to given type whenever it is possible.
+// convert converts given value to given type whenever it is possible.
 // In opposition to built-in reflect package it allows to convert []interface{} to []type and []type to []interface{}.
-func Convert(value interface{}, to reflect.Type) (reflect.Value, error) {
-	// it is required to avoid panic (reflect: call of reflect.Value.Type on zero Value)
-	// in case of the following code
-	// caller.Call(func(v interface{}) { fmt.Println(v) }, nil)
-	if value == nil {
-		if IsNilable(to.Kind()) {
-			return reflect.Zero(to), nil
-		}
-		return reflect.Value{}, fmt.Errorf("cannot cast `%T` to `%s`", value, to.String())
-	}
+func convert(value interface{}, to reflect.Type) (reflect.Value, error) {
 	from := reflect.ValueOf(value)
+	if !from.IsValid() {
+		return zeroForNilable(value, to)
+	}
 
 	if to.Kind() == reflect.Array &&
 		from.Kind() == reflect.Slice &&
@@ -83,7 +77,7 @@ func convertSliceOrArray(from reflect.Value, to reflect.Type) (reflect.Value, er
 		if item.IsValid() {
 			currVal = item.Interface()
 		}
-		curr, err := Convert(currVal, to.Elem())
+		curr, err := convert(currVal, to.Elem())
 		if err != nil {
 			return reflect.Value{}, fmt.Errorf("%d: %w", i, err)
 		}

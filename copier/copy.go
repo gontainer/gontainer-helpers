@@ -46,18 +46,9 @@ func copyTo(from interface{}, to interface{}, convert bool) (err error) {
 		return fmt.Errorf("expected pointer, `%s` given", t.Kind())
 	}
 
-	var f reflect.Value
-	if convert {
-		f, err = internalReflect.Convert(from, t.Elem().Type())
-		if err != nil {
-			return err
-		}
-	} else {
-		if from == nil && internalReflect.IsNilable(t.Elem().Kind()) {
-			f = reflect.Zero(t.Elem().Type())
-		} else {
-			f = reflect.ValueOf(from)
-		}
+	f, err := internalReflect.ValueOf(from, t.Elem().Type(), convert)
+	if err != nil {
+		return err
 	}
 
 	t.Elem().Set(f)

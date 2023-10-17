@@ -1,11 +1,10 @@
-package reflect_test
+package reflect
 
 import (
 	"math"
 	"reflect"
 	"testing"
 
-	internalReflect "github.com/gontainer/gontainer-helpers/internal/reflect"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -169,7 +168,7 @@ func TestConvert(t *testing.T) {
 		for n, tmp := range scenarios {
 			s := tmp
 			t.Run(n, func(t *testing.T) {
-				v, err := internalReflect.Convert(s.input, reflect.TypeOf(s.output))
+				v, err := convert(s.input, reflect.TypeOf(s.output))
 				if s.error != "" {
 					assert.EqualError(t, err, s.error)
 					return

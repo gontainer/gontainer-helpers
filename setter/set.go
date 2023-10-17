@@ -18,7 +18,7 @@ func set(strct reflect.Value, field string, val interface{}) error {
 	}
 
 	// TODO change func Set and add func ConvertAndSet
-	v, err := internalReflect.Convert(val, f.Type())
+	v, err := internalReflect.ValueOf(val, f.Type(), true)
 	if err != nil {
 		return err
 	}

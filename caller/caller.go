@@ -33,7 +33,7 @@ func call(fn reflect.Value, params ...interface{}) (res []interface{}, err error
 	for i, p := range params {
 		convertTo := fnType.inVariadicAware(i)
 		// TODO don't convert for existing funcs, add new funcs prefixed by `Convert`
-		v, errC := helpersReflect.Convert(p, convertTo)
+		v, errC := helpersReflect.ValueOf(p, convertTo, true)
 		if errC != nil {
 			errs = append(errs, grouperror.Prefix(fmt.Sprintf("arg%d: ", i), errC))
 		}

@@ -57,3 +57,16 @@ func ExampleCopy_err2() {
 	// 0
 	// reflect.Set: value of type float32 is not assignable to type uint
 }
+
+func ExampleCopy_err3() {
+	var (
+		from *int
+		to   *uint
+	)
+	err := copier.Copy(from, &to)
+	fmt.Println(to)
+	fmt.Println(err)
+	// Output:
+	// <nil>
+	// reflect.Set: value of type *int is not assignable to type *uint
+}
