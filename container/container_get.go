@@ -49,7 +49,7 @@ func (c *container) get(id string, contextualBag keyValue) (result interface{}, 
 		if s, cached := cache.get(id); cached {
 			return s, nil
 		}
-		// cache the given object only in the given context
+
 		defer func() {
 			if err == nil { // do not cache on error
 				cache.set(id, result)
