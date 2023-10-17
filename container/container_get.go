@@ -32,29 +32,27 @@ func (c *container) get(id string, contextualBag keyValue) (result interface{}, 
 	}
 	switch currentScope { // do not create cached objects more than once in concurrent invocations
 	case
-		scopeShared: // cache in c.cacheShared
-		c.serviceLockers[id].Lock()
-		defer c.serviceLockers[id].Unlock()
-		if s, cached := c.cacheShared.get(id); cached {
-			return s, nil
+		scopeShared,
+		scopeContextual:
+
+		var cache keyValue
+		switch currentScope {
+		case scopeShared:
+			cache = c.cacheShared
+		case scopeContextual:
+			cache = contextualBag
 		}
-		// the given instance is cached, and it will be re-used each time you call `container.Get(id)`
-		defer func() {
-			if err == nil { // do not cache on error
-				c.cacheShared.set(id, result)
-			}
-		}()
-	case
-		scopeContextual: // cache in contextualBag (it can be shared for the same context.Context)
+
 		c.serviceLockers[id].Lock()
 		defer c.serviceLockers[id].Unlock()
-		if s, cached := contextualBag.get(id); cached {
+
+		if s, cached := cache.get(id); cached {
 			return s, nil
 		}
 		// cache the given object only in the given context
 		defer func() {
 			if err == nil { // do not cache on error
-				contextualBag.set(id, result)
+				cache.set(id, result)
 			}
 		}()
 	}
