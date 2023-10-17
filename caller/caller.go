@@ -63,6 +63,7 @@ func call(fn reflect.Value, params ...interface{}) (res []interface{}, err error
 // Call calls the given function with the given arguments.
 // It returns values returned by the function in a slice.
 func Call(fn interface{}, params ...interface{}) ([]interface{}, error) {
+	// TODO fn == nil
 	return call(reflect.ValueOf(fn), params...)
 }
 
