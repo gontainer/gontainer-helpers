@@ -65,7 +65,7 @@ func (p *paramContainer) GetParam(id string) (result interface{}, err error) {
 	case dependencyNil:
 		result = param.value
 	case dependencyProvider:
-		result, err = caller.CallProvider(param.provider)
+		result, err = caller.ConvertAndCallProvider(param.provider)
 		if err != nil {
 			return nil, err
 		}

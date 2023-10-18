@@ -6,9 +6,27 @@ import (
 	"github.com/gontainer/gontainer-helpers/internal/caller"
 )
 
-// Call calls the given function with the given arguments.
+var (
+	// Deprecated: in the next major version this func won't convert params.
+	// Use ConvertAndCall.
+	Call = ConvertAndCall
+
+	// Deprecated: in the next major version this func won't convert params.
+	// Use ConvertAndCallProvider.
+	CallProvider = ConvertAndCallProvider
+
+	// Deprecated: in the next major version this func won't convert params.
+	// Use ConvertAndCallByName.
+	CallByName = ConvertAndCallByName
+
+	// Deprecated: in the next major version this func won't convert params.
+	// Use ConvertAndCallWitherByName.
+	CallWitherByName = ConvertAndCallWitherByName
+)
+
+// ConvertAndCall calls the given function with the given arguments.
 // It returns values returned by the function in a slice.
-func Call(fn interface{}, params ...interface{}) ([]interface{}, error) {
+func ConvertAndCall(fn interface{}, params ...interface{}) ([]interface{}, error) {
 	v, err := caller.Func(fn)
 	if err != nil {
 		return nil, err
@@ -16,7 +34,7 @@ func Call(fn interface{}, params ...interface{}) ([]interface{}, error) {
 	return caller.Call(v, params, true)
 }
 
-// CallProvider works similar to Call with the difference it requires a provider as the first argument.
+// ConvertAndCallProvider works similar to Call with the difference it requires a provider as the first argument.
 // Provider is a function which returns 1 or 2 values.
 // The second return value which is optional must be a type of error.
 //
@@ -34,7 +52,7 @@ func Call(fn interface{}, params ...interface{}) ([]interface{}, error) {
 //	}
 //
 //	mysql, err := CallProvider(p)
-func CallProvider(provider interface{}, params ...interface{}) (interface{}, error) {
+func ConvertAndCallProvider(provider interface{}, params ...interface{}) (interface{}, error) {
 	fn, err := caller.FuncProvider(provider)
 	if err != nil {
 		return nil, err
@@ -55,8 +73,8 @@ func CallProvider(provider interface{}, params ...interface{}) (interface{}, err
 	return r, e
 }
 
-// CallByName works similar to Call with the difference it calls the method by the name over the given receiver.
-func CallByName(object interface{}, method string, params ...interface{}) ([]interface{}, error) {
+// ConvertAndCallByName works similar to Call with the difference it calls the method by the name over the given receiver.
+func ConvertAndCallByName(object interface{}, method string, params ...interface{}) ([]interface{}, error) {
 	fn, err := caller.Method(object, method)
 	if err != nil {
 		return nil, err
@@ -64,7 +82,7 @@ func CallByName(object interface{}, method string, params ...interface{}) ([]int
 	return caller.Call(fn, params, true)
 }
 
-// CallWitherByName works similar to CallByName with the difference the method must be a wither.
+// ConvertAndCallWitherByName works similar to CallByName with the difference the method must be a wither.
 //
 //	type Person struct {
 //	    name string
@@ -80,7 +98,7 @@ func CallByName(object interface{}, method string, params ...interface{}) ([]int
 //	    p2, _ := caller.CallWitherByName(p, "WithName", "Mary")
 //	    fmt.Printf("%+v", p2) // {name:Mary}
 //	}
-func CallWitherByName(object interface{}, wither string, params ...interface{}) (interface{}, error) {
+func ConvertAndCallWitherByName(object interface{}, wither string, params ...interface{}) (interface{}, error) {
 	fn, err := caller.Wither(object, wither)
 	if err != nil {
 		return nil, err

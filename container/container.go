@@ -156,7 +156,7 @@ func (c *container) resolveDep(contextualBag keyValue, d Dependency) (interface{
 	case dependencyService:
 		return c.get(d.serviceID, contextualBag)
 	case dependencyProvider:
-		return caller.CallProvider(d.provider)
+		return caller.ConvertAndCallProvider(d.provider)
 	}
 
 	return nil, errors.New("unknown dependency type")

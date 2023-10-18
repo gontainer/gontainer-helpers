@@ -92,7 +92,7 @@ func (c *container) createNewService(svc Service, contextualBag keyValue) (inter
 		if err != nil {
 			return nil, grouperror.Prefix("constructor args: ", err)
 		}
-		result, err = caller.CallProvider(svc.constructor, params...)
+		result, err = caller.ConvertAndCallProvider(svc.constructor, params...)
 		if err != nil {
 			return nil, grouperror.Prefix("constructor: ", err)
 		}
@@ -141,7 +141,7 @@ func (c *container) executeServiceCalls(
 		}
 
 		if call.wither {
-			result, err = caller.CallWitherByName(result, call.method, params...)
+			result, err = caller.ConvertAndCallWitherByName(result, call.method, params...)
 			if err != nil {
 				errs[i] = grouperror.Prefix(fmt.Sprintf("%s %+q: ", action, call.method), err)
 				// wither may return a nil value for error,
@@ -149,7 +149,7 @@ func (c *container) executeServiceCalls(
 				break
 			}
 		} else {
-			_, err = caller.CallByName(&result, call.method, params...)
+			_, err = caller.ConvertAndCallByName(&result, call.method, params...)
 			errs[i] = grouperror.Prefix(fmt.Sprintf("%s %+q: ", action, call.method), err)
 		}
 	}
@@ -179,7 +179,7 @@ func (c *container) decorateService(
 			return nil, grouperror.Prefix(fmt.Sprintf("resolve decorator args #%d: ", i), err)
 		}
 		params = append([]interface{}{payload}, params...)
-		result, err = caller.CallProvider(dec.fn, params...)
+		result, err = caller.ConvertAndCallProvider(dec.fn, params...)
 		if err != nil {
 			return nil, grouperror.Prefix(fmt.Sprintf("decorator #%d: ", i), err)
 		}
