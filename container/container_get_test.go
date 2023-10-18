@@ -35,7 +35,7 @@ func Test_container_executeServiceCalls(t *testing.T) {
 			"container.get(\"service\"): resolve args \"SetName\": arg #0: could not fetch the name from the config",
 			"container.get(\"service\"): call \"SetAge\": invalid func `*interface {}`.\"SetAge\"",
 			"container.get(\"service\"): call \"SetColor\": invalid func `*interface {}`.\"SetColor\"",
-			"container.get(\"service\"): wither \"WithLogger\": invalid wither `struct {}`.\"WithLogger\"",
+			"container.get(\"service\"): wither \"WithLogger\": invalid func `struct {}`.\"WithLogger\"",
 		}
 
 		svc, err := c.Get("service")

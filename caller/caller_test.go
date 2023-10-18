@@ -296,7 +296,7 @@ func TestCallProvider(t *testing.T) {
 
 	t.Run("Given invalid provider", func(t *testing.T) {
 		_, err := caller.CallProvider(5)
-		assert.EqualError(t, err, "provider must be kind of `func`, `int` given")
+		assert.EqualError(t, err, "expected `func`, `int` given")
 	})
 
 	t.Run("Given provider panics", func(t *testing.T) {
@@ -372,7 +372,7 @@ func TestCallWitherByName(t *testing.T) {
 				object: person{},
 				wither: "withName",
 				params: nil,
-				error:  "invalid wither `caller_test.person`.\"withName\"",
+				error:  "invalid func `caller_test.person`.\"withName\"",
 			},
 			{
 				object: person{},
