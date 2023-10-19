@@ -47,17 +47,16 @@ func ExampleCall_returnValue() {
 	// Output: 6
 }
 
-// TODO: panic: reflect: Call using string as type int
-//func ExampleCall_error() {
-//	fn := func(a int, b int) int {
-//		return a * b
-//	}
-//	_, err := caller.Call(fn, []any{"2", "2"}, false)
-//	fmt.Println(err)
-//	// Output:
-//	// arg0: cannot cast `string` to `int`
-//	// arg1: cannot cast `string` to `int`
-//}
+func ExampleCall_error() {
+	fn := func(a int, b int) int {
+		return a * b
+	}
+	_, err := caller.Call(fn, []any{"2", "2"}, true)
+	fmt.Println(err)
+	// Output:
+	// arg0: cannot cast `string` to `int`
+	// arg1: cannot cast `string` to `int`
+}
 
 func ExampleCallProvider() {
 	// type Person struct {
