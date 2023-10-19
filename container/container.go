@@ -20,7 +20,13 @@ type serviceDecorator struct {
 }
 
 type container struct {
-	graphBuilder   *graphBuilder
+	graphBuilder interface {
+		warmUp()
+		invalidate()
+		circularDeps() error
+		serviceCircularDeps(serviceID string) error
+		resolveScope(serviceID string) scope
+	}
 	services       map[string]Service
 	params         map[string]Dependency
 	cacheShared    keyValue
