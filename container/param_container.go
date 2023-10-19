@@ -9,6 +9,7 @@ import (
 	"github.com/gontainer/gontainer-helpers/grouperror"
 )
 
+// TODO: remove it
 type paramContainer struct {
 	params       map[string]Dependency
 	cachedParams keyValue
