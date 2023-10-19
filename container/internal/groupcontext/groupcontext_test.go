@@ -3,6 +3,7 @@ package groupcontext_test
 import (
 	"context"
 	"fmt"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -14,18 +15,18 @@ func TestNew(t *testing.T) {
 	t.Run("Context already cancelled", func(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
-		done := false
+		done := new(int64)
 
 		g := groupcontext.New()
 		g.Add(ctx)
 
 		go func() {
 			g.Wait()
-			done = true
+			atomic.AddInt64(done, 1)
 		}()
 		time.Sleep(time.Millisecond * 10)
 
-		assert.True(t, done)
+		assert.Equal(t, int64(1), atomic.LoadInt64(done))
 	})
 
 	t.Run("Context never cancelled", func(t *testing.T) {
@@ -36,18 +37,18 @@ func TestNew(t *testing.T) {
 		for i, ctx := range ctxs {
 			ctx := ctx
 			t.Run(fmt.Sprintf("#%d", i), func(t *testing.T) {
-				done := false
+				done := new(int64)
 
 				g := groupcontext.New()
 				g.Add(ctx)
 
 				go func() {
 					g.Wait()
-					done = false
+					atomic.AddInt64(done, 1)
 				}()
 				time.Sleep(time.Millisecond * 10)
 
-				assert.False(t, done)
+				assert.Equal(t, int64(0), atomic.LoadInt64(done))
 			})
 		}
 	})
