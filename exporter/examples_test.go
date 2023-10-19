@@ -61,23 +61,23 @@ func ExampleExport_slice() {
 }
 
 func ExampleExport_slice2() {
-	s, _ := exporter.Export([]interface{}{int32(1), int64(2), float32(3.14), "hello world"})
+	s, _ := exporter.Export([]any{int32(1), int64(2), float32(3.14), "hello world"})
 	fmt.Println(s)
-	// Output: []interface{}{int32(1), int64(2), float32(3.14), "hello world"}
+	// Output: []any{int32(1), int64(2), float32(3.14), "hello world"}
 }
 
 func ExampleExport_emptySlice() {
-	var v interface{} = make([]interface{}, 0)
+	var v any = make([]any, 0)
 	s, _ := exporter.Export(v)
 	fmt.Println(s)
-	// Output: make([]interface{}, 0)
+	// Output: make([]any, 0)
 }
 
 func ExampleExport_emptySlice2() {
-	var v []interface{} = nil
+	var v []any = nil
 	s, _ := exporter.Export(v)
 	fmt.Println(s)
-	// Output: make([]interface{}, 0)
+	// Output: make([]any, 0)
 }
 
 func ExampleExport_array() {
@@ -87,9 +87,9 @@ func ExampleExport_array() {
 }
 
 func ExampleExport_array2() {
-	s, _ := exporter.Export([3]interface{}{nil, 1.5, "hello world"})
+	s, _ := exporter.Export([3]any{nil, 1.5, "hello world"})
 	fmt.Println(s)
-	// Output: [3]interface{}{nil, float64(1.5), "hello world"}
+	// Output: [3]any{nil, float64(1.5), "hello world"}
 }
 
 func ExampleExport_emptyArray() {
@@ -99,9 +99,9 @@ func ExampleExport_emptyArray() {
 }
 
 func ExampleExport_emptyArray2() {
-	s, _ := exporter.Export([0]interface{}{})
+	s, _ := exporter.Export([0]any{})
 	fmt.Println(s)
-	// Output: [0]interface{}{}
+	// Output: [0]any{}
 }
 
 func ExampleExport_err() {
