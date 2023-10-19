@@ -28,14 +28,32 @@ func TestNewContainer_hotSwap(t *testing.T) {
 	t.Run("HotSwap", func(t *testing.T) {
 		counter := new(uint64)
 
-		s := container.NewService()
-		s.SetConstructor(func() Person {
-			atomic.AddUint64(counter, 1)
-			return Person{Name: "Jane"}
+		names := map[uint64]string{
+			1: "Jane",
+			2: "John",
+		}
+
+		svcPerson := container.NewService()
+		svcPerson.SetConstructor(func() Person {
+			return Person{
+				Name: names[atomic.AddUint64(counter, 1)],
+			}
 		})
+		svcPerson.Tag("person", 0)
+
+		svcPeople := container.NewService()
+		svcPeople.SetConstructor(
+			func(ppl []Person) People {
+				return People{
+					People: ppl,
+				}
+			},
+			container.NewDependencyTag("person"),
+		)
 
 		c := container.NewContainer()
-		c.OverrideService("person", s)
+		c.OverrideService("person", svcPerson)
+		c.OverrideService("people", svcPeople)
 
 		const max = 1000
 		wg := sync.WaitGroup{}
@@ -49,14 +67,21 @@ func TestNewContainer_hotSwap(t *testing.T) {
 					ctx, cancel := context.WithCancel(context.Background())
 					defer cancel()
 					ctx = container.ContextWithContainer(ctx, c)
-					_, _ = c.GetInContext(ctx, "person")
+
+					tmp, _ := c.GetInContext(ctx, "person")
+					p := tmp.(Person)
+
+					tmp, _ = c.GetInContext(ctx, "people")
+					ppl := tmp.(People)
+
+					assert.Equal(t, ppl.People[0].Name, p.Name)
 				}()
 			}
 		}
 
 		runGoroutines()
 		c.HotSwap(func(mc container.MutableContainer) {
-			mc.InvalidateServiceCache("person")
+			mc.InvalidateServiceCache("person", "people")
 		})
 		runGoroutines()
 		wg.Wait()
