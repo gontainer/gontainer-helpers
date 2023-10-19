@@ -8,14 +8,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type testContainer struct {
+	*container
+}
+
 func TestNewContainer_hotSwap(t *testing.T) {
-	c := NewContainer()
+	c := testContainer{NewContainer()}
 	s := time.Now()
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	ContextWithContainer(ctx, c)
 	triggered := false
-	c.hotSwap(func() {
+	c.hotSwap(func(MutableContainer) {
 		triggered = true
 	})
 	assert.True(t, triggered)

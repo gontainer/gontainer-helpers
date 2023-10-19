@@ -30,7 +30,8 @@ type container struct {
 		Add(context.Context)
 		Wait()
 	}
-	id ctxKey
+	contextLocker rwlocker
+	id            ctxKey
 }
 
 type ctxKey uint64
@@ -45,6 +46,7 @@ func NewContainer() *container {
 		serviceLockers: make(map[string]sync.Locker),
 		globalLocker:   &sync.RWMutex{},
 		groupContext:   groupcontext.New(),
+		contextLocker:  &sync.RWMutex{},
 		id:             ctxKey(atomic.AddUint64(currentContainerID, 1)),
 	}
 	c.graphBuilder = newGraphBuilder(c)
@@ -58,25 +60,11 @@ func (c *container) CircularDeps() error {
 	return grouperror.Prefix("container.CircularDeps(): ", c.graphBuilder.circularDeps())
 }
 
-func (c *container) OverrideService(id string, s Service) {
+func (c *container) OverrideService(serviceID string, s Service) {
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()
 
-	c.graphBuilder.invalidate()
-
-	c.services[id] = s
-	c.cacheShared.delete(id)
-	switch s.scope {
-	case
-		scopeDefault,
-		scopeShared,
-		scopeContextual:
-		if _, ok := c.serviceLockers[id]; !ok {
-			c.serviceLockers[id] = &sync.Mutex{}
-		}
-	default:
-		delete(c.serviceLockers, id)
-	}
+	overrideService(c, serviceID, s)
 }
 
 func (c *container) AddDecorator(tag string, decorator any, deps ...Dependency) {
