@@ -30,15 +30,6 @@ func Copy(from interface{}, to interface{}) error {
 }
 
 func copyTo(from interface{}, to interface{}, convert bool) (err error) {
-	// TODO remove `recover()` in the next major version
-	defer func() {
-		r := recover()
-		if r == nil {
-			return
-		}
-		err = fmt.Errorf("%s", r)
-	}()
-
 	t := reflect.ValueOf(to)
 
 	if t.Kind() != reflect.Ptr {
