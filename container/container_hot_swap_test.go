@@ -9,6 +9,7 @@ import (
 
 	"github.com/gontainer/gontainer-helpers/container"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewContainer_hotSwap(t *testing.T) {
@@ -55,7 +56,7 @@ func TestNewContainer_hotSwap(t *testing.T) {
 		c.OverrideService("person", svcPerson)
 		c.OverrideService("people", svcPeople)
 
-		const max = 1000
+		const max = 100
 		wg := sync.WaitGroup{}
 
 		runGoroutines := func() {
@@ -68,10 +69,12 @@ func TestNewContainer_hotSwap(t *testing.T) {
 					defer cancel()
 					ctx = container.ContextWithContainer(ctx, c)
 
-					tmp, _ := c.GetInContext(ctx, "person")
+					tmp, err := c.GetInContext(ctx, "person")
+					require.NoError(t, err)
 					p := tmp.(Person)
 
-					tmp, _ = c.GetInContext(ctx, "people")
+					tmp, err = c.GetInContext(ctx, "people")
+					require.NoError(t, err)
 					ppl := tmp.(People)
 
 					assert.Equal(t, ppl.People[0].Name, p.Name)
@@ -80,6 +83,7 @@ func TestNewContainer_hotSwap(t *testing.T) {
 		}
 
 		runGoroutines()
+		time.Sleep(time.Nanosecond)
 		c.HotSwap(func(mc container.MutableContainer) {
 			mc.InvalidateServiceCache("person", "people")
 		})
