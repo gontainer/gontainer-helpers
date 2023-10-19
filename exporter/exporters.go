@@ -48,14 +48,6 @@ func MustExport(i interface{}) string {
 	return r
 }
 
-var (
-	// Deprecated: use CastToString
-	ToString = CastToString
-
-	// Deprecated: use MustCastToString
-	MustToString = MustCastToString
-)
-
 // CastToString casts input value to a string. This function supports booleans, strings, numeric values and nil-values:
 //   - any numeric input returns string that represents its value without a type
 //   - any boolean input returns accordingly a string "true" or "false"
