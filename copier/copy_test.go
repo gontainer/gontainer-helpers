@@ -18,7 +18,7 @@ func TestCopy(t *testing.T) {
 			)
 			err := copier.Copy(from, &to)
 			assert.Empty(t, to)
-			assert.EqualError(t, err, "reflect.Set: value of type int is not assignable to type uint")
+			assert.EqualError(t, err, "value of type int is not assignable to type uint")
 		})
 		t.Run("ConvertAndCopy", func(t *testing.T) {
 			var (
@@ -38,7 +38,7 @@ func TestCopy(t *testing.T) {
 			)
 			err := copier.Copy(from, &to)
 			assert.Empty(t, to)
-			assert.EqualError(t, err, "reflect.Set: value of type *int is not assignable to type *uint")
+			assert.EqualError(t, err, "value of type *int is not assignable to type *uint")
 		})
 		t.Run("ConvertAndCopy", func(t *testing.T) {
 			var (

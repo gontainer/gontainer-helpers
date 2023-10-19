@@ -41,6 +41,10 @@ func copyTo(from interface{}, to interface{}, convert bool) (err error) {
 		return err
 	}
 
+	if !f.Type().AssignableTo(t.Elem().Type()) {
+		return fmt.Errorf("value of type %s is not assignable to type %s", f.Type().String(), t.Elem().Type().String())
+	}
+
 	t.Elem().Set(f)
 	return nil
 }
