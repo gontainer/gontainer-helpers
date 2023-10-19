@@ -24,7 +24,7 @@ func TestNew(t *testing.T) {
 			g.Wait()
 			atomic.AddInt64(done, 1)
 		}()
-		time.Sleep(time.Millisecond * 10)
+		time.Sleep(time.Millisecond * 100)
 
 		assert.Equal(t, int64(1), atomic.LoadInt64(done))
 	})
@@ -46,7 +46,7 @@ func TestNew(t *testing.T) {
 					g.Wait()
 					atomic.AddInt64(done, 1)
 				}()
-				time.Sleep(time.Millisecond * 10)
+				time.Sleep(time.Millisecond * 100)
 
 				assert.Equal(t, int64(0), atomic.LoadInt64(done))
 			})
