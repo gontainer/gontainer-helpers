@@ -101,11 +101,6 @@ func (c *container) GetInContext(ctx context.Context, id string) (interface{}, e
 	return c.get(id, c.contextBag(ctx))
 }
 
-// Deprecated: use GetInContext()
-func (c *container) GetWithContext(ctx context.Context, id string) (interface{}, error) {
-	return c.GetInContext(ctx, id)
-}
-
 func (c *container) Get(id string) (interface{}, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
@@ -165,11 +160,6 @@ func (c *container) GetTaggedByInContext(ctx context.Context, tag string) ([]int
 	defer c.globalLocker.RUnlock()
 
 	return c.getTaggedBy(tag, c.contextBag(ctx))
-}
-
-// Deprecated: use GetTaggedByInContext()
-func (c *container) GetTaggedByWithContext(ctx context.Context, tag string) ([]interface{}, error) {
-	return c.GetTaggedByInContext(ctx, tag)
 }
 
 func (c *container) getTaggedBy(tag string, contextualBag keyValue) (result []interface{}, err error) {

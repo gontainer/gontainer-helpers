@@ -5,8 +5,3 @@ type DecoratorPayload struct {
 	ServiceID string
 	Service   interface{}
 }
-
-// DecoratorContext an alias to DecoratorPayload.
-//
-// Deprecated: that name may sound confusing.
-type DecoratorContext = DecoratorPayload
