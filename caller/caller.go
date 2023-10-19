@@ -8,7 +8,7 @@ import (
 
 // Call calls the given function with the given arguments.
 // It returns values returned by the function in a slice.
-func Call(fn any, params []interface{}, convertParams bool) ([]interface{}, error) {
+func Call(fn any, params []any, convertParams bool) ([]any, error) {
 	v, err := caller.Func(fn)
 	if err != nil {
 		return nil, err
@@ -20,7 +20,7 @@ func Call(fn any, params []interface{}, convertParams bool) ([]interface{}, erro
 // Provider is a function which returns 1 or 2 values.
 // The second return value which is optional must be a type of error.
 //
-//	p := func() (interface{}, error) {
+//	p := func() (any, error) {
 //	    db, err := sql.Open("mysql", "user:password@/dbname")
 //	    if err != nil {
 //	         return nil, err
@@ -34,7 +34,7 @@ func Call(fn any, params []interface{}, convertParams bool) ([]interface{}, erro
 //	}
 //
 //	mysql, err := CallProvider(p)
-func CallProvider(provider interface{}, params []interface{}, convertParams bool) (interface{}, error) {
+func CallProvider(provider any, params []any, convertParams bool) (any, error) {
 	fn, err := caller.FuncProvider(provider)
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func CallProvider(provider interface{}, params []interface{}, convertParams bool
 }
 
 // CallByName works similar to Call with the difference it calls the method by the name over the given receiver.
-func CallByName(object interface{}, method string, params []interface{}, convertParams bool) ([]interface{}, error) {
+func CallByName(object any, method string, params []any, convertParams bool) ([]any, error) {
 	fn, err := caller.Method(object, method)
 	if err != nil {
 		return nil, err
@@ -82,7 +82,7 @@ CallWitherByName works similar to CallByName with the difference the method must
 	    fmt.Printf("%+v", p2) // {name:Mary}
 	}
 */
-func CallWitherByName(object interface{}, wither string, params []interface{}, convertParams bool) (interface{}, error) {
+func CallWitherByName(object any, wither string, params []any, convertParams bool) (any, error) {
 	fn, err := caller.Wither(object, wither)
 	if err != nil {
 		return nil, err

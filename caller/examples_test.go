@@ -33,7 +33,7 @@ func ExampleCall_ok() {
 	// }
 
 	p := &Person{}
-	_, _ = caller.Call(p.SetName, []interface{}{"Mary"}, false)
+	_, _ = caller.Call(p.SetName, []any{"Mary"}, false)
 	fmt.Println(p.name)
 	// Output: Mary
 }
@@ -42,7 +42,7 @@ func ExampleCall_returnValue() {
 	fn := func(a int, b int) int {
 		return a * b
 	}
-	r, _ := caller.Call(fn, []interface{}{3, 2}, false)
+	r, _ := caller.Call(fn, []any{3, 2}, false)
 	fmt.Println(r[0])
 	// Output: 6
 }
@@ -52,7 +52,7 @@ func ExampleCall_returnValue() {
 //	fn := func(a int, b int) int {
 //		return a * b
 //	}
-//	_, err := caller.Call(fn, []interface{}{"2", "2"}, false)
+//	_, err := caller.Call(fn, []any{"2", "2"}, false)
 //	fmt.Println(err)
 //	// Output:
 //	// arg0: cannot cast `string` to `int`
@@ -68,7 +68,7 @@ func ExampleCallProvider() {
 	//     return &Person{Name: name}
 	// }
 
-	p, _ := caller.CallProvider(NewPerson, []interface{}{"Mary"}, false)
+	p, _ := caller.CallProvider(NewPerson, []any{"Mary"}, false)
 	fmt.Printf("%+v", p)
 	// Output: &{name:Mary}
 }
@@ -83,7 +83,7 @@ func ExampleCallByName() {
 	// }
 
 	p := &Person{}
-	_, _ = caller.CallByName(p, "SetName", []interface{}{"Mary"}, false)
+	_, _ = caller.CallByName(p, "SetName", []any{"Mary"}, false)
 	fmt.Println(p.name)
 	// Output: Mary
 }
@@ -99,7 +99,7 @@ func ExampleCallWitherByName() {
 	// }
 
 	p := Person{}
-	p2, _ := caller.CallWitherByName(p, "WithName", []interface{}{"Mary"}, false)
+	p2, _ := caller.CallWitherByName(p, "WithName", []any{"Mary"}, false)
 	fmt.Printf("%+v", p2)
 	// Output: {name:Mary}
 }

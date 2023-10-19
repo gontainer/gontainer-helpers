@@ -27,7 +27,7 @@ Provider that does not return any error:
 
 Provider that may return an error:
 
-	func NewDB(username string, password string) (interface{}, error) {
+	func NewDB(username string, password string) (any, error) {
 	    db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/test", username, password))
 	    if err != nil {
 	         return nil, err
