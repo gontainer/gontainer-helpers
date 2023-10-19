@@ -27,11 +27,10 @@ func (t reflectType) inVariadicAware(i int) reflect.Type {
 	return r
 }
 
-func Call(fn reflect.Value, params []interface{}, convert bool) (res []interface{}, err error) {
-	if fn.Kind() != reflect.Func {
-		panic(fmt.Sprintf("expected `%s`, `%T` given", reflect.Func.String(), fn.Type().String()))
-	}
-
+// CallFunc calls the given func.
+//
+// fn.Kind() MUST BE equal to [reflect.Func]
+func CallFunc(fn reflect.Value, params []interface{}, convertParams bool) (res []interface{}, err error) {
 	fnType := reflectType{fn.Type()}
 
 	if len(params) > fnType.NumIn() && !fnType.IsVariadic() {
@@ -50,8 +49,7 @@ func Call(fn reflect.Value, params []interface{}, convert bool) (res []interface
 	errs := make([]error, 0, len(params))
 	for i, p := range params {
 		convertTo := fnType.inVariadicAware(i)
-		// TODO don't convert for existing funcs, add new funcs prefixed by `Convert`
-		v, errC := helpersReflect.ValueOf(p, convertTo, convert)
+		v, errC := helpersReflect.ValueOf(p, convertTo, convertParams)
 		if errC != nil {
 			errs = append(errs, grouperror.Prefix(fmt.Sprintf("arg%d: ", i), errC))
 		}
@@ -60,15 +58,6 @@ func Call(fn reflect.Value, params []interface{}, convert bool) (res []interface
 	if len(errs) > 0 {
 		return nil, grouperror.Join(errs...)
 	}
-
-	// todo don't use `recover()`
-	defer func() {
-		r := recover()
-		if r == nil {
-			return
-		}
-		err = fmt.Errorf("%s", r)
-	}()
 
 	var result []interface{}
 	for _, v := range fn.Call(paramsRef) {
