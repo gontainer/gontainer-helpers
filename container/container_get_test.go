@@ -11,8 +11,10 @@ import (
 	"testing"
 
 	"github.com/gontainer/gontainer-helpers/container"
+	"github.com/gontainer/gontainer-helpers/copier"
 	assertErr "github.com/gontainer/gontainer-helpers/grouperror/assert"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_container_executeServiceCalls(t *testing.T) {
@@ -81,7 +83,7 @@ func Test_container_createNewService(t *testing.T) {
 		assert.Nil(t, svc)
 		assertErr.EqualErrorGroup(t, err, expected)
 	})
-	t.Run("Ok", func(t *testing.T) {
+	t.Run("OK", func(t *testing.T) {
 		s := container.NewService()
 		s.SetConstructor(
 			NewServer,
@@ -93,7 +95,8 @@ func Test_container_createNewService(t *testing.T) {
 		c.OverrideService("server", s)
 
 		var server *Server
-		err := c.CopyServiceTo("server", &server)
+		tmp, err := c.Get("server")
+		require.NoError(t, copier.Copy(tmp, &server))
 		assert.NoError(t, err)
 		assert.Equal(t, "localhost", server.Host)
 		assert.Equal(t, 8080, server.Port)

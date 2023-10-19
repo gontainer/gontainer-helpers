@@ -1,7 +1,6 @@
 package container_test
 
 import (
-	"errors"
 	"fmt"
 	"sync"
 	"sync/atomic"
@@ -142,14 +141,16 @@ func Test_container_Get(t *testing.T) {
 			c.OverrideService("myService", myService)
 
 			func() {
-				var svc MyService
-				assert.NoError(t, c.CopyServiceTo("myService", &svc))
+				tmp, err := c.Get("myService")
+				require.NoError(t, err)
+				svc := tmp.(MyService)
 
 				assert.Same(t, svc.Transaction, svc.ItemStorage.Transaction)
 				assert.Same(t, svc.Transaction, svc.UserStorage.Transaction)
 
-				var svc2 MyService
-				assert.NoError(t, c.CopyServiceTo("myService", &svc2))
+				tmp, err = c.Get("myService")
+				require.NoError(t, err)
+				svc2 := tmp.(MyService)
 				assert.NotSame(t, svc.Transaction, svc2.Transaction)
 			}()
 
@@ -157,64 +158,14 @@ func Test_container_Get(t *testing.T) {
 				transaction.ScopeNonShared()
 				c.OverrideService("transaction", transaction)
 
-				var svc MyService
-				assert.NoError(t, c.CopyServiceTo("myService", &svc))
+				tmp, err := c.Get("myService")
+				require.NoError(t, err)
+				svc := tmp.(MyService)
 
 				assert.NotSame(t, svc.Transaction, svc.ItemStorage.Transaction)
 				assert.NotSame(t, svc.Transaction, svc.UserStorage.Transaction)
 			}()
 		})
-	})
-}
-
-func Test_container_CopyServiceTo(t *testing.T) {
-	t.Run("OK", func(t *testing.T) {
-		c := container.NewContainer()
-
-		s := container.NewService()
-		s.SetConstructor(func() interface{} {
-			return &Numbers{
-				A: 200,
-			}
-		})
-		c.OverrideService("numbers", s)
-
-		var numbers *Numbers
-		err := c.CopyServiceTo("numbers", &numbers)
-		assert.NoError(t, err)
-		assert.Equal(t, Numbers{A: 200}, *numbers)
-	})
-	t.Run("Error", func(t *testing.T) {
-		c := container.NewContainer()
-
-		s := container.NewService()
-		s.SetConstructor(func() interface{} {
-			return &Numbers{
-				A: 200,
-			}
-		})
-		c.OverrideService("numbers", s)
-
-		var numbers *Numbers
-		err := c.CopyServiceTo("numbers", numbers) // missing pointer, it should be &numbers
-		assert.ErrorContains(t, err, `container.CopyServiceTo("numbers"): `)
-	})
-	t.Run("Error #2", func(t *testing.T) {
-		c := container.NewContainer()
-
-		s := container.NewService()
-		s.SetConstructor(func() (interface{}, error) {
-			return nil, errors.New("unexpected error")
-		})
-		c.OverrideService("numbers", s)
-
-		var numbers *Numbers
-		err := c.CopyServiceTo("numbers", &numbers)
-		assert.EqualError(
-			t,
-			err,
-			`container.CopyServiceTo("numbers"): container.get("numbers"): constructor: unexpected error`,
-		)
 	})
 }
 

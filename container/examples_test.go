@@ -6,6 +6,7 @@ import (
 	"math"
 
 	"github.com/gontainer/gontainer-helpers/container"
+	"github.com/gontainer/gontainer-helpers/copier"
 )
 
 type Person struct {
@@ -154,12 +155,7 @@ func ExampleNewContainer_simple() {
 	c.OverrideService("peter", peter)
 	c.OverrideService("people", people)
 
-	// instead of these 2 following lines,
-	// you can write:
-	//
-	// peopleObject, _ := c.Get("people")
-	var peopleObject People
-	_ = c.CopyServiceTo("people", &peopleObject)
+	peopleObject, _ := c.Get("people")
 
 	fmt.Printf("%+v\n", peopleObject)
 
@@ -297,7 +293,8 @@ func ExampleNewContainer_decorator() {
 	c.AddDecorator("greeter-tag", PoliteGreeterDecorator)
 
 	var greeterObj Greeter
-	_ = c.CopyServiceTo("greeter", &greeterObj)
+	tmp, _ := c.Get("greeter")
+	_ = copier.Copy(tmp, &greeterObj)
 	fmt.Println(greeterObj.Greet())
 
 	// Output: Hello! How are you?
@@ -345,37 +342,6 @@ func ExampleNewContainer_scopeNonShared() {
 	fmt.Println(first, second)
 
 	// Output: 1 2
-}
-
-func ExampleNewContainer_copyServiceToOK() {
-	p := container.NewService()
-	p.SetValue(Person{})
-	p.SetField("Name", container.NewDependencyValue("Mary Jane"))
-
-	c := container.NewContainer()
-	c.OverrideService("mary", p)
-
-	var mary Person
-	_ = c.CopyServiceTo("mary", &mary)
-	fmt.Println(mary)
-
-	// Output: {Mary Jane}
-}
-
-func ExampleNewContainer_copyServiceToError() {
-	p := container.NewService()
-	p.SetValue(Person{})
-	p.SetField("Name", container.NewDependencyValue("Mary Jane"))
-
-	c := container.NewContainer()
-	c.OverrideService("mary", p)
-
-	var mary People
-	err := c.CopyServiceTo("mary", &mary)
-	fmt.Println(err)
-
-	// Output:
-	// container.CopyServiceTo("mary"): reflect.Set: value of type container_test.Person is not assignable to type container_test.People
 }
 
 func ExampleNewContainer_getTaggedBy() {
