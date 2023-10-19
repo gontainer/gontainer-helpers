@@ -42,7 +42,7 @@ func ExampleCopy_err1() {
 	fmt.Println(err)
 	// Output:
 	// 0
-	// reflect.Set: value of type int is not assignable to type uint
+	// value of type int is not assignable to type uint
 }
 
 func ExampleCopy_err2() {
@@ -55,7 +55,7 @@ func ExampleCopy_err2() {
 	fmt.Println(err)
 	// Output:
 	// 0
-	// reflect.Set: value of type float32 is not assignable to type uint
+	// value of type float32 is not assignable to type uint
 }
 
 func ExampleCopy_err3() {
@@ -68,5 +68,5 @@ func ExampleCopy_err3() {
 	fmt.Println(err)
 	// Output:
 	// <nil>
-	// reflect.Set: value of type *int is not assignable to type *uint
+	// value of type *int is not assignable to type *uint
 }
