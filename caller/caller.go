@@ -8,7 +8,7 @@ import (
 
 // Call calls the given function with the given arguments.
 // It returns values returned by the function in a slice.
-func Call(fn interface{}, params []interface{}, convertParams bool) ([]interface{}, error) {
+func Call(fn any, params []interface{}, convertParams bool) ([]interface{}, error) {
 	v, err := caller.Func(fn)
 	if err != nil {
 		return nil, err
