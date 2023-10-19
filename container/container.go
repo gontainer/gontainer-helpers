@@ -64,6 +64,11 @@ func (c *container) OverrideService(serviceID string, s Service) {
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()
 
+	// TODO: worth to consider whether we should wait till all contexts are done, e.g.:
+	//	c.hotSwap(func(m MutableContainer) {
+	//		m.OverrideService(serviceID, s)
+	//	})
+
 	overrideService(c, serviceID, s)
 }
 
