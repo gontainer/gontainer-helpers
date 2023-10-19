@@ -22,6 +22,7 @@ type serviceDecorator struct {
 type container struct {
 	graphBuilder   *graphBuilder
 	services       map[string]Service
+	params         map[string]Dependency
 	cacheShared    keyValue
 	serviceLockers map[string]sync.Locker
 	globalLocker   rwlocker
@@ -42,6 +43,7 @@ var currentContainerID = new(uint64)
 func NewContainer() *container {
 	c := &container{
 		services:       make(map[string]Service),
+		params:         make(map[string]Dependency),
 		cacheShared:    newSafeMap(),
 		serviceLockers: make(map[string]sync.Locker),
 		globalLocker:   &sync.RWMutex{},
@@ -58,6 +60,13 @@ func (c *container) CircularDeps() error {
 	defer c.globalLocker.RUnlock()
 
 	return grouperror.Prefix("container.CircularDeps(): ", c.graphBuilder.circularDeps())
+}
+
+func (c *container) _overrideParam(paramID string, s Dependency) {
+	c.globalLocker.Lock()
+	defer c.globalLocker.Unlock()
+
+	panic("todo")
 }
 
 func (c *container) OverrideService(serviceID string, s Service) {
