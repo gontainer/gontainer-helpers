@@ -15,7 +15,7 @@ func TestCall(t *testing.T) {
 	t.Run("Given method", func(t *testing.T) {
 		p := person{}
 		assert.Equal(t, "", p.name)
-		_, err := caller.Call(p.setName, "Mary")
+		_, err := caller.Call(p.setName, []interface{}{"Mary"}, false)
 		if !assert.NoError(t, err) {
 			return
 		}
@@ -36,7 +36,7 @@ func TestCall(t *testing.T) {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				_, err := caller.Call(s.fn)
+				_, err := caller.Call(s.fn, nil, false)
 				assert.Error(t, err)
 				assert.Regexp(t, expectedRegexp, err)
 			})
@@ -50,7 +50,7 @@ func TestCall(t *testing.T) {
 			struct{}{},
 		}
 
-		_, err := caller.Call(callee, params...)
+		_, err := caller.Call(callee, params, true)
 		assert.EqualError(t, err, msg)
 	})
 
@@ -61,7 +61,7 @@ func TestCall(t *testing.T) {
 			"*int",
 		}
 
-		_, err := caller.Call(callee, params...)
+		_, err := caller.Call(callee, params, true)
 
 		expected := []string{
 			"arg0: cannot cast `struct {}` to `[]int`",
@@ -89,7 +89,7 @@ func TestCall(t *testing.T) {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				_, err := caller.Call(s.fn, s.args...)
+				_, err := caller.Call(s.fn, s.args, true)
 				assert.EqualError(t, err, msg)
 			})
 		}
@@ -114,7 +114,7 @@ func TestCall(t *testing.T) {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				_, err := caller.Call(s.fn, s.args...)
+				_, err := caller.Call(s.fn, s.args, true)
 				assert.EqualError(t, err, msg)
 			})
 		}
@@ -155,7 +155,8 @@ func TestCall(t *testing.T) {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				r, err := caller.Call(s.fn, s.args...)
+				// TODO it panics for `false`, return an error
+				r, err := caller.Call(s.fn, s.args, true)
 				assert.NoError(t, err)
 				assert.Equal(t, s.expected, r)
 			})
@@ -194,7 +195,7 @@ func TestCall(t *testing.T) {
 			s := tmp
 			t.Run(n, func(t *testing.T) {
 				t.Parallel()
-				r, err := caller.Call(s.fn, s.input)
+				r, err := caller.Call(s.fn, []interface{}{s.input}, true)
 				if s.error != "" {
 					assert.EqualError(t, err, s.error)
 					assert.Nil(t, r)
@@ -239,7 +240,7 @@ func TestCallProvider(t *testing.T) {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				r, err := caller.CallProvider(s.provider, s.params...)
+				r, err := caller.CallProvider(s.provider, s.params, false)
 				assert.NoError(t, err)
 				assert.Equal(t, s.expected, r)
 			})
@@ -287,7 +288,7 @@ func TestCallProvider(t *testing.T) {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				r, err := caller.CallProvider(s.provider, s.params...)
+				r, err := caller.CallProvider(s.provider, s.params, false)
 				assert.Nil(t, r)
 				assert.EqualError(t, err, s.err)
 			})
@@ -295,16 +296,22 @@ func TestCallProvider(t *testing.T) {
 	})
 
 	t.Run("Given invalid provider", func(t *testing.T) {
-		_, err := caller.CallProvider(5)
+		_, err := caller.CallProvider(5, nil, false)
 		assert.EqualError(t, err, "expected `func`, `int` given")
 	})
 
 	t.Run("Given provider panics", func(t *testing.T) {
-		_, err := caller.CallProvider(func() interface{} {
-			panic("panic!")
-		})
+		defer func() {
+			assert.Equal(t, "panic!", recover())
+		}()
 
-		assert.EqualError(t, err, "panic!")
+		_, _ = caller.CallProvider(
+			func() interface{} {
+				panic("panic!")
+			},
+			nil,
+			false,
+		)
 	})
 }
 
@@ -354,7 +361,7 @@ func TestCallWitherByName(t *testing.T) {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				result, err := caller.CallWitherByName(s.object, s.wither, s.params...)
+				result, err := caller.CallWitherByName(s.object, s.wither, s.params, false)
 				assert.NoError(t, err)
 				assert.Equal(t, s.output, result)
 			})
@@ -392,7 +399,7 @@ func TestCallWitherByName(t *testing.T) {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				o, err := caller.CallWitherByName(s.object, s.wither, s.params...)
+				o, err := caller.CallWitherByName(s.object, s.wither, s.params, false)
 				assert.Nil(t, o)
 				assert.EqualError(t, err, s.error)
 			})
