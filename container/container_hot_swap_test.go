@@ -39,9 +39,9 @@ func TestNewContainer_hotSwap(t *testing.T) {
 
 		const max = 1000
 		wg := sync.WaitGroup{}
-		wg.Add(max * 2)
 
 		runGoroutines := func() {
+			wg.Add(max)
 			for i := 0; i < max; i++ {
 				go func() {
 					defer wg.Done()
