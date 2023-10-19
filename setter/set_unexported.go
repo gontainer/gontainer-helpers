@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unsafe"
 
-	internalReflect "github.com/gontainer/gontainer-helpers/internal/reflect"
+	intReflect "github.com/gontainer/gontainer-helpers/internal/reflect"
 )
 
 func set(strct any, field string, val any, convert bool) error {
@@ -77,7 +77,7 @@ func setOnValue(strct reflect.Value, field string, val any, convert bool) error 
 		return fmt.Errorf("field `%s` does not exist", field)
 	}
 
-	v, err := internalReflect.ValueOf(val, f.Type(), convert)
+	v, err := intReflect.ValueOf(val, f.Type(), convert)
 	if err != nil {
 		return err
 	}
