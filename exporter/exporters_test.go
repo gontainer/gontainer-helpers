@@ -266,11 +266,11 @@ func TestCastToString(t *testing.T) {
 		},
 		{
 			input:  float64(10000000000),
-			output: `1e+10`,
+			output: `10000000000`,
 		},
 		{
 			input:  float32(10000000000),
-			output: `1e+10`,
+			output: `10000000000`,
 		},
 	}
 

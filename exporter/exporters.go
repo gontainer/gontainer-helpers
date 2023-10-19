@@ -3,6 +3,7 @@ package exporter
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -131,18 +132,10 @@ func (n numberExporter) export(v interface{}) (string, error) {
 	t := reflect.TypeOf(v)
 	var sv string
 	switch t.Kind() {
-	//case reflect.Float32:
-	//	sv = strconv.FormatFloat(float64(v.(float32)), 'f', -1, 32)
-	//case reflect.Float64:
-	//	sv = strconv.FormatFloat(v.(float64), 'f', -1, 64)
-
-	//TODO breaking change!
-	//it returns "1e+10" for float64(10000000000)
-	//replace it with the above solution in the new major version
-	case
-		reflect.Float32,
-		reflect.Float64:
-		sv = fmt.Sprintf("%#v", v)
+	case reflect.Float32:
+		sv = strconv.FormatFloat(float64(v.(float32)), 'f', -1, 32)
+	case reflect.Float64:
+		sv = strconv.FormatFloat(v.(float64), 'f', -1, 64)
 	default:
 		sv = fmt.Sprintf("%d", v)
 	}
