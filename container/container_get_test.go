@@ -175,7 +175,7 @@ func Test_container_get_doNotCacheOnError(t *testing.T) {
 			// constructor has been invoked twice,
 			// even tho `c.GetInContext(ctx, "five)` has been executed 3 times
 			// because the result of the second invocation has been cached
-			assert.Equal(t, uint64(2), *counter)
+			assert.Equal(t, uint64(2), atomic.LoadUint64(counter))
 		})
 	}
 }
@@ -238,8 +238,8 @@ func Test_container_get_cache(t *testing.T) {
 	wg.Wait()
 
 	// serviceCtx is cached 3 times, in a scope of 3 different requests
-	assert.Equal(t, uint64(3), *counterCtx)
+	assert.Equal(t, uint64(3), atomic.LoadUint64(counterCtx))
 
 	// serviceShared is shared, so will be cached once, globally
-	assert.Equal(t, uint64(1), *counterShared)
+	assert.Equal(t, uint64(1), atomic.LoadUint64(counterShared))
 }
