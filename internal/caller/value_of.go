@@ -10,7 +10,7 @@ var (
 	errorInterface = reflect.TypeOf((*error)(nil)).Elem()
 )
 
-func Func(fn interface{}) (reflect.Value, error) {
+func Func(fn any) (reflect.Value, error) {
 	v := reflect.ValueOf(fn)
 	if !v.IsValid() {
 		return reflect.Value{}, fmt.Errorf("invalid func: %T", fn)
@@ -21,7 +21,7 @@ func Func(fn interface{}) (reflect.Value, error) {
 	return v, nil
 }
 
-func FuncProvider(fn interface{}) (reflect.Value, error) {
+func FuncProvider(fn any) (reflect.Value, error) {
 	v, err := Func(fn)
 	if err != nil {
 		return reflect.Value{}, err
@@ -35,7 +35,7 @@ func FuncProvider(fn interface{}) (reflect.Value, error) {
 	return v, nil
 }
 
-func Method(object interface{}, method string) (reflect.Value, error) {
+func Method(object any, method string) (reflect.Value, error) {
 	obj := reflect.ValueOf(object)
 	if !obj.IsValid() {
 		return reflect.Value{}, fmt.Errorf("invalid method receiver: %T", object)
@@ -51,7 +51,7 @@ func Method(object interface{}, method string) (reflect.Value, error) {
 	return fn, nil
 }
 
-func Wither(object interface{}, method string) (reflect.Value, error) {
+func Wither(object any, method string) (reflect.Value, error) {
 	fn, err := Method(object, method)
 	if err != nil {
 		return reflect.Value{}, err

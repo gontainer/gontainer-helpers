@@ -30,7 +30,7 @@ func (t reflectType) inVariadicAware(i int) reflect.Type {
 // CallFunc calls the given func.
 //
 // fn.Kind() MUST BE equal to [reflect.Func]
-func CallFunc(fn reflect.Value, params []interface{}, convertParams bool) (res []interface{}, err error) {
+func CallFunc(fn reflect.Value, params []any, convertParams bool) (res []any, err error) {
 	fnType := reflectType{fn.Type()}
 
 	if len(params) > fnType.NumIn() && !fnType.IsVariadic() {
@@ -59,7 +59,7 @@ func CallFunc(fn reflect.Value, params []interface{}, convertParams bool) (res [
 		return nil, grouperror.Join(errs...)
 	}
 
-	var result []interface{}
+	var result []any
 	for _, v := range fn.Call(paramsRef) {
 		result = append(result, v.Interface())
 	}
