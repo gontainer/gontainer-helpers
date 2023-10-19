@@ -9,7 +9,6 @@ import (
 	"sync/atomic"
 
 	"github.com/gontainer/gontainer-helpers/caller"
-	"github.com/gontainer/gontainer-helpers/copier"
 	"github.com/gontainer/gontainer-helpers/grouperror"
 )
 
@@ -85,26 +84,6 @@ func (c *container) AddDecorator(tag string, decorator interface{}, deps ...Depe
 		fn:   decorator,
 		deps: deps,
 	})
-}
-
-// CopyServiceTo gets or creates the desired service and copies it to the given pointer
-//
-//	var server *http.Server
-//	container.CopyServiceTo("server", &server)
-//
-// Deprecated: use copier.Copy or copier.ConvertAndCopy.
-// It's been deprecated to avoid adding a complex method `CopyServiceToWithContext`.
-func (c *container) CopyServiceTo(id string, dst interface{}) (err error) {
-	defer func() {
-		if err != nil {
-			err = grouperror.Prefix(fmt.Sprintf("container.CopyServiceTo(%+q): ", id), err)
-		}
-	}()
-	r, err := c.Get(id)
-	if err != nil {
-		return err
-	}
-	return copier.Copy(r, dst)
 }
 
 func (c *container) contextBag(ctx context.Context) keyValue {
