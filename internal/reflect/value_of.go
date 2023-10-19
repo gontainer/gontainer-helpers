@@ -9,7 +9,7 @@ import (
 //
 // Built-in [reflect.ValueOf](nil) returns the zero [reflect.Value].
 // ValueOf for the `i == nil` and a nil-able [reflect.Kind] of `t` returns a zero value from `t`.
-func ValueOf(i interface{}, t reflect.Type, convert_ bool) (reflect.Value, error) {
+func ValueOf(i any, t reflect.Type, convert_ bool) (reflect.Value, error) {
 	if convert_ {
 		return convert(i, t)
 	}
@@ -22,7 +22,7 @@ func ValueOf(i interface{}, t reflect.Type, convert_ bool) (reflect.Value, error
 	return r, nil
 }
 
-func zeroForNilable(i interface{}, t reflect.Type) (reflect.Value, error) {
+func zeroForNilable(i any, t reflect.Type) (reflect.Value, error) {
 	if i == nil && isNilable(t.Kind()) {
 		return reflect.Zero(t), nil
 	}

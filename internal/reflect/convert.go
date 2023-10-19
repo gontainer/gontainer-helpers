@@ -6,8 +6,8 @@ import (
 )
 
 // convert converts given value to given type whenever it is possible.
-// In opposition to built-in reflect package it allows to convert []interface{} to []type and []type to []interface{}.
-func convert(value interface{}, to reflect.Type) (reflect.Value, error) {
+// In opposition to built-in reflect package it allows to convert []any to []type and []type to []any.
+func convert(value any, to reflect.Type) (reflect.Value, error) {
 	from := reflect.ValueOf(value)
 	if !from.IsValid() {
 		return zeroForNilable(value, to)
@@ -73,7 +73,7 @@ func convertSliceOrArray(from reflect.Value, to reflect.Type) (reflect.Value, er
 		for item.Kind() == reflect.Interface {
 			item = item.Elem()
 		}
-		var currVal interface{} = nil
+		var currVal any = nil
 		if item.IsValid() {
 			currVal = item.Interface()
 		}
