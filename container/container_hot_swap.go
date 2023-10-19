@@ -39,5 +39,7 @@ func (c *container) HotSwap(fn func(MutableContainer)) {
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()
 
+	defer c.graphBuilder.warmUp()
+
 	fn(mutableContainer{parent: c})
 }
