@@ -5,12 +5,12 @@ package setter
 var Set = ConvertAndSet
 
 // TODO
-//func Set(strct interface{}, field string, val interface{}) error {
+//func Set(strct any, field string, val any) error {
 //	return set(strct, field, val, false)
 //}
 
 // ConvertAndSet assigns the value `val` to the field `field` on the struct `strct`.
 // Unexported fields are supported.
-func ConvertAndSet(strct interface{}, field string, val interface{}) error {
+func ConvertAndSet(strct any, field string, val any) error {
 	return set(strct, field, val, true)
 }

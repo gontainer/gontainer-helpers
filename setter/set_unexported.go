@@ -9,7 +9,7 @@ import (
 	internalReflect "github.com/gontainer/gontainer-helpers/internal/reflect"
 )
 
-func set(strct interface{}, field string, val interface{}, convert bool) error {
+func set(strct any, field string, val any, convert bool) error {
 	if field == "_" {
 		return fmt.Errorf(`"_" is not supported`)
 	}
@@ -45,7 +45,7 @@ func set(strct interface{}, field string, val interface{}, convert bool) error {
 		))
 
 	// case chain.equalTo(reflect.Ptr, reflect.Interface, reflect.Ptr (, reflect.Ptr...), reflect.Struct):
-	// var s interface{} = &struct{ val int }{}
+	// var s any = &struct{ val int }{}
 	// Set(&s...
 	case chain.isInterfaceOverPointerChain():
 		elem := reflectVal.Elem()
@@ -54,7 +54,7 @@ func set(strct interface{}, field string, val interface{}, convert bool) error {
 		}
 		return wrap(setOnValue(elem, field, val, convert))
 
-	// var s interface{} = struct{ val int }{}
+	// var s any = struct{ val int }{}
 	// Set(&s...
 	case chain.equalTo(reflect.Ptr, reflect.Interface, reflect.Struct):
 		v := reflectVal.Elem()
@@ -71,7 +71,7 @@ func set(strct interface{}, field string, val interface{}, convert bool) error {
 	}
 }
 
-func setOnValue(strct reflect.Value, field string, val interface{}, convert bool) error {
+func setOnValue(strct reflect.Value, field string, val any, convert bool) error {
 	f := strct.FieldByName(field)
 	if !f.IsValid() {
 		return fmt.Errorf("field `%s` does not exist", field)
@@ -138,7 +138,7 @@ func (c kindChain) String() string {
 	return strings.Join(parts, ".")
 }
 
-func valueToKindChain(val interface{}) kindChain {
+func valueToKindChain(val any) kindChain {
 	var r kindChain
 	v := reflect.ValueOf(val)
 	for {
