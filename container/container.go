@@ -75,7 +75,7 @@ func (c *container) CircularDeps() error {
 	return grouperror.Prefix("container.CircularDeps(): ", c.graphBuilder.circularDeps())
 }
 
-func (c *container) _overrideParam(paramID string, s Dependency) {
+func (c *container) _overrideParam(paramID string, s Dependency) { //nolint:unused
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()
 
