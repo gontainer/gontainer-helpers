@@ -9,6 +9,7 @@ import (
 	"sync/atomic"
 
 	"github.com/gontainer/gontainer-helpers/caller"
+	"github.com/gontainer/gontainer-helpers/container/internal/groupcontext"
 	"github.com/gontainer/gontainer-helpers/grouperror"
 )
 
@@ -25,7 +26,11 @@ type container struct {
 	serviceLockers map[string]sync.Locker
 	globalLocker   rwlocker
 	decorators     []serviceDecorator
-	id             ctxKey
+	groupContext   interface {
+		Add(context.Context)
+		Wait()
+	}
+	id ctxKey
 }
 
 type ctxKey uint64
@@ -39,6 +44,7 @@ func NewContainer() *container {
 		cacheShared:    newSafeMap(),
 		serviceLockers: make(map[string]sync.Locker),
 		globalLocker:   &sync.RWMutex{},
+		groupContext:   groupcontext.New(),
 		id:             ctxKey(atomic.AddUint64(currentContainerID, 1)),
 	}
 	c.graphBuilder = newGraphBuilder(c)
