@@ -8,19 +8,19 @@ import (
 )
 
 func TestConvertAndCopy(t *testing.T) {
-	t.Run("[]int to []interface{}", func(t *testing.T) {
+	t.Run("[]int to []any", func(t *testing.T) {
 		var (
 			from = []int{1, 2, 3}
-			to   []interface{}
+			to   []any
 		)
 
 		err := copier.ConvertAndCopy(from, &to)
 		assert.NoError(t, err)
-		assert.Equal(t, []interface{}{1, 2, 3}, to)
+		assert.Equal(t, []any{1, 2, 3}, to)
 	})
-	t.Run("[]interface{} to []int", func(t *testing.T) {
+	t.Run("[]any to []int", func(t *testing.T) {
 		var (
-			from = []interface{}{1, 2, 3}
+			from = []any{1, 2, 3}
 			to   []int
 		)
 
@@ -68,15 +68,15 @@ func TestConvertAndCopy(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, [4]int{1, 2, 3, 0}, to)
 	})
-	t.Run("[N]interface{} to [N+1]interface{}", func(t *testing.T) {
+	t.Run("[N]any to [N+1]any", func(t *testing.T) {
 		var (
-			from = [3]interface{}{6, 7, 8}
-			to   [4]interface{}
+			from = [3]any{6, 7, 8}
+			to   [4]any
 		)
 
 		err := copier.ConvertAndCopy(from, &to)
 		assert.NoError(t, err)
-		assert.Equal(t, [4]interface{}{6, 7, 8, nil}, to)
+		assert.Equal(t, [4]any{6, 7, 8, nil}, to)
 	})
 	t.Run("[N]int to []int", func(t *testing.T) {
 		var (

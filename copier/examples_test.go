@@ -21,8 +21,8 @@ func ExampleConvertAndCopy_ok() {
 
 func ExampleCopy_ok() {
 	var (
-		from = 5         // the type of the variable `to` can be different from the type of the variable `from`
-		to   interface{} // as long as the value of the `from` is assignable to the `to`
+		from = 5 // the type of the variable `to` can be different from the type of the variable `from`
+		to   any // as long as the value of the `from` is assignable to the `to`
 	)
 	err := copier.Copy(from, &to)
 	fmt.Println(to)

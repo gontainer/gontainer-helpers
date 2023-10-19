@@ -70,16 +70,16 @@ func TestCopy(t *testing.T) {
 			assert.NoError(t, err)
 		})
 	})
-	t.Run("var from interface{}", func(t *testing.T) {
-		var from interface{} = car{age: 5}
+	t.Run("var from any", func(t *testing.T) {
+		var from any = car{age: 5}
 		var to car
 
 		assert.NoError(t, copier.Copy(from, &to))
 		assert.Equal(t, 5, to.age)
 	})
-	t.Run("var to interface{}", func(t *testing.T) {
+	t.Run("var to any", func(t *testing.T) {
 		six := 6
-		scenarios := []interface{}{
+		scenarios := []any{
 			5,
 			3.14,
 			struct{}{},
@@ -94,7 +94,7 @@ func TestCopy(t *testing.T) {
 			d := tmp
 			t.Run(fmt.Sprintf("%d: `%T`", id, d), func(t *testing.T) {
 				t.Parallel()
-				var to interface{}
+				var to any
 				assert.NoError(t, copier.Copy(d, &to))
 				assert.Equal(t, d, to)
 				if reflect.ValueOf(d).Kind() == reflect.Ptr {

@@ -15,7 +15,7 @@ import (
 //	)
 //	err := copier.ConvertAndCopy(from, &to)
 //	fmt.Println(to) // 5
-func ConvertAndCopy(from interface{}, to interface{}) error {
+func ConvertAndCopy(from any, to any) error {
 	return copyTo(from, to, true)
 }
 
@@ -25,11 +25,11 @@ func ConvertAndCopy(from interface{}, to interface{}) error {
 //	b := 0
 //	Copy(from, &to)
 //	fmt.Println(to) // 5
-func Copy(from interface{}, to interface{}) error {
+func Copy(from any, to any) error {
 	return copyTo(from, to, false)
 }
 
-func copyTo(from interface{}, to interface{}, convert bool) (err error) {
+func copyTo(from any, to any, convert bool) (err error) {
 	t := reflect.ValueOf(to)
 
 	if t.Kind() != reflect.Ptr {
