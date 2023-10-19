@@ -27,7 +27,7 @@ func (m mutableContainer) InvalidateAllServicesCache() {
 }
 
 // TODO
-func (c *container) hotSwap(fn func(MutableContainer)) {
+func (c *container) HotSwap(fn func(MutableContainer)) {
 	// lock the executions of ContextWithContainer
 	c.contextLocker.Lock()
 	defer c.contextLocker.Unlock()
