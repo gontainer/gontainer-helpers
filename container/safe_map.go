@@ -6,25 +6,25 @@ import (
 
 // safeMap provides the interface for concurrent-safe operations over a map.
 type safeMap struct {
-	data   map[string]interface{}
+	data   map[string]any
 	locker rwlocker
 }
 
 func newSafeMap() *safeMap {
 	return &safeMap{
-		data:   make(map[string]interface{}),
+		data:   make(map[string]any),
 		locker: &sync.RWMutex{},
 	}
 }
 
-func (s *safeMap) set(id string, v interface{}) {
+func (s *safeMap) set(id string, v any) {
 	s.locker.Lock()
 	defer s.locker.Unlock()
 
 	s.data[id] = v
 }
 
-func (s *safeMap) get(id string) (value interface{}, exists bool) {
+func (s *safeMap) get(id string) (value any, exists bool) {
 	s.locker.RLock()
 	defer s.locker.RUnlock()
 

@@ -9,7 +9,7 @@ import (
 	"github.com/gontainer/gontainer-helpers/setter"
 )
 
-func (c *container) get(id string, contextualBag keyValue) (result interface{}, err error) {
+func (c *container) get(id string, contextualBag keyValue) (result any, err error) {
 	defer func() {
 		if err != nil {
 			err = grouperror.Prefix(fmt.Sprintf("container.get(%+q): ", id), err)
@@ -84,7 +84,7 @@ func (c *container) get(id string, contextualBag keyValue) (result interface{}, 
 	return result, nil
 }
 
-func (c *container) createNewService(svc Service, contextualBag keyValue) (interface{}, error) {
+func (c *container) createNewService(svc Service, contextualBag keyValue) (any, error) {
 	result := svc.value
 
 	if svc.constructor != nil {
@@ -102,10 +102,10 @@ func (c *container) createNewService(svc Service, contextualBag keyValue) (inter
 }
 
 func (c *container) setServiceFields(
-	result interface{},
+	result any,
 	svc Service,
 	contextualBag keyValue,
-) (interface{}, error) {
+) (any, error) {
 	errs := make([]error, len(svc.fields))
 	for i, f := range svc.fields {
 		fieldVal, err := c.resolveDep(contextualBag, f.dep)
@@ -122,10 +122,10 @@ func (c *container) setServiceFields(
 }
 
 func (c *container) executeServiceCalls(
-	result interface{},
+	result any,
 	svc Service,
 	contextualBag keyValue,
-) (interface{}, error) {
+) (any, error) {
 	errs := make([]error, len(svc.calls))
 
 	for i, call := range svc.calls {
@@ -159,10 +159,10 @@ func (c *container) executeServiceCalls(
 
 func (c *container) decorateService(
 	id string,
-	result interface{},
+	result any,
 	svc Service,
 	contextualBag keyValue,
-) (interface{}, error) {
+) (any, error) {
 	// for decorators, we have to stop execution on the very first error,
 	// because in case of error they may return a nil-value
 	for i, dec := range c.decorators {
@@ -178,7 +178,7 @@ func (c *container) decorateService(
 		if err != nil {
 			return nil, grouperror.Prefix(fmt.Sprintf("resolve decorator args #%d: ", i), err)
 		}
-		params = append([]interface{}{payload}, params...)
+		params = append([]any{payload}, params...)
 		result, err = caller.CallProvider(dec.fn, params, convertParams)
 		if err != nil {
 			return nil, grouperror.Prefix(fmt.Sprintf("decorator #%d: ", i), err)

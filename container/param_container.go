@@ -43,7 +43,7 @@ func (p *paramContainer) OverrideParam(id string, d Dependency) {
 	p.lockers[id] = &sync.Mutex{}
 }
 
-func (p *paramContainer) GetParam(id string) (result interface{}, err error) {
+func (p *paramContainer) GetParam(id string) (result any, err error) {
 	p.rwlocker.RLock()
 	defer p.rwlocker.RUnlock()
 

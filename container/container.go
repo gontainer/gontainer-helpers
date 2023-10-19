@@ -14,7 +14,7 @@ import (
 
 type serviceDecorator struct {
 	tag  string
-	fn   interface{}
+	fn   any
 	deps []Dependency
 }
 
@@ -73,7 +73,7 @@ func (c *container) OverrideService(id string, s Service) {
 	}
 }
 
-func (c *container) AddDecorator(tag string, decorator interface{}, deps ...Dependency) {
+func (c *container) AddDecorator(tag string, decorator any, deps ...Dependency) {
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()
 
@@ -94,22 +94,22 @@ func (c *container) contextBag(ctx context.Context) keyValue {
 	return bag.(keyValue)
 }
 
-func (c *container) GetInContext(ctx context.Context, id string) (interface{}, error) {
+func (c *container) GetInContext(ctx context.Context, id string) (any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
 	return c.get(id, c.contextBag(ctx))
 }
 
-func (c *container) Get(id string) (interface{}, error) {
+func (c *container) Get(id string) (any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
 	return c.get(id, newSafeMap())
 }
 
-func (c *container) resolveDeps(contextualBag keyValue, deps ...Dependency) ([]interface{}, error) {
-	r := make([]interface{}, len(deps))
+func (c *container) resolveDeps(contextualBag keyValue, deps ...Dependency) ([]any, error) {
+	r := make([]any, len(deps))
 	errs := make([]error, len(deps))
 
 	for i, d := range deps {
@@ -121,7 +121,7 @@ func (c *container) resolveDeps(contextualBag keyValue, deps ...Dependency) ([]i
 	return r, grouperror.Join(errs...)
 }
 
-func (c *container) resolveDep(contextualBag keyValue, d Dependency) (interface{}, error) {
+func (c *container) resolveDep(contextualBag keyValue, d Dependency) (any, error) {
 	switch d.type_ {
 	case dependencyNil:
 		return d.value, nil
@@ -148,21 +148,21 @@ func (c *container) IsTaggedBy(id string, tag string) bool {
 	return ok
 }
 
-func (c *container) GetTaggedBy(tag string) ([]interface{}, error) {
+func (c *container) GetTaggedBy(tag string) ([]any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
 	return c.getTaggedBy(tag, newSafeMap())
 }
 
-func (c *container) GetTaggedByInContext(ctx context.Context, tag string) ([]interface{}, error) {
+func (c *container) GetTaggedByInContext(ctx context.Context, tag string) ([]any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
 	return c.getTaggedBy(tag, c.contextBag(ctx))
 }
 
-func (c *container) getTaggedBy(tag string, contextualBag keyValue) (result []interface{}, err error) {
+func (c *container) getTaggedBy(tag string, contextualBag keyValue) (result []any, err error) {
 	defer func() {
 		if err != nil {
 			err = grouperror.Prefix(fmt.Sprintf("container.getTaggedBy(%+q): ", tag), err)
@@ -194,7 +194,7 @@ func (c *container) getTaggedBy(tag string, contextualBag keyValue) (result []in
 		return services[i].priority > services[j].priority
 	})
 
-	result = make([]interface{}, len(services))
+	result = make([]any, len(services))
 	for i, s := range services {
 		result[i], err = c.get(s.id, contextualBag)
 		if err != nil {

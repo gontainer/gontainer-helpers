@@ -27,14 +27,14 @@ func (d dependencyType) String() string {
 
 type Dependency struct {
 	type_     dependencyType
-	value     interface{}
+	value     any
 	tagID     string
 	serviceID string
-	provider  interface{}
+	provider  any
 }
 
 // NewDependencyValue creates a nil-Dependency, it does not depend on anything in the container
-func NewDependencyValue(v interface{}) Dependency {
+func NewDependencyValue(v any) Dependency {
 	return Dependency{
 		type_: dependencyNil,
 		value: v,
@@ -57,7 +57,7 @@ func NewDependencyService(serviceID string) Dependency {
 	}
 }
 
-func NewDependencyProvider(provider interface{}) Dependency {
+func NewDependencyProvider(provider any) Dependency {
 	return Dependency{
 		type_:    dependencyProvider,
 		provider: provider,

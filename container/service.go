@@ -13,8 +13,8 @@ type serviceField struct {
 }
 
 type Service struct {
-	value           interface{}
-	constructor     interface{}
+	value           any
+	constructor     any
 	constructorDeps []Dependency
 	calls           []serviceCall
 	fields          []serviceField
@@ -29,12 +29,12 @@ func NewService() Service {
 	}
 }
 
-func (s *Service) SetValue(v interface{}) *Service {
+func (s *Service) SetValue(v any) *Service {
 	s.value = v
 	return s
 }
 
-func (s *Service) SetConstructor(fn interface{}, deps ...Dependency) *Service {
+func (s *Service) SetConstructor(fn any, deps ...Dependency) *Service {
 	s.constructor = fn
 	s.constructorDeps = deps
 	return s
