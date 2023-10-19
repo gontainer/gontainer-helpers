@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	internalReflect "github.com/gontainer/gontainer-helpers/internal/reflect"
+	intReflect "github.com/gontainer/gontainer-helpers/internal/reflect"
 )
 
 // ConvertAndCopy works similar to Copy, but it converts the type whenever it is possible.
@@ -36,13 +36,9 @@ func copyTo(from any, to any, convert bool) (err error) {
 		return fmt.Errorf("expected pointer, `%s` given", t.Kind())
 	}
 
-	f, err := internalReflect.ValueOf(from, t.Elem().Type(), convert)
+	f, err := intReflect.ValueOf(from, t.Elem().Type(), convert)
 	if err != nil {
 		return err
-	}
-
-	if !f.Type().AssignableTo(t.Elem().Type()) {
-		return fmt.Errorf("value of type %s is not assignable to type %s", f.Type().String(), t.Elem().Type().String())
 	}
 
 	t.Elem().Set(f)

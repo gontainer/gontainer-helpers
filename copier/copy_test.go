@@ -113,6 +113,13 @@ func TestCopy(t *testing.T) {
 			)
 		})
 	})
+	t.Run("Copy to nil", func(t *testing.T) {
+		assert.EqualError(
+			t,
+			copier.Copy(5, nil),
+			"expected pointer, `invalid` given", // TODO unify with other errors
+		)
+	})
 }
 
 type car struct {

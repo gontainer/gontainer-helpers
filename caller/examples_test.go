@@ -58,6 +58,17 @@ func ExampleCall_error() {
 	// arg1: cannot cast `string` to `int`
 }
 
+func ExampleCall_error2() {
+	fn := func(a int, b int) int {
+		return a * b
+	}
+	_, err := caller.Call(fn, []any{"2", "2"}, false)
+	fmt.Println(err)
+	// Output:
+	// arg0: value of type string is not assignable to type int
+	// arg1: value of type string is not assignable to type int
+}
+
 func ExampleCallProvider() {
 	// type Person struct {
 	//     Name string
