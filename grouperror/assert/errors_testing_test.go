@@ -12,7 +12,7 @@ import (
 
 type mockTesting string
 
-func (m *mockTesting) Errorf(format string, args ...interface{}) {
+func (m *mockTesting) Errorf(format string, args ...any) {
 	*m += mockTesting(fmt.Sprintf(format, args...))
 }
 

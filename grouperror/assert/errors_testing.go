@@ -7,7 +7,7 @@ import (
 
 // testingT is an interface wrapper around *testing.T
 type testingT interface {
-	Errorf(format string, args ...interface{})
+	Errorf(format string, args ...any)
 }
 
 func minLen(a []error, b []string) int {
@@ -37,9 +37,9 @@ func EqualErrorGroup(t testingT, err error, msgs []string) {
 		assert.EqualError(t, errs[i], msgs[i])
 	}
 
-	var extra []interface{}
+	var extra []any
 	if err != nil {
-		extra = []interface{}{err.Error()}
+		extra = []any{err.Error()}
 	}
 
 	assert.Len(t, errs, len(msgs), extra...)
