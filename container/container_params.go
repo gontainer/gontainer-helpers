@@ -21,11 +21,14 @@ func (c *container) getParam(id string) (result any, err error) {
 
 	defer func() {
 		if err != nil {
-			err = grouperror.Prefix(fmt.Sprintf("paramContainer.GetParam(%+q): ", id), err)
+			err = grouperror.Prefix(fmt.Sprintf("container.getParam(%+q): ", id), err)
 		}
 	}()
 
-	// TODO check circular deps
+	err = c.graphBuilder.paramCircularDeps(id)
+	if err != nil {
+		return nil, grouperror.Prefix("circular dependencies: ", err)
+	}
 
 	param, ok := c.params[id]
 	if !ok {

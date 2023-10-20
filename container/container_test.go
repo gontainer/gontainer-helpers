@@ -105,15 +105,18 @@ func Test_container_Get(t *testing.T) {
 		c.OverrideParam("fullname", container.NewDependencyParam("name"))
 		c.OverrideParam("name", container.NewDependencyParam("fullname"))
 
-		// todo it blocks forever
-		// fmt.Println(c.GetParam("name"))
-
 		svc, err := c.Get("s1")
 		assert.Nil(t, svc)
-
 		expected := []string{
 			`container.get("s1"): circular dependencies: @s1 -> @s2 -> @s3 -> @s1`,
 			`container.get("s1"): circular dependencies: @s1 -> @s1`,
+		}
+		errAssert.EqualErrorGroup(t, err, expected)
+
+		param, err := c.GetParam("fullname")
+		assert.Nil(t, param)
+		expected = []string{
+			`container.getParam("fullname"): circular dependencies: %fullname% -> %name% -> %fullname%`,
 		}
 		errAssert.EqualErrorGroup(t, err, expected)
 

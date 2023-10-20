@@ -21,3 +21,7 @@ type Dependency struct {
 func (d Dependency) IsService() bool {
 	return d.kind == dependencyService
 }
+
+func (d Dependency) IsParam() bool {
+	return d.kind == dependencyParam
+}

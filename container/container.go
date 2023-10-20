@@ -24,6 +24,7 @@ type container struct {
 		invalidate()
 		circularDeps() error
 		serviceCircularDeps(serviceID string) error
+		paramCircularDeps(paramID string) error
 		resolveScope(serviceID string) scope
 	}
 	services            map[string]Service

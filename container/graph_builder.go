@@ -13,6 +13,7 @@ type graphBuilder struct {
 	valid                bool
 	locker               rwlocker
 	servicesCycles       map[string][]int
+	paramsCycles         map[string][]int
 	scopes               map[string]scope
 	computedCircularDeps [][]containerGraph.Dependency
 }
@@ -32,21 +33,27 @@ func (g *graphBuilder) invalidate() {
 
 	g.valid = false
 	g.servicesCycles = nil
+	g.paramsCycles = nil
 	g.scopes = nil
 	g.computedCircularDeps = nil
 }
 
 func (g *graphBuilder) warmUpCircularDeps() {
 	g.servicesCycles = make(map[string][]int)
+	g.paramsCycles = make(map[string][]int)
+
 	for cycleID, cycle := range g.computedCircularDeps {
 		// first and last elements in the cycle points to the same dependency, so we should ignore one of them
 		// a -> b -> c -> a
 		for _, dep := range cycle[1:] {
-			if !dep.IsService() {
+			if dep.IsService() {
+				g.servicesCycles[dep.Resource] = append(g.servicesCycles[dep.Resource], cycleID)
 				continue
 			}
-
-			g.servicesCycles[dep.Resource] = append(g.servicesCycles[dep.Resource], cycleID)
+			if dep.IsParam() {
+				g.paramsCycles[dep.Resource] = append(g.paramsCycles[dep.Resource], cycleID)
+				continue
+			}
 		}
 	}
 }
@@ -185,8 +192,22 @@ func (g *graphBuilder) serviceCircularDeps(serviceID string) error {
 	g.locker.RLock()
 	defer g.locker.RUnlock()
 
-	var circularDeps [][]containerGraph.Dependency
+	circularDeps := make([][]containerGraph.Dependency, 0, len(g.servicesCycles[serviceID]))
 	for _, cycleID := range g.servicesCycles[serviceID] {
+		circularDeps = append(circularDeps, g.computedCircularDeps[cycleID])
+	}
+
+	return containerGraph.CircularDepsToError(circularDeps)
+}
+
+func (g *graphBuilder) paramCircularDeps(paramID string) error {
+	g.warmUp()
+
+	g.locker.RLock()
+	defer g.locker.RUnlock()
+
+	circularDeps := make([][]containerGraph.Dependency, 0, len(g.paramsCycles[paramID]))
+	for _, cycleID := range g.paramsCycles[paramID] {
 		circularDeps = append(circularDeps, g.computedCircularDeps[cycleID])
 	}
 
