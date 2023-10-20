@@ -4,6 +4,14 @@ import (
 	"context"
 )
 
+func (c *container) contextBag(ctx context.Context) keyValue {
+	bag := ctx.Value(c.id)
+	if bag == nil {
+		panic("the given context is not attached to the given container, call `ctx = container.ContextWithContainer(ctx, c)`")
+	}
+	return bag.(keyValue)
+}
+
 func (c *container) getContainerID() ctxKey {
 	return c.id
 }

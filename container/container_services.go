@@ -1,13 +1,55 @@
 package container
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"sort"
 
 	"github.com/gontainer/gontainer-helpers/caller"
 	"github.com/gontainer/gontainer-helpers/grouperror"
 	"github.com/gontainer/gontainer-helpers/setter"
 )
+
+func (c *container) Get(id string) (any, error) {
+	c.globalLocker.RLock()
+	defer c.globalLocker.RUnlock()
+
+	return c.get(id, newSafeMap())
+}
+
+func (c *container) GetInContext(ctx context.Context, id string) (any, error) {
+	c.globalLocker.RLock()
+	defer c.globalLocker.RUnlock()
+
+	return c.get(id, c.contextBag(ctx))
+}
+
+func (c *container) GetTaggedBy(tag string) ([]any, error) {
+	c.globalLocker.RLock()
+	defer c.globalLocker.RUnlock()
+
+	return c.getTaggedBy(tag, newSafeMap())
+}
+
+func (c *container) GetTaggedByInContext(ctx context.Context, tag string) ([]any, error) {
+	c.globalLocker.RLock()
+	defer c.globalLocker.RUnlock()
+
+	return c.getTaggedBy(tag, c.contextBag(ctx))
+}
+
+func (c *container) IsTaggedBy(id string, tag string) bool {
+	c.globalLocker.RLock()
+	defer c.globalLocker.RUnlock()
+
+	s, exists := c.services[id]
+	if !exists {
+		return false
+	}
+	_, ok := s.tags[tag]
+	return ok
+}
 
 func (c *container) get(id string, contextualBag keyValue) (result any, err error) {
 	defer func() {
@@ -182,6 +224,49 @@ func (c *container) decorateService(
 		result, err = caller.CallProvider(dec.fn, params, convertParams)
 		if err != nil {
 			return nil, grouperror.Prefix(fmt.Sprintf("decorator #%d: ", i), err)
+		}
+	}
+
+	return result, nil
+}
+
+func (c *container) getTaggedBy(tag string, contextualBag keyValue) (result []any, err error) {
+	defer func() {
+		if err != nil {
+			err = grouperror.Prefix(fmt.Sprintf("container.getTaggedBy(%+q): ", tag), err)
+		}
+	}()
+
+	services := make([]struct {
+		id       string
+		priority int
+	}, 0)
+	for id, s := range c.services {
+		priority, ok := s.tags[tag]
+		if !ok {
+			continue
+		}
+		services = append(services, struct {
+			id       string
+			priority int
+		}{
+			id:       id,
+			priority: priority,
+		})
+	}
+
+	sort.SliceStable(services, func(i, j int) bool {
+		if services[i].priority == services[j].priority {
+			return services[i].id < services[j].id
+		}
+		return services[i].priority > services[j].priority
+	})
+
+	result = make([]any, len(services))
+	for i, s := range services {
+		result[i], err = c.get(s.id, contextualBag)
+		if err != nil {
+			return nil, err
 		}
 	}
 

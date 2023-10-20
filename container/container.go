@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sort"
 	"sync"
 	"sync/atomic"
 
@@ -92,28 +91,6 @@ func (c *container) AddDecorator(tag string, decorator any, deps ...Dependency) 
 	})
 }
 
-func (c *container) contextBag(ctx context.Context) keyValue {
-	bag := ctx.Value(c.id)
-	if bag == nil {
-		panic("the given context is not attached to the given container, call `ctx = container.ContextWithContainer(ctx, c)`")
-	}
-	return bag.(keyValue)
-}
-
-func (c *container) GetInContext(ctx context.Context, id string) (any, error) {
-	c.globalLocker.RLock()
-	defer c.globalLocker.RUnlock()
-
-	return c.get(id, c.contextBag(ctx))
-}
-
-func (c *container) Get(id string) (any, error) {
-	c.globalLocker.RLock()
-	defer c.globalLocker.RUnlock()
-
-	return c.get(id, newSafeMap())
-}
-
 func (c *container) resolveDeps(contextualBag keyValue, deps ...Dependency) ([]any, error) {
 	r := make([]any, len(deps))
 	errs := make([]error, len(deps))
@@ -142,73 +119,4 @@ func (c *container) resolveDep(contextualBag keyValue, d Dependency) (any, error
 	}
 
 	return nil, errors.New("unknown dependency type")
-}
-
-func (c *container) IsTaggedBy(id string, tag string) bool {
-	c.globalLocker.RLock()
-	defer c.globalLocker.RUnlock()
-
-	s, exists := c.services[id]
-	if !exists {
-		return false
-	}
-	_, ok := s.tags[tag]
-	return ok
-}
-
-func (c *container) GetTaggedBy(tag string) ([]any, error) {
-	c.globalLocker.RLock()
-	defer c.globalLocker.RUnlock()
-
-	return c.getTaggedBy(tag, newSafeMap())
-}
-
-func (c *container) GetTaggedByInContext(ctx context.Context, tag string) ([]any, error) {
-	c.globalLocker.RLock()
-	defer c.globalLocker.RUnlock()
-
-	return c.getTaggedBy(tag, c.contextBag(ctx))
-}
-
-func (c *container) getTaggedBy(tag string, contextualBag keyValue) (result []any, err error) {
-	defer func() {
-		if err != nil {
-			err = grouperror.Prefix(fmt.Sprintf("container.getTaggedBy(%+q): ", tag), err)
-		}
-	}()
-
-	services := make([]struct {
-		id       string
-		priority int
-	}, 0)
-	for id, s := range c.services {
-		priority, ok := s.tags[tag]
-		if !ok {
-			continue
-		}
-		services = append(services, struct {
-			id       string
-			priority int
-		}{
-			id:       id,
-			priority: priority,
-		})
-	}
-
-	sort.SliceStable(services, func(i, j int) bool {
-		if services[i].priority == services[j].priority {
-			return services[i].id < services[j].id
-		}
-		return services[i].priority > services[j].priority
-	})
-
-	result = make([]any, len(services))
-	for i, s := range services {
-		result[i], err = c.get(s.id, contextualBag)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return result, nil
 }
