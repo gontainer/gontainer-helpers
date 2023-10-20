@@ -16,24 +16,26 @@ func Call(fn any, params []any, convertParams bool) ([]any, error) {
 	return caller.CallFunc(v, params, convertParams)
 }
 
-// CallProvider works similar to Call with the difference it requires a provider as the first argument.
-// Provider is a function which returns 1 or 2 values.
-// The second return value which is optional must be a type of error.
-//
-//	p := func() (any, error) {
-//	    db, err := sql.Open("mysql", "user:password@/dbname")
-//	    if err != nil {
-//	         return nil, err
-//	    }
-//
-//	    db.SetConnMaxLifetime(time.Minute * 3)
-//	    db.SetMaxOpenConns(10)
-//	    db.SetMaxIdleConns(10)
-//
-//	    return db, nil
-//	}
-//
-//	mysql, err := CallProvider(p)
+/*
+CallProvider works similar to Call with the difference it requires a provider as the first argument.
+Provider is a function which returns 1 or 2 values.
+The second return value which is optional must be a type of error.
+
+	p := func() (any, error) {
+	    db, err := sql.Open("mysql", "user:password@/dbname")
+	    if err != nil {
+	         return nil, err
+	    }
+
+	    db.SetConnMaxLifetime(time.Minute * 3)
+	    db.SetMaxOpenConns(10)
+	    db.SetMaxIdleConns(10)
+
+	    return db, nil
+	}
+
+	mysql, err := CallProvider(p)
+*/
 func CallProvider(provider any, params []any, convertParams bool) (any, error) {
 	fn, err := caller.FuncProvider(provider)
 	if err != nil {
