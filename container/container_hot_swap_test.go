@@ -56,7 +56,7 @@ func TestNewContainer_hotSwap(t *testing.T) {
 		c.OverrideService("person", svcPerson)
 		c.OverrideService("people", svcPeople)
 
-		const max = 100
+		const max = 1000
 		wg := sync.WaitGroup{}
 
 		runGoroutines := func() {
