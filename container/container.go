@@ -59,8 +59,6 @@ type ctxKey uint64
 var currentContainerID = new(uint64)
 
 // newContainer creates a concurrent-safe DI container.
-//
-// TODO: remove it, use New
 func newContainer() *container {
 	c := &container{
 		services:            make(map[string]Service),

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/caller"
 	"github.com/gontainer/gontainer-helpers/grouperror"
 )
 
@@ -35,19 +34,9 @@ func (c *container) getParam(id string) (result any, err error) {
 		return nil, errors.New("param does not exist")
 	}
 
-	switch param.type_ {
-	case dependencyValue:
-		result = param.value
-	case dependencyProvider:
-		result, err = caller.CallProvider(param.provider, nil, convertParams)
-		if err != nil {
-			return nil, err
-		}
-	case dependencyParam:
-		result, err = c.getParam(id)
-		if err != nil {
-			return nil, err
-		}
+	result, err = c.resolveDep(nil, param)
+	if err != nil {
+		return nil, err
 	}
 
 	c.cacheParams.set(id, result)
