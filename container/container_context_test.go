@@ -2,9 +2,11 @@ package container_test
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/gontainer/gontainer-helpers/container"
+	"github.com/stretchr/testify/assert"
 )
 
 type myWrappedContainer struct {
@@ -43,5 +45,12 @@ func TestContextWithContainer(t *testing.T) {
 	})
 	t.Run("Wrapped container with overridden func", func(t *testing.T) {
 		container.ContextWithContainer(context.Background(), newMyContainerWithOverriddenFunc())
+	})
+	t.Run("Invalid context", func(t *testing.T) {
+		defer func() {
+			assert.True(t, strings.Contains(recover().(string), "`ctx = container.ContextWithContainer(ctx, c)`"))
+		}()
+		c := container.New()
+		_, _ = c.GetInContext(context.Background(), "service")
 	})
 }
