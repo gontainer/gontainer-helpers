@@ -30,6 +30,10 @@ func TestNew(t *testing.T) {
 		g.AddService("chro", []string{})
 		g.ServiceDependsOnServices("chro", []string{"hr"})
 
+		g.ParamDependsOnParam("firstname", "name")
+		g.ParamDependsOnParam("name", "fullname")
+		g.ParamDependsOnParam("fullname", "firstname")
+
 		expected := []string{
 			`@company -> @department -> @team -> @hr -> !tagged organization -> @holding -> @company`,
 			`@company -> @department -> @team -> @hr -> !tagged organization -> @company`,
@@ -37,6 +41,7 @@ func TestNew(t *testing.T) {
 			`@department -> @team -> @department`,
 			`@chro -> @hr -> @chro`,
 			`@hr -> @hr`,
+			`%firstname% -> %name% -> %fullname% -> %firstname%`,
 		}
 
 		err := graph.CircularDepsToError(g.CircularDeps())
