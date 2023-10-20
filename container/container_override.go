@@ -9,20 +9,7 @@ func (c *container) OverrideParam(paramID string, d Dependency) {
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()
 
-	c.graphBuilder.invalidate()
-
-	switch d.type_ {
-	case
-		dependencyValue,
-		dependencyParam,
-		dependencyProvider:
-	default:
-		panic(fmt.Sprintf("container.OverrideParam does not accept `%s`", d.type_.String()))
-	}
-
-	c.params[paramID] = d
-	c.cacheParams.delete(paramID)
-	c.paramsLockers[paramID] = &sync.Mutex{}
+	overrideParam(c, paramID, d)
 }
 
 func (c *container) OverrideService(serviceID string, s Service) {
@@ -47,7 +34,7 @@ func overrideService(c *container, serviceID string, s Service) {
 		scopeContextual,
 		scopeNonShared:
 	default:
-		panic("TODO")
+		panic(fmt.Sprintf("overrideService: invalid scope %s", s.scope.String()))
 	}
 
 	c.services[serviceID] = s
@@ -63,4 +50,21 @@ func overrideService(c *container, serviceID string, s Service) {
 	default:
 		delete(c.serviceLockers, serviceID)
 	}
+}
+
+func overrideParam(c *container, paramID string, d Dependency) {
+	c.graphBuilder.invalidate()
+
+	switch d.type_ {
+	case
+		dependencyValue,
+		dependencyParam,
+		dependencyProvider:
+	default:
+		panic(fmt.Sprintf("overrideParam: invalid dependency: %s", d.type_.String()))
+	}
+
+	c.params[paramID] = d
+	c.cacheParams.delete(paramID)
+	c.paramsLockers[paramID] = &sync.Mutex{}
 }

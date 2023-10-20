@@ -2,8 +2,11 @@ package container
 
 type MutableContainer interface {
 	OverrideService(serviceID string, s Service)
-	InvalidateServiceCache(serviceIDs ...string) // TODO naming
-	InvalidateAllServicesCache()                 // TODO naming
+	OverrideParam(paramID string, d Dependency)
+	InvalidateServicesCache(servicesIDs ...string)
+	InvalidateAllServicesCache()
+	InvalidateParamsCache(paramsIDs ...string)
+	InvalidateAllParamsCache()
 }
 
 type mutableContainer struct {
@@ -14,19 +17,36 @@ func (m mutableContainer) OverrideService(serviceID string, s Service) {
 	overrideService(m.parent, serviceID, s)
 }
 
-func (m mutableContainer) InvalidateServiceCache(serviceIDs ...string) {
-	for _, sID := range serviceIDs {
+func (m mutableContainer) OverrideParam(paramID string, d Dependency) {
+	overrideParam(m.parent, paramID, d)
+}
+
+func (m mutableContainer) InvalidateServicesCache(servicesIDs ...string) {
+	for _, sID := range servicesIDs {
 		m.parent.cacheSharedServices.delete(sID)
 	}
 }
 
 func (m mutableContainer) InvalidateAllServicesCache() {
 	for sID := range m.parent.services {
-		m.InvalidateServiceCache(sID)
+		m.InvalidateServicesCache(sID)
 	}
 }
 
-// TODO
+func (m mutableContainer) InvalidateParamsCache(paramsIDs ...string) {
+	for _, pID := range paramsIDs {
+		m.parent.cacheParams.delete(pID)
+	}
+}
+
+func (m mutableContainer) InvalidateAllParamsCache() {
+	for pID := range m.parent.params {
+		m.InvalidateParamsCache(pID)
+	}
+}
+
+// HotSwap lets safely modify the given container in a concurrent environment.
+// It waits for all `<-ctx.Done()`, then locks all invocations of [ContextWithContainer] for the same container.
 func (c *container) HotSwap(fn func(MutableContainer)) {
 	// lock the executions of ContextWithContainer
 	c.contextLocker.Lock()
