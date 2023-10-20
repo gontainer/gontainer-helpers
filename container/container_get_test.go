@@ -21,7 +21,7 @@ func Test_container_executeServiceCalls(t *testing.T) {
 	t.Run("Errors", func(t *testing.T) {
 		s := container.NewService()
 		s.SetValue(struct{}{})
-		s.AppendCall("SetName", container.NewDependencyProvider(func() (interface{}, error) {
+		s.AppendCall("SetName", container.NewDependencyProvider(func() (any, error) {
 			return nil, errors.New("could not fetch the name from the config")
 		}))
 		s.AppendCall("SetAge", container.NewDependencyValue(21))
@@ -49,7 +49,7 @@ func Test_container_executeServiceCalls(t *testing.T) {
 func Test_container_createNewService(t *testing.T) {
 	t.Run("Error in provider", func(t *testing.T) {
 		s := container.NewService()
-		s.SetConstructor(func() (interface{}, error) {
+		s.SetConstructor(func() (any, error) {
 			return nil, errors.New("could not create")
 		})
 
@@ -63,10 +63,10 @@ func Test_container_createNewService(t *testing.T) {
 		s := container.NewService()
 		s.SetConstructor(
 			NewServer,
-			container.NewDependencyProvider(func() (interface{}, error) {
+			container.NewDependencyProvider(func() (any, error) {
 				return nil, errors.New("unexpected error")
 			}),
-			container.NewDependencyProvider(func() (interface{}, error) {
+			container.NewDependencyProvider(func() (any, error) {
 				return nil, errors.New("unexpected error")
 			}),
 		)
@@ -108,7 +108,7 @@ func Test_container_setServiceFields(t *testing.T) {
 		s := container.NewService()
 		s.SetValue(struct{}{})
 		s.SetField("Name", container.NewDependencyValue("Mary"))
-		s.SetField("Age", container.NewDependencyProvider(func() (interface{}, error) {
+		s.SetField("Age", container.NewDependencyProvider(func() (any, error) {
 			return nil, errors.New("unexpected error")
 		}))
 
@@ -134,7 +134,7 @@ func Test_container_get_doNotCacheOnError(t *testing.T) {
 
 			first := true
 			fiveSvc := container.NewService()
-			fiveSvc.SetConstructor(func() (interface{}, error) {
+			fiveSvc.SetConstructor(func() (any, error) {
 				atomic.AddUint64(counter, 1)
 
 				if first {
@@ -185,14 +185,14 @@ func Test_container_get_cache(t *testing.T) {
 	counterShared := new(uint64)
 
 	serviceCtx := container.NewService()
-	serviceCtx.SetConstructor(func() interface{} {
+	serviceCtx.SetConstructor(func() any {
 		atomic.AddUint64(counterCtx, 1)
 		return nil
 	})
 	serviceCtx.ScopeContextual()
 
 	serviceShared := container.NewService()
-	serviceShared.SetConstructor(func() interface{} {
+	serviceShared.SetConstructor(func() any {
 		atomic.AddUint64(counterShared, 1)
 		return nil
 	})

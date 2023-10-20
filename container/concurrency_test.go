@@ -127,7 +127,7 @@ func Test_container_concurrency(t *testing.T) {
 				defer wg.Done()
 				c.AddDecorator(
 					fmt.Sprintf("tag%d", i),
-					func(p container.DecoratorPayload) (interface{}, error) {
+					func(p container.DecoratorPayload) (any, error) {
 						// it does nothing
 						return p.Service, nil
 					},
@@ -145,7 +145,7 @@ func Test_container_concurrency(t *testing.T) {
 
 		newService := func(tag string) container.Service {
 			s := container.NewService()
-			s.SetConstructor(func() interface{} {
+			s.SetConstructor(func() any {
 				return struct {
 					Name string
 				}{}
@@ -201,7 +201,7 @@ func Test_container_concurrency(t *testing.T) {
 			go func() {
 				defer wg.Done()
 
-				c.AddDecorator("tag", func(p container.DecoratorPayload) interface{} {
+				c.AddDecorator("tag", func(p container.DecoratorPayload) any {
 					return p.Service
 				})
 			}()

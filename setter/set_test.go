@@ -102,13 +102,13 @@ func TestSet(t *testing.T) {
 		assert.NoError(t, Set(&p3, "color", "brown"))
 		assert.Equal(t, "brown", p.color)
 	})
-	t.Run("var a interface{}", func(t *testing.T) {
+	t.Run("var a any", func(t *testing.T) {
 		t.Run("*struct{}", func(t *testing.T) {
 			const color = "red"
 			p := struct {
 				color string
 			}{}
-			var obj interface{} = &p
+			var obj any = &p
 			assert.Equal(t, "", p.color)
 			assert.NoError(t, Set(obj, "color", color))
 			assert.Equal(t, color, p.color)
@@ -119,7 +119,7 @@ func TestSet(t *testing.T) {
 				color string
 			}{}
 			p2 := &p
-			var obj interface{} = &p2
+			var obj any = &p2
 			assert.Equal(t, "", p.color)
 			assert.NoError(t, Set(obj, "color", color))
 			assert.Equal(t, color, p.color)
@@ -131,7 +131,7 @@ func TestSet(t *testing.T) {
 			}{}
 			p2 := &p
 			p3 := &p2
-			var obj interface{} = &p3
+			var obj any = &p3
 			assert.Equal(t, "", p.color)
 			assert.NoError(t, Set(obj, "color", color))
 			assert.Equal(t, color, p.color)
@@ -144,7 +144,7 @@ func TestSet(t *testing.T) {
 			p2 := &p
 			p3 := &p2
 			p4 := &p3
-			var obj interface{} = &p4
+			var obj any = &p4
 			assert.Equal(t, "", p.color)
 			assert.NoError(t, Set(obj, "color", color))
 			assert.Equal(t, color, p.color)
@@ -162,14 +162,14 @@ func TestSet(t *testing.T) {
 		assert.NoError(t, Set(&p, "age", uint(33)))
 		assert.Equal(t, &person{Name: "Mary", age: 33}, p)
 	})
-	t.Run("var a interface{} = &struct{}", func(t *testing.T) {
-		var p interface{} = &person{}
+	t.Run("var a any = &struct{}", func(t *testing.T) {
+		var p any = &person{}
 		assert.NoError(t, Set(&p, "Name", "Mary Jane"))
 		assert.NoError(t, Set(&p, "age", 45))
 		assert.Equal(t, &person{Name: "Mary Jane", age: 45}, p)
 	})
-	t.Run("var a interface{} = struct{}", func(t *testing.T) {
-		var p interface{} = person{}
+	t.Run("var a any = struct{}", func(t *testing.T) {
+		var p any = person{}
 		assert.NoError(t, Set(&p, "Name", "Jane"))
 		assert.Equal(t, person{Name: "Jane"}, p)
 	})
@@ -178,11 +178,11 @@ func TestSet(t *testing.T) {
 		assert.NoError(t, Set(&p, "wallet", wallet{amount: 400}))
 		assert.Equal(t, wallet{amount: 400}, p.wallet)
 	})
-	t.Run("convert []interface{} to []type", func(t *testing.T) {
+	t.Run("convert []any to []type", func(t *testing.T) {
 		s := storage{}
 		assert.NoError(
 			t,
-			Set(&s, "wallets", []interface{}{wallet{100}, wallet{200}}),
+			Set(&s, "wallets", []any{wallet{100}, wallet{200}}),
 		)
 		assert.Equal(
 			t,
@@ -214,8 +214,8 @@ func TestSet(t *testing.T) {
 			err := Set(&p, "Name", struct{}{})
 			assert.EqualError(t, err, "set `*setter.person`.\"Name\": cannot cast `struct {}` to `string`")
 		})
-		t.Run("Invalid type of value (var p interface{} = person{})", func(t *testing.T) {
-			var p interface{} = person{}
+		t.Run("Invalid type of value (var p any = person{})", func(t *testing.T) {
+			var p any = person{}
 			err := Set(&p, "Name", struct{}{})
 			assert.EqualError(t, err, "set `*interface {}`.\"Name\": cannot cast `struct {}` to `string`")
 		})

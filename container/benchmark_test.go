@@ -14,7 +14,7 @@ type Employee struct {
 func BenchmarkNewContainer_container_scopeDefault(b *testing.B) {
 	c := container.NewContainer()
 	e := container.NewService()
-	e.SetConstructor(func() interface{} {
+	e.SetConstructor(func() any {
 		return Employee{}
 	})
 	e.SetField("Name", container.NewDependencyValue("Mary"))
@@ -31,7 +31,7 @@ func BenchmarkNewContainer_container_scopeDefault(b *testing.B) {
 func BenchmarkNewContainer_container_scopeShared(b *testing.B) {
 	c := container.NewContainer()
 	e := container.NewService()
-	e.SetConstructor(func() interface{} {
+	e.SetConstructor(func() any {
 		return Employee{}
 	})
 	e.SetField("Name", container.NewDependencyValue("Mary"))
@@ -48,7 +48,7 @@ func BenchmarkNewContainer_container_scopeShared(b *testing.B) {
 func BenchmarkNewContainer_container_scopeContextual(b *testing.B) {
 	c := container.NewContainer()
 	e := container.NewService()
-	e.SetConstructor(func() interface{} {
+	e.SetConstructor(func() any {
 		return Employee{}
 	})
 	e.SetField("Name", container.NewDependencyValue("Mary"))
@@ -65,7 +65,7 @@ func BenchmarkNewContainer_container_scopeContextual(b *testing.B) {
 func BenchmarkNewContainer_container_scopeContextual_in_same_context(b *testing.B) {
 	c := container.NewContainer()
 	e := container.NewService()
-	e.SetConstructor(func() interface{} {
+	e.SetConstructor(func() any {
 		return Employee{}
 	})
 	e.SetField("Name", container.NewDependencyValue("Mary"))
@@ -83,7 +83,7 @@ func BenchmarkNewContainer_container_scopeContextual_in_same_context(b *testing.
 func BenchmarkNewContainer_container_scopeNonShared(b *testing.B) {
 	c := container.NewContainer()
 	e := container.NewService()
-	e.SetConstructor(func() interface{} {
+	e.SetConstructor(func() any {
 		return Employee{}
 	})
 	e.SetField("Name", container.NewDependencyValue("Mary"))
@@ -98,7 +98,7 @@ func BenchmarkNewContainer_container_scopeNonShared(b *testing.B) {
 }
 
 func BenchmarkNewContainer_map(b *testing.B) {
-	m := make(map[string]interface{})
+	m := make(map[string]any)
 	m["employee"] = Employee{
 		Name: "Mary",
 	}

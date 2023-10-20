@@ -39,7 +39,7 @@ func TestNewParamContainer(t *testing.T) {
 
 	t.Run("Error", func(t *testing.T) {
 		c := container.NewParamContainer()
-		c.OverrideParam("env", container.NewDependencyProvider(func() (interface{}, error) {
+		c.OverrideParam("env", container.NewDependencyProvider(func() (any, error) {
 			return nil, errors.New("could not read env variable")
 		}))
 
