@@ -8,22 +8,22 @@ import (
 )
 
 type myWrappedContainer struct {
-	*container.SuperContainer
+	*container.Container
 }
 
 func newMyWrappedContainer() *myWrappedContainer {
 	return &myWrappedContainer{
-		SuperContainer: container.NewSuperContainer(),
+		Container: container.New(),
 	}
 }
 
 type myContainerWithOverriddenFunc struct {
-	*container.SuperContainer
+	*container.Container
 }
 
 func newMyContainerWithOverriddenFunc() *myContainerWithOverriddenFunc {
 	return &myContainerWithOverriddenFunc{
-		SuperContainer: container.NewSuperContainer(),
+		Container: container.New(),
 	}
 }
 
@@ -36,7 +36,7 @@ func TestContextWithContainer(t *testing.T) {
 	// works in all GO's versions
 
 	t.Run("SuperContainer", func(t *testing.T) {
-		container.ContextWithContainer(context.Background(), container.NewSuperContainer())
+		container.ContextWithContainer(context.Background(), container.New())
 	})
 	t.Run("Wrapped container", func(t *testing.T) {
 		container.ContextWithContainer(context.Background(), newMyWrappedContainer())

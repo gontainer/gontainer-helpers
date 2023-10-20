@@ -11,8 +11,8 @@ type Employee struct {
 	Name string
 }
 
-func BenchmarkNewContainer_container_scopeDefault(b *testing.B) {
-	c := container.NewContainer()
+func BenchmarkNew_container_scopeDefault(b *testing.B) {
+	c := container.New()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
 		return Employee{}
@@ -28,8 +28,8 @@ func BenchmarkNewContainer_container_scopeDefault(b *testing.B) {
 	}
 }
 
-func BenchmarkNewContainer_container_scopeShared(b *testing.B) {
-	c := container.NewContainer()
+func BenchmarkNew_container_scopeShared(b *testing.B) {
+	c := container.New()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
 		return Employee{}
@@ -45,8 +45,8 @@ func BenchmarkNewContainer_container_scopeShared(b *testing.B) {
 	}
 }
 
-func BenchmarkNewContainer_container_scopeContextual(b *testing.B) {
-	c := container.NewContainer()
+func BenchmarkNew_container_scopeContextual(b *testing.B) {
+	c := container.New()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
 		return Employee{}
@@ -62,8 +62,8 @@ func BenchmarkNewContainer_container_scopeContextual(b *testing.B) {
 	}
 }
 
-func BenchmarkNewContainer_container_scopeContextual_in_same_context(b *testing.B) {
-	c := container.NewContainer()
+func BenchmarkNew_container_scopeContextual_in_same_context(b *testing.B) {
+	c := container.New()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
 		return Employee{}
@@ -80,8 +80,8 @@ func BenchmarkNewContainer_container_scopeContextual_in_same_context(b *testing.
 	}
 }
 
-func BenchmarkNewContainer_container_scopeNonShared(b *testing.B) {
-	c := container.NewContainer()
+func BenchmarkNew_container_scopeNonShared(b *testing.B) {
+	c := container.New()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
 		return Employee{}
@@ -97,7 +97,7 @@ func BenchmarkNewContainer_container_scopeNonShared(b *testing.B) {
 	}
 }
 
-func BenchmarkNewContainer_map(b *testing.B) {
+func BenchmarkNew_map(b *testing.B) {
 	m := make(map[string]interface{})
 	m["employee"] = Employee{
 		Name: "Mary",

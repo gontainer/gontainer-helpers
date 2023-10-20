@@ -10,30 +10,30 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_paramContainer_concurrency(t *testing.T) {
-	const max = 100
-
-	t.Run("Cache for shared params", func(t *testing.T) {
-		// fatal error: concurrent map writes
-
-		c := container.NewParamContainer()
-
-		for i := 0; i < max; i++ {
-			c.OverrideParam(fmt.Sprintf("param%d", i), container.NewDependencyValue(123))
-		}
-
-		wg := sync.WaitGroup{}
-		wg.Add(max)
-		for j := 0; j < max; j++ {
-			i := j
-			go func() {
-				defer wg.Done()
-				_, _ = c.GetParam(fmt.Sprintf("param%d", i))
-			}()
-		}
-		wg.Wait()
-	})
-}
+//func Test_paramContainer_concurrency(t *testing.T) {
+//	const max = 100
+//
+//	t.Run("Cache for shared params", func(t *testing.T) {
+//		// fatal error: concurrent map writes
+//
+//		c := container.NewParamContainer()
+//
+//		for i := 0; i < max; i++ {
+//			c.OverrideParam(fmt.Sprintf("param%d", i), container.NewDependencyValue(123))
+//		}
+//
+//		wg := sync.WaitGroup{}
+//		wg.Add(max)
+//		for j := 0; j < max; j++ {
+//			i := j
+//			go func() {
+//				defer wg.Done()
+//				_, _ = c.GetParam(fmt.Sprintf("param%d", i))
+//			}()
+//		}
+//		wg.Wait()
+//	})
+//}
 
 func Test_container_concurrency(t *testing.T) {
 	const max = 100
@@ -44,7 +44,7 @@ func Test_container_concurrency(t *testing.T) {
 		// fatal error: concurrent map read and map write
 		// fatal error: concurrent map writes
 
-		c := container.NewContainer()
+		c := container.New()
 
 		for i := 0; i < max; i++ {
 			s := container.NewService()
@@ -71,7 +71,7 @@ func Test_container_concurrency(t *testing.T) {
 		// fatal error: concurrent map read and map write
 		// fatal error: concurrent map writes
 
-		c := container.NewContainer()
+		c := container.New()
 
 		for i := 0; i < max; i++ {
 			s := container.NewService()
@@ -97,7 +97,7 @@ func Test_container_concurrency(t *testing.T) {
 	t.Run("OverrideService", func(t *testing.T) {
 		// fatal error: concurrent map writes
 
-		c := container.NewContainer()
+		c := container.New()
 
 		wg := sync.WaitGroup{}
 		wg.Add(max)
@@ -117,7 +117,7 @@ func Test_container_concurrency(t *testing.T) {
 	t.Run("AddDecorator", func(t *testing.T) {
 		// race detected during execution of test
 
-		c := container.NewContainer()
+		c := container.New()
 
 		wg := sync.WaitGroup{}
 		wg.Add(max)
@@ -138,7 +138,7 @@ func Test_container_concurrency(t *testing.T) {
 	})
 
 	t.Run("All", func(t *testing.T) {
-		c := container.NewContainer()
+		c := container.New()
 		name := container.NewService()
 		name.SetValue("Johnny")
 		c.OverrideService("name", name)

@@ -18,6 +18,17 @@ type serviceDecorator struct {
 	deps []Dependency
 }
 
+type Container struct {
+	*container
+}
+
+// New creates a concurrent-safe DI container.
+func New() *Container {
+	return &Container{
+		container: newContainer(),
+	}
+}
+
 type container struct {
 	graphBuilder interface {
 		warmUp()
@@ -47,15 +58,10 @@ type ctxKey uint64
 
 var currentContainerID = new(uint64)
 
-// New creates a concurrent-safe DI container.
-func New() *container {
-	return NewContainer()
-}
-
-// NewContainer creates a concurrent-safe DI container.
+// newContainer creates a concurrent-safe DI container.
 //
 // TODO: remove it, use New
-func NewContainer() *container {
+func newContainer() *container {
 	c := &container{
 		services:            make(map[string]Service),
 		cacheSharedServices: newSafeMap(),

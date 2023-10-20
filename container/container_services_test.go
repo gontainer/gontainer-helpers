@@ -30,7 +30,7 @@ func Test_container_executeServiceCalls(t *testing.T) {
 		// this call will be ignored, because it's after the error returned by a wither
 		s.AppendCall("SetLanguage", container.NewDependencyValue("en"))
 
-		c := container.NewContainer()
+		c := container.New()
 		c.OverrideService("service", s)
 
 		expected := []string{
@@ -53,7 +53,7 @@ func Test_container_createNewService(t *testing.T) {
 			return nil, errors.New("could not create")
 		})
 
-		c := container.NewContainer()
+		c := container.New()
 		c.OverrideService("service", s)
 		service, err := c.Get("service")
 		assert.Nil(t, service)
@@ -71,7 +71,7 @@ func Test_container_createNewService(t *testing.T) {
 			}),
 		)
 
-		c := container.NewContainer()
+		c := container.New()
 		c.OverrideService("server", s)
 
 		expected := []string{
@@ -91,7 +91,7 @@ func Test_container_createNewService(t *testing.T) {
 			container.NewDependencyValue(8080),
 		)
 
-		c := container.NewContainer()
+		c := container.New()
 		c.OverrideService("server", s)
 
 		var server *Server
@@ -112,7 +112,7 @@ func Test_container_setServiceFields(t *testing.T) {
 			return nil, errors.New("unexpected error")
 		}))
 
-		c := container.NewContainer()
+		c := container.New()
 		c.OverrideService("service", s)
 
 		expected := []string{
@@ -153,7 +153,7 @@ func Test_container_get_doNotCacheOnError(t *testing.T) {
 				fiveSvc.ScopeDefault()
 			}
 
-			c := container.NewContainer()
+			c := container.New()
 			c.OverrideService("five", fiveSvc)
 
 			ctx := container.ContextWithContainer(context.Background(), c)
@@ -197,7 +197,7 @@ func Test_container_get_cache(t *testing.T) {
 		return nil
 	})
 
-	c := container.NewContainer()
+	c := container.New()
 	c.OverrideService("serviceCtx", serviceCtx)
 	c.OverrideService("serviceShared", serviceShared)
 

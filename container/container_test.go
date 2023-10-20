@@ -34,7 +34,7 @@ type MyService struct {
 
 func Test_container_Get(t *testing.T) {
 	t.Run("ContextualBag & concurrency", func(t *testing.T) {
-		c := container.NewContainer()
+		c := container.New()
 
 		next := int64(0)
 		svcNextInt := container.NewService()
@@ -86,7 +86,7 @@ func Test_container_Get(t *testing.T) {
 	})
 
 	t.Run("Circular dependencies", func(t *testing.T) {
-		c := container.NewContainer()
+		c := container.New()
 
 		s1 := container.NewService()
 		s1.SetField("Dependency", container.NewDependencyService("s2"))
@@ -131,7 +131,7 @@ func Test_container_Get(t *testing.T) {
 
 	t.Run("ContextualScope", func(t *testing.T) {
 		t.Run("Default scope", func(t *testing.T) {
-			c := container.NewContainer()
+			c := container.New()
 
 			transaction := container.NewService()
 			transaction.SetConstructor(func() Transaction {
@@ -192,7 +192,7 @@ func Test_container_CircularDeps(t *testing.T) {
 	// the order of errors can differ,
 	// so we need to run these tests many times to make sure we have consistent results always
 	for i := 0; i < 50; i++ {
-		c := container.NewContainer()
+		c := container.New()
 
 		s1 := container.NewService()
 		s1.SetField("service1", container.NewDependencyService("service1"))

@@ -12,9 +12,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewContainer_hotSwap(t *testing.T) {
+func TestNew_hotSwap(t *testing.T) {
 	t.Run("Wait for <-ctx.Done()", func(t *testing.T) {
-		c := container.NewContainer()
+		c := container.New()
 		s := time.Now()
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
@@ -52,7 +52,7 @@ func TestNewContainer_hotSwap(t *testing.T) {
 			container.NewDependencyTag("person"),
 		)
 
-		c := container.NewContainer()
+		c := container.New()
 		c.OverrideService("person", svcPerson)
 		c.OverrideService("people", svcPeople)
 

@@ -26,8 +26,8 @@ type People struct {
 	People []Person
 }
 
-func ExampleNewContainer_wrongContext() {
-	c := container.NewContainer()
+func ExampleNew_wrongContext() {
+	c := container.New()
 
 	ctx := context.Background()
 	// uncomment the following line to remove the panic:
@@ -46,8 +46,8 @@ func ExampleNewContainer_wrongContext() {
 	// panic: the given context is not attached to the given container, call `ctx = container.ContextWithContainer(ctx, c)`
 }
 
-func ExampleNewContainer_getInContext() {
-	c := container.NewContainer()
+func ExampleNew_getInContext() {
+	c := container.New()
 
 	ctx := context.Background()
 	ctx = container.ContextWithContainer(ctx, c)
@@ -96,14 +96,14 @@ func ExampleNewContainer_getInContext() {
 	// GetInContext() and Get() return different values: true
 }
 
-func ExampleNewContainer_oneContextManyContainers() {
-	c1 := container.NewContainer()
+func ExampleNew_oneContextManyContainers() {
+	c1 := container.New()
 	s1 := container.NewService()
 	s1.SetValue(5)
 	s1.ScopeContextual()
 	c1.OverrideService("number", s1)
 
-	c2 := container.NewContainer()
+	c2 := container.New()
 	s2 := container.NewService()
 	s2.SetValue(6)
 	s2.ScopeContextual()
@@ -125,7 +125,7 @@ func ExampleNewContainer_oneContextManyContainers() {
 	// 6 <nil>
 }
 
-func ExampleNewContainer_simple() {
+func ExampleNew_simple() {
 	// create Mary Jane
 	mary := container.NewService()
 	mary.SetConstructor(func() Person {
@@ -150,7 +150,7 @@ func ExampleNewContainer_simple() {
 	people.SetField("People", container.NewDependencyTag("person")) // fetch all objects tagged as "person", and assign them to the field "people"
 
 	// create a container, and append all services there
-	c := container.NewContainer()
+	c := container.New()
 	c.OverrideService("mary", mary)
 	c.OverrideService("peter", peter)
 	c.OverrideService("people", people)
@@ -162,14 +162,14 @@ func ExampleNewContainer_simple() {
 	// Output: {People:[{Name:Mary Jane} {Name:Peter Parker}]}
 }
 
-func ExampleNewContainer_errorServiceDoesNotExist() {
+func ExampleNew_errorServiceDoesNotExist() {
 	mary := container.NewService()
 	mary.SetConstructor(func() Person {
 		return Person{}
 	})
 	mary.SetField("Name", container.NewDependencyValue("Mary Jane"))
 
-	c := container.NewContainer()
+	c := container.New()
 	// oops... we forgot to add the variable `mary` to the container
 	// c.OverrideService("mary", mary)
 
@@ -179,7 +179,7 @@ func ExampleNewContainer_errorServiceDoesNotExist() {
 	// Output: container.get("mary"): service does not exist
 }
 
-func ExampleNewContainer_errorFieldDoesNotExist() {
+func ExampleNew_errorFieldDoesNotExist() {
 	mary := container.NewService()
 	mary.SetConstructor(func() Person {
 		return Person{}
@@ -187,7 +187,7 @@ func ExampleNewContainer_errorFieldDoesNotExist() {
 	// it's an invalid field name, it cannot work!
 	mary.SetField("FullName", container.NewDependencyValue("Mary Jane"))
 
-	c := container.NewContainer()
+	c := container.New()
 	c.OverrideService("mary", mary)
 
 	_, err := c.Get("mary")
@@ -202,7 +202,7 @@ type Spouse struct {
 	Spouse *Spouse
 }
 
-func ExampleNewContainer_circularDependency() {
+func ExampleNew_circularDependency() {
 	wife := container.NewService()
 	wife.SetConstructor(func() *Spouse {
 		return &Spouse{}
@@ -217,7 +217,7 @@ func ExampleNewContainer_circularDependency() {
 	husband.SetField("Name", container.NewDependencyValue("Peter Parker"))
 	husband.SetField("Spouse", container.NewDependencyService("wife"))
 
-	c := container.NewContainer()
+	c := container.New()
 	c.OverrideService("wife", wife)
 	c.OverrideService("husband", husband)
 
@@ -227,14 +227,14 @@ func ExampleNewContainer_circularDependency() {
 	// Output: container.get("wife"): circular dependencies: @husband -> @wife -> @husband
 }
 
-func ExampleNewContainer_setter() {
+func ExampleNew_setter() {
 	mary := container.NewService()
 	mary.SetConstructor(func() *Person { // we have to use a pointer, because we use a setter
 		return &Person{}
 	})
 	mary.AppendCall("SetName", container.NewDependencyValue("Mary Jane"))
 
-	c := container.NewContainer()
+	c := container.New()
 	c.OverrideService("mary", mary)
 
 	maryObject, _ := c.Get("mary")
@@ -243,14 +243,14 @@ func ExampleNewContainer_setter() {
 	// Output: &{Mary Jane}
 }
 
-func ExampleNewContainer_wither() {
+func ExampleNew_wither() {
 	mary := container.NewService()
 	mary.SetConstructor(func() Person {
 		return Person{}
 	})
 	mary.AppendWither("WithName", container.NewDependencyValue("Mary Jane"))
 
-	c := container.NewContainer()
+	c := container.New()
 	c.OverrideService("mary", mary)
 
 	maryObject, _ := c.Get("mary")
@@ -283,12 +283,12 @@ func PoliteGreeterDecorator(payload container.DecoratorPayload) politeGreeter {
 	}
 }
 
-func ExampleNewContainer_decorator() {
+func ExampleNew_decorator() {
 	g := container.NewService()
 	g.SetValue(greeter{})
 	g.Tag("greeter-tag", 0)
 
-	c := container.NewContainer()
+	c := container.New()
 	c.OverrideService("greeter", g)
 	c.AddDecorator("greeter-tag", PoliteGreeterDecorator)
 
@@ -300,7 +300,7 @@ func ExampleNewContainer_decorator() {
 	// Output: Hello! How are you?
 }
 
-func ExampleNewContainer_scopeShared() {
+func ExampleNew_scopeShared() {
 	i := 0
 
 	num := container.NewService()
@@ -310,7 +310,7 @@ func ExampleNewContainer_scopeShared() {
 	})
 	num.ScopeShared()
 
-	c := container.NewContainer()
+	c := container.New()
 	c.OverrideService("number", num)
 
 	first, _ := c.Get("number")
@@ -322,7 +322,7 @@ func ExampleNewContainer_scopeShared() {
 	// Output: 1 1
 }
 
-func ExampleNewContainer_scopeNonShared() {
+func ExampleNew_scopeNonShared() {
 	i := 0
 
 	num := container.NewService()
@@ -332,7 +332,7 @@ func ExampleNewContainer_scopeNonShared() {
 	})
 	num.ScopeNonShared()
 
-	c := container.NewContainer()
+	c := container.New()
 	c.OverrideService("number", num)
 
 	first, _ := c.Get("number")
@@ -344,7 +344,7 @@ func ExampleNewContainer_scopeNonShared() {
 	// Output: 1 2
 }
 
-func ExampleNewContainer_getTaggedBy() {
+func ExampleNew_getTaggedBy() {
 	p1 := container.NewService()
 	p1.SetValue(Person{})
 	p1.SetField("Name", container.NewDependencyValue("person1"))
@@ -360,7 +360,7 @@ func ExampleNewContainer_getTaggedBy() {
 	p3.SetField("Name", container.NewDependencyValue("person3"))
 	p3.Tag("person", 1) // priority 1
 
-	c := container.NewContainer()
+	c := container.New()
 	c.OverrideService("p1", p1)
 	c.OverrideService("p2", p2)
 	c.OverrideService("p3", p3)
@@ -383,7 +383,7 @@ func NewServer(host string, port int) *Server {
 	return &Server{Host: host, Port: port}
 }
 
-func ExampleNewContainer_invalidConstructorParameters() {
+func ExampleNew_invalidConstructorParameters() {
 	s := container.NewService()
 	// invalid arguments
 	s.SetConstructor(
@@ -392,7 +392,7 @@ func ExampleNewContainer_invalidConstructorParameters() {
 		container.NewDependencyValue("localhost"), // it should be an int!
 	)
 
-	c := container.NewContainer()
+	c := container.New()
 	c.OverrideService("server", s)
 
 	_, err := c.Get("server")
@@ -403,8 +403,8 @@ func ExampleNewContainer_invalidConstructorParameters() {
 	// container.get("server"): constructor: arg1: cannot cast `string` to `int`
 }
 
-func ExampleNewContainer_isTaggedBy() {
-	c := container.NewContainer()
+func ExampleNew_isTaggedBy() {
+	c := container.New()
 
 	pi := container.NewService()
 	pi.SetValue(math.Pi)
