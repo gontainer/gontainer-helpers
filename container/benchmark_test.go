@@ -11,7 +11,7 @@ type Employee struct {
 	Name string
 }
 
-func BenchmarkNew_container_scopeDefault(b *testing.B) {
+func BenchmarkContainer_scopeDefault(b *testing.B) {
 	c := container.New()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
@@ -28,7 +28,7 @@ func BenchmarkNew_container_scopeDefault(b *testing.B) {
 	}
 }
 
-func BenchmarkNew_container_scopeShared(b *testing.B) {
+func BenchmarkContainer_scopeShared(b *testing.B) {
 	c := container.New()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
@@ -45,7 +45,7 @@ func BenchmarkNew_container_scopeShared(b *testing.B) {
 	}
 }
 
-func BenchmarkNew_container_scopeContextual(b *testing.B) {
+func BenchmarkContainer_scopeContextual(b *testing.B) {
 	c := container.New()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
@@ -62,7 +62,7 @@ func BenchmarkNew_container_scopeContextual(b *testing.B) {
 	}
 }
 
-func BenchmarkNew_container_scopeContextual_in_same_context(b *testing.B) {
+func BenchmarkContainer_scopeContextual_in_same_context(b *testing.B) {
 	c := container.New()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
@@ -80,7 +80,7 @@ func BenchmarkNew_container_scopeContextual_in_same_context(b *testing.B) {
 	}
 }
 
-func BenchmarkNew_container_scopeNonShared(b *testing.B) {
+func BenchmarkContainer_scopeNonShared(b *testing.B) {
 	c := container.New()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
@@ -97,7 +97,7 @@ func BenchmarkNew_container_scopeNonShared(b *testing.B) {
 	}
 }
 
-func BenchmarkNew_map(b *testing.B) {
+func BenchmarkContainer_map(b *testing.B) {
 	m := make(map[string]interface{})
 	m["employee"] = Employee{
 		Name: "Mary",
