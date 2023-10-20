@@ -194,7 +194,7 @@ func ExampleNew_errorFieldDoesNotExist() {
 	fmt.Println(err)
 
 	// Output:
-	// container.get("mary"): set field "FullName": set `*interface {}`."FullName": field `FullName` does not exist
+	// container.get("mary"): set field "FullName": set (*interface {})."FullName": field "FullName" does not exist
 }
 
 type Spouse struct {
@@ -399,8 +399,8 @@ func ExampleNew_invalidConstructorParameters() {
 	fmt.Println(err)
 
 	// Output:
-	// container.get("server"): constructor: arg0: cannot cast `<nil>` to `string`
-	// container.get("server"): constructor: arg1: cannot cast `string` to `int`
+	// container.get("server"): constructor: arg0: cannot convert <nil> to string
+	// container.get("server"): constructor: arg1: cannot convert string to int
 }
 
 func ExampleNew_isTaggedBy() {

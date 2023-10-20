@@ -30,7 +30,7 @@ func set(strct any, field string, val any, convert bool) error {
 		if err == nil {
 			return nil
 		}
-		return fmt.Errorf("set `%T`.%+q: %w", strct, field, err)
+		return fmt.Errorf("set (%T).%+q: %w", strct, field, err)
 	}
 
 	switch {
@@ -74,7 +74,7 @@ func set(strct any, field string, val any, convert bool) error {
 func setOnValue(strct reflect.Value, field string, val any, convert bool) error {
 	f := strct.FieldByName(field)
 	if !f.IsValid() {
-		return fmt.Errorf("field `%s` does not exist", field)
+		return fmt.Errorf("field %+q does not exist", field)
 	}
 
 	v, err := intReflect.ValueOf(val, f.Type(), convert)

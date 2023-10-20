@@ -45,7 +45,7 @@ func TestConvertAndCopy(t *testing.T) {
 		)
 
 		err := copier.ConvertAndCopy(from, &to)
-		assert.EqualError(t, err, "cannot cast `[]int` (length 3) to `[2]int`")
+		assert.EqualError(t, err, "cannot convert []int (length 3) to [2]int")
 		assert.Empty(t, to)
 	})
 	t.Run("[N]int to [N-1]int", func(t *testing.T) {
@@ -55,7 +55,7 @@ func TestConvertAndCopy(t *testing.T) {
 		)
 
 		err := copier.ConvertAndCopy(from, &to)
-		assert.EqualError(t, err, "cannot cast `[3]int` to `[2]int`")
+		assert.EqualError(t, err, "cannot convert [3]int to [2]int")
 		assert.Empty(t, to)
 	})
 	t.Run("[N]int to [N+1]int", func(t *testing.T) {

@@ -54,8 +54,8 @@ func ExampleCall_error() {
 	_, err := caller.Call(fn, []any{"2", "2"}, true)
 	fmt.Println(err)
 	// Output:
-	// arg0: cannot cast `string` to `int`
-	// arg1: cannot cast `string` to `int`
+	// arg0: cannot convert string to int
+	// arg1: cannot convert string to int
 }
 
 func ExampleCall_error2() {

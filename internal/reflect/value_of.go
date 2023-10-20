@@ -37,8 +37,7 @@ func zeroForNilable(i any, t reflect.Type) (reflect.Value, error) {
 		return reflect.Zero(t), nil
 	}
 
-	// TODO: unify this error with isNilable
-	return reflect.Value{}, fmt.Errorf("cannot cast `%T` to `%s`", i, t.String())
+	return reflect.Value{}, fmt.Errorf("cannot convert %T to %s", i, t.String())
 }
 
 func isNilable(k reflect.Kind) bool {

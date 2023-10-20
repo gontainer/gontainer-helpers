@@ -20,7 +20,7 @@ func TestConvert(t *testing.T) {
 			`[]any{[]int{1, 2, 3}} to [][2]int{}`: {
 				input:  []any{[]int{1, 2, 3}},
 				output: [][2]int{},
-				error:  "cannot cast `[]interface {}` to `[][2]int`: 0: cannot cast `[]int` (length 3) to `[2]int`",
+				error:  "cannot convert []interface {} to [][2]int: 0: cannot convert []int (length 3) to [2]int",
 			},
 			`[]any to [0]int`: {
 				input:  []any{},
@@ -33,7 +33,7 @@ func TestConvert(t *testing.T) {
 			`[][3]int to [][2]int`: {
 				input:  [][3]int{},
 				output: [][2]int{},
-				error:  "cannot cast `[][3]int` to `[][2]int`",
+				error:  "cannot convert [][3]int to [][2]int",
 			},
 			`[][3]int to [][3]int`: {
 				input:  [][3]int{{5, 5, 5}, {6, 6, 6}},
@@ -62,7 +62,7 @@ func TestConvert(t *testing.T) {
 			`[][]any to [][]int (invalid)`: {
 				input:  [][]any{{1, false, 3}},
 				output: [][]int{{1, 2, 3}},
-				error:  "cannot cast `[][]interface {}` to `[][]int`: 0: cannot cast `[]interface {}` to `[]int`: 1: cannot cast `bool` to `int`",
+				error:  "cannot convert [][]interface {} to [][]int: 0: cannot convert []interface {} to []int: 1: cannot convert bool to int",
 			},
 			`[][]int to [][]any`: {
 				input:  [][]int{{1, 2, 3}},
@@ -79,12 +79,12 @@ func TestConvert(t *testing.T) {
 			`[]any to []int (invalid #1)`: {
 				input:  []any{1, 2, nil},
 				output: []int{},
-				error:  "cannot cast `[]interface {}` to `[]int`: 2: cannot cast `<nil>` to `int`",
+				error:  "cannot convert []interface {} to []int: 2: cannot convert <nil> to int",
 			},
 			`[]any to []int (invalid #2)`: {
 				input:  []any{1, 2, 3, struct{}{}},
 				output: []int{},
-				error:  "cannot cast `[]interface {}` to `[]int`: 3: cannot cast `struct {}` to `int`",
+				error:  "cannot convert []interface {} to []int: 3: cannot convert struct {} to int",
 			},
 			`[]any to []*int`: {
 				input:  []any{nil, nil},
@@ -109,7 +109,7 @@ func TestConvert(t *testing.T) {
 			`[]struct{}{} to []type`: {
 				input:  []struct{}{},
 				output: []int{},
-				error:  "cannot cast `[]struct {}` to `[]int`",
+				error:  "cannot convert []struct {} to []int",
 			},
 			`float64 to int`: {
 				input:  float64(math.Pi),
@@ -118,7 +118,7 @@ func TestConvert(t *testing.T) {
 			`nil to int`: {
 				input:  nil,
 				output: 0,
-				error:  "cannot cast `<nil>` to `int`",
+				error:  "cannot convert <nil> to int",
 			},
 			`nil to *int`: {
 				input:  nil,
@@ -127,12 +127,12 @@ func TestConvert(t *testing.T) {
 			`*float64 to *int`: {
 				input:  &float64Val,
 				output: (*int)(nil),
-				error:  "cannot cast `*float64` to `*int`",
+				error:  "cannot convert *float64 to *int",
 			},
 			`*float64 to *float32`: {
 				input:  &float64Val,
 				output: (*float32)(nil),
-				error:  "cannot cast `*float64` to `*float32`",
+				error:  "cannot convert *float64 to *float32",
 			},
 			`*float64 to *float64`: {
 				input:  &float64Val,
@@ -153,7 +153,7 @@ func TestConvert(t *testing.T) {
 			`string to int`: { // cannot convert string to int
 				input:  `5`,
 				output: int(5),
-				error:  "cannot cast `string` to `int`",
+				error:  "cannot convert string to int",
 			},
 			`int to string`: { // but reverse conversion is possible, isn't worth to unify this behavior?
 				input:  5,

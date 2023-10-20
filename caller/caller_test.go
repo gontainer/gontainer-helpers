@@ -44,7 +44,7 @@ func TestCall(t *testing.T) {
 	})
 
 	t.Run("Given invalid argument", func(t *testing.T) {
-		const msg = "arg0: cannot cast `struct {}` to `[]int`"
+		const msg = "arg0: cannot convert struct {} to []int"
 		callee := func([]int) {}
 		params := []any{
 			struct{}{},
@@ -64,8 +64,8 @@ func TestCall(t *testing.T) {
 		_, err := caller.Call(callee, params, true)
 
 		expected := []string{
-			"arg0: cannot cast `struct {}` to `[]int`",
-			"arg1: cannot cast `string` to `*int`",
+			"arg0: cannot convert struct {} to []int",
+			"arg1: cannot convert string to *int",
 		}
 		errAssert.EqualErrorGroup(t, err, expected)
 	})
@@ -180,7 +180,7 @@ func TestCall(t *testing.T) {
 			"[]struct{}{} to []type": {
 				fn:    func([]int) {},
 				input: []struct{}{},
-				error: "arg0: cannot cast `[]struct {}` to `[]int`",
+				error: "arg0: cannot convert []struct {} to []int",
 			},
 			"nil to any": {
 				fn: func(v any) any {

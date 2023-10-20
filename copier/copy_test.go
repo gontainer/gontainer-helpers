@@ -47,7 +47,7 @@ func TestCopy(t *testing.T) {
 			)
 			err := copier.ConvertAndCopy(from, &to)
 			assert.Empty(t, to)
-			assert.EqualError(t, err, "cannot cast `*int` to `*uint`")
+			assert.EqualError(t, err, "cannot convert *int to *uint")
 		})
 	})
 	t.Run("ConvertAndCopy non-empty interface", func(t *testing.T) {

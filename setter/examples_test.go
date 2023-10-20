@@ -24,7 +24,7 @@ func ExampleSet_errFieldDoesNotExists() {
 	}{}
 	err := setter.Set(&person, "firstname", "Mary")
 	fmt.Println(err)
-	// Output: set `*struct { name string }`."firstname": field `firstname` does not exist
+	// Output: set (*struct { name string })."firstname": field "firstname" does not exist
 }
 
 func ExampleSet_errNoPtr() {

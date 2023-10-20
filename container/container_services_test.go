@@ -116,7 +116,7 @@ func Test_container_setServiceFields(t *testing.T) {
 		c.OverrideService("service", s)
 
 		expected := []string{
-			"container.get(\"service\"): set field \"Name\": set `*interface {}`.\"Name\": field `Name` does not exist",
+			`container.get("service"): set field "Name": set (*interface {})."Name": field "Name" does not exist`,
 			`container.get("service"): field value "Age": unexpected error`,
 		}
 

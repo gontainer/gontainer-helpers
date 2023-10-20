@@ -202,7 +202,7 @@ func TestSet(t *testing.T) {
 		t.Run("Field does not exist", func(t *testing.T) {
 			p := person{}
 			err := Set(&p, "FirstName", "Mary")
-			assert.EqualError(t, err, "set `*setter.person`.\"FirstName\": field `FirstName` does not exist")
+			assert.EqualError(t, err, `set (*setter.person)."FirstName": field "FirstName" does not exist`)
 		})
 		t.Run("Invalid pointer dest", func(t *testing.T) {
 			p := 5
@@ -212,12 +212,12 @@ func TestSet(t *testing.T) {
 		t.Run("Invalid type of value", func(t *testing.T) {
 			p := person{}
 			err := Set(&p, "Name", struct{}{})
-			assert.EqualError(t, err, "set `*setter.person`.\"Name\": cannot cast `struct {}` to `string`")
+			assert.EqualError(t, err, `set (*setter.person)."Name": cannot convert struct {} to string`)
 		})
 		t.Run("Invalid type of value (var p any = person{})", func(t *testing.T) {
 			var p any = person{}
 			err := Set(&p, "Name", struct{}{})
-			assert.EqualError(t, err, "set `*interface {}`.\"Name\": cannot cast `struct {}` to `string`")
+			assert.EqualError(t, err, `set (*interface {})."Name": cannot convert struct {} to string`)
 		})
 	})
 }
