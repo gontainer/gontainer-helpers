@@ -1,6 +1,7 @@
 package container
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -10,7 +11,18 @@ func (c *container) OverrideParam(paramID string, d Dependency) {
 
 	c.graphBuilder.invalidate()
 
-	c.paramContainer.OverrideParam(paramID, d)
+	switch d.type_ {
+	case
+		dependencyValue,
+		dependencyParam,
+		dependencyProvider:
+	default:
+		panic(fmt.Sprintf("container.OverrideParam does not accept `%s`", d.type_.String()))
+	}
+
+	c.params[paramID] = d
+	c.cacheParams.delete(paramID)
+	c.paramsLockers[paramID] = &sync.Mutex{}
 }
 
 func (c *container) OverrideService(serviceID string, s Service) {
@@ -39,7 +51,7 @@ func overrideService(c *container, serviceID string, s Service) {
 	}
 
 	c.services[serviceID] = s
-	c.cacheShared.delete(serviceID)
+	c.cacheSharedServices.delete(serviceID)
 	switch s.scope {
 	case
 		scopeDefault,

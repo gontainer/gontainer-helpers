@@ -16,7 +16,7 @@ func (m mutableContainer) OverrideService(serviceID string, s Service) {
 
 func (m mutableContainer) InvalidateServiceCache(serviceIDs ...string) {
 	for _, sID := range serviceIDs {
-		m.parent.cacheShared.delete(sID)
+		m.parent.cacheSharedServices.delete(sID)
 	}
 }
 

@@ -20,8 +20,6 @@ type serviceDecorator struct {
 }
 
 type container struct {
-	*paramContainer
-
 	graphBuilder interface {
 		warmUp()
 		invalidate()
@@ -29,12 +27,15 @@ type container struct {
 		serviceCircularDeps(serviceID string) error
 		resolveScope(serviceID string) scope
 	}
-	services       map[string]Service
-	cacheShared    keyValue
-	serviceLockers map[string]sync.Locker
-	globalLocker   rwlocker
-	decorators     []serviceDecorator
-	groupContext   interface {
+	services            map[string]Service
+	cacheSharedServices keyValue
+	serviceLockers      map[string]sync.Locker
+	params              map[string]Dependency
+	cacheParams         keyValue
+	paramsLockers       map[string]sync.Locker
+	globalLocker        rwlocker
+	decorators          []serviceDecorator
+	groupContext        interface {
 		Add(context.Context)
 		Wait()
 	}
@@ -56,14 +57,16 @@ func New() *container {
 // TODO: remove it, use New
 func NewContainer() *container {
 	c := &container{
-		paramContainer: NewParamContainer(),
-		services:       make(map[string]Service),
-		cacheShared:    newSafeMap(),
-		serviceLockers: make(map[string]sync.Locker),
-		globalLocker:   &sync.RWMutex{},
-		groupContext:   groupcontext.New(),
-		contextLocker:  &sync.RWMutex{},
-		id:             ctxKey(atomic.AddUint64(currentContainerID, 1)),
+		services:            make(map[string]Service),
+		cacheSharedServices: newSafeMap(),
+		serviceLockers:      make(map[string]sync.Locker),
+		params:              make(map[string]Dependency),
+		cacheParams:         newSafeMap(),
+		paramsLockers:       make(map[string]sync.Locker),
+		globalLocker:        &sync.RWMutex{},
+		groupContext:        groupcontext.New(),
+		contextLocker:       &sync.RWMutex{},
+		id:                  ctxKey(atomic.AddUint64(currentContainerID, 1)),
 	}
 	c.graphBuilder = newGraphBuilder(c)
 	return c
@@ -133,7 +136,7 @@ func (c *container) resolveDep(contextualBag keyValue, d Dependency) (any, error
 	case dependencyService:
 		return c.get(d.serviceID, contextualBag)
 	case dependencyParam:
-		return c.GetParam(d.paramID)
+		return c.getParam(d.paramID)
 	case dependencyProvider:
 		return caller.CallProvider(d.provider, nil, convertParams)
 	}

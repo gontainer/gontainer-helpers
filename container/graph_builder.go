@@ -136,14 +136,14 @@ func (g *graphBuilder) warmUp() {
 		graph.DecoratorDependsOnTags(dID, dependenciesTags)
 	}
 
-	pIDs := make([]string, 0, len(g.container.paramContainer.params))
-	for pID := range g.container.paramContainer.params {
+	pIDs := make([]string, 0, len(g.container.params))
+	for pID := range g.container.params {
 		pIDs = append(pIDs, pID)
 	}
 	sort.Strings(pIDs)
 
 	for _, pID := range pIDs {
-		dep := g.container.paramContainer.params[pID]
+		dep := g.container.params[pID]
 		if dep.type_ == dependencyParam {
 			graph.ParamDependsOnParam(pID, dep.paramID)
 		}

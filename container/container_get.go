@@ -38,7 +38,7 @@ func (c *container) get(id string, contextualBag keyValue) (result any, err erro
 		var cache keyValue
 		switch currentScope {
 		case scopeShared:
-			cache = c.cacheShared
+			cache = c.cacheSharedServices
 		case scopeContextual:
 			cache = contextualBag
 		}
