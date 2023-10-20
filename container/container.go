@@ -12,12 +12,6 @@ import (
 	"github.com/gontainer/gontainer-helpers/grouperror"
 )
 
-type serviceDecorator struct {
-	tag  string
-	fn   any
-	deps []Dependency
-}
-
 type Container struct {
 	*container
 }
@@ -54,9 +48,17 @@ type container struct {
 	id            ctxKey
 }
 
+type serviceDecorator struct {
+	tag  string
+	fn   any
+	deps []Dependency
+}
+
 type ctxKey uint64
 
-var currentContainerID = new(uint64)
+var (
+	currentContainerID = new(uint64)
+)
 
 // newContainer creates a concurrent-safe DI container.
 func newContainer() *container {
