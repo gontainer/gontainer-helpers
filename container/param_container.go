@@ -27,27 +27,32 @@ func NewParamContainer() *paramContainer {
 	}
 }
 
-func (p *paramContainer) OverrideParam(id string, d Dependency) {
+func (p *paramContainer) OverrideParam(paramID string, d Dependency) {
 	p.rwlocker.Lock()
 	defer p.rwlocker.Unlock()
 
 	switch d.type_ {
 	case
-		dependencyNil,
+		dependencyValue,
+		dependencyParam,
 		dependencyProvider:
 	default:
 		panic(fmt.Sprintf("paramContainer.OverrideParam does not accept `%s`", d.type_.String()))
 	}
 
-	p.params[id] = d
-	p.cachedParams.delete(id)
-	p.lockers[id] = &sync.Mutex{}
+	p.params[paramID] = d
+	p.cachedParams.delete(paramID)
+	p.lockers[paramID] = &sync.Mutex{}
 }
 
 func (p *paramContainer) GetParam(id string) (result any, err error) {
 	p.rwlocker.RLock()
 	defer p.rwlocker.RUnlock()
 
+	return p.getParam(id)
+}
+
+func (p *paramContainer) getParam(id string) (result any, err error) {
 	p.lockers[id].Lock()
 	defer p.lockers[id].Unlock()
 
@@ -63,10 +68,15 @@ func (p *paramContainer) GetParam(id string) (result any, err error) {
 	}
 
 	switch param.type_ {
-	case dependencyNil:
+	case dependencyValue:
 		result = param.value
 	case dependencyProvider:
 		result, err = caller.CallProvider(param.provider, nil, convertParams)
+		if err != nil {
+			return nil, err
+		}
+	case dependencyParam: // we don't need to handle circular deps here, parent container handles that
+		result, err = p.getParam(id)
 		if err != nil {
 			return nil, err
 		}

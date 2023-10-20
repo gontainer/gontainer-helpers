@@ -20,6 +20,20 @@ func (d dependencies) service(n string) Dependency {
 	return dep
 }
 
+// creates and returns a param Dependency. Returns the existing Dependency if exists.
+//
+//	@service
+func (d dependencies) param(n string) Dependency {
+	dep := Dependency{
+		id:       fmt.Sprintf("param(%s)", n),
+		Resource: n,
+		kind:     dependencyParam,
+		Pretty:   "%" + n + "%",
+	}
+	d[dep.id] = dep
+	return dep
+}
+
 // creates and returns a tag Dependency. Returns the existing Dependency if exists.
 //
 //	tag(http.handler)

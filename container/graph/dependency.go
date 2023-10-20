@@ -6,6 +6,7 @@ const (
 	dependencyDecoratedByTag dependencyKind = iota + 1
 	dependencyTag
 	dependencyService
+	dependencyParam
 	dependencyDecorator
 )
 

@@ -4,17 +4,19 @@ type dependencyType int
 
 const (
 	dependencyMissing dependencyType = iota // zero-value, invalid value
-	dependencyNil
+	dependencyValue
 	dependencyTag
 	dependencyService
+	dependencyParam
 	dependencyProvider
 )
 
 var dependencyStringMapping = map[dependencyType]string{
 	dependencyMissing:  "dependencyMissing",
-	dependencyNil:      "dependencyNil",
+	dependencyValue:    "dependencyValue",
 	dependencyTag:      "dependencyTag",
 	dependencyService:  "dependencyService",
+	dependencyParam:    "dependencyParam",
 	dependencyProvider: "dependencyProvider",
 }
 
@@ -30,13 +32,14 @@ type Dependency struct {
 	value     any
 	tagID     string
 	serviceID string
+	paramID   string
 	provider  any
 }
 
 // NewDependencyValue creates a nil-Dependency, it does not depend on anything in the container
 func NewDependencyValue(v any) Dependency {
 	return Dependency{
-		type_: dependencyNil,
+		type_: dependencyValue,
 		value: v,
 	}
 }
@@ -54,6 +57,13 @@ func NewDependencyService(serviceID string) Dependency {
 	return Dependency{
 		type_:     dependencyService,
 		serviceID: serviceID,
+	}
+}
+
+func NewDependencyParam(paramID string) Dependency {
+	return Dependency{
+		type_:   dependencyParam,
+		paramID: paramID,
 	}
 }
 

@@ -101,6 +101,13 @@ func Test_container_Get(t *testing.T) {
 		s3.SetField("Dependency", container.NewDependencyService("s1"))
 		c.OverrideService("s3", s3)
 
+		c.OverrideParam("lastname", container.NewDependencyParam("lastname"))
+		c.OverrideParam("fullname", container.NewDependencyParam("name"))
+		c.OverrideParam("name", container.NewDependencyParam("fullname"))
+
+		// todo it blocks forever
+		// fmt.Println(c.GetParam("name"))
+
 		svc, err := c.Get("s1")
 		assert.Nil(t, svc)
 
@@ -109,6 +116,14 @@ func Test_container_Get(t *testing.T) {
 			`container.get("s1"): circular dependencies: @s1 -> @s1`,
 		}
 		errAssert.EqualErrorGroup(t, err, expected)
+
+		expected = []string{
+			`container.CircularDeps(): @s1 -> @s2 -> @s3 -> @s1`,
+			`container.CircularDeps(): @s1 -> @s1`,
+			`container.CircularDeps(): %fullname% -> %name% -> %fullname%`,
+			`container.CircularDeps(): %lastname% -> %lastname%`,
+		}
+		errAssert.EqualErrorGroup(t, c.CircularDeps(), expected)
 	})
 
 	t.Run("ContextualScope", func(t *testing.T) {

@@ -121,17 +121,32 @@ func (g *graphBuilder) warmUp() {
 			deps = append(deps, field.dep)
 		}
 
-		dependenciesServices, dependenciesTags := depsToRawServicesTags(deps...)
+		dependenciesServices, dependenciesParams, dependenciesTags := depsToRawServicesTags(deps...)
 		graph.ServiceDependsOnServices(sID, dependenciesServices)
+		graph.ServiceDependsOnParams(sID, dependenciesParams)
 		graph.ServiceDependsOnTags(sID, dependenciesTags)
 	}
 
 	for dID, d := range g.container.decorators {
 		graph.AddDecorator(dID, d.tag)
 
-		dependenciesServices, dependenciesTags := depsToRawServicesTags(d.deps...)
+		dependenciesServices, dependenciesParams, dependenciesTags := depsToRawServicesTags(d.deps...)
 		graph.DecoratorDependsOnServices(dID, dependenciesServices)
+		graph.DecoratorDependsOnParams(dID, dependenciesParams)
 		graph.DecoratorDependsOnTags(dID, dependenciesTags)
+	}
+
+	pIDs := make([]string, 0, len(g.container.paramContainer.params))
+	for pID := range g.container.paramContainer.params {
+		pIDs = append(pIDs, pID)
+	}
+	sort.Strings(pIDs)
+
+	for _, pID := range pIDs {
+		dep := g.container.paramContainer.params[pID]
+		if dep.type_ == dependencyParam {
+			graph.ParamDependsOnParam(pID, dep.paramID)
+		}
 	}
 
 	g.computedCircularDeps = graph.CircularDeps()
@@ -178,11 +193,13 @@ func (g *graphBuilder) serviceCircularDeps(serviceID string) error {
 	return containerGraph.CircularDepsToError(circularDeps)
 }
 
-func depsToRawServicesTags(deps ...Dependency) (services, tags []string) {
+func depsToRawServicesTags(deps ...Dependency) (services, params, tags []string) {
 	for _, dep := range deps {
 		switch dep.type_ {
 		case dependencyService:
 			services = append(services, dep.serviceID)
+		case dependencyParam:
+			params = append(params, dep.paramID)
 		case dependencyTag:
 			tags = append(tags, dep.tagID)
 		}

@@ -37,6 +37,13 @@ func (d *dependencyGraph) ServiceDependsOnServices(serviceID string, dependencie
 	}
 }
 
+func (d *dependencyGraph) ServiceDependsOnParams(serviceID string, dependenciesIDs []string) {
+	svc := d.dependencies.service(serviceID)
+	for _, dID := range dependenciesIDs {
+		d.graph.AddDep(svc.id, d.dependencies.param(dID).id)
+	}
+}
+
 func (d *dependencyGraph) ServiceDependsOnTags(serviceID string, tagsIDs []string) {
 	svc := d.dependencies.service(serviceID)
 	for _, tID := range tagsIDs {
@@ -58,11 +65,25 @@ func (d *dependencyGraph) DecoratorDependsOnServices(decoratorID int, dependenci
 	}
 }
 
+func (d *dependencyGraph) DecoratorDependsOnParams(decoratorID int, dependenciesIDs []string) {
+	dec := d.dependencies.decorator(decoratorID)
+	for _, dID := range dependenciesIDs {
+		d.graph.AddDep(dec.id, d.dependencies.param(dID).id)
+	}
+}
+
 func (d *dependencyGraph) DecoratorDependsOnTags(decoratorID int, tagsIDs []string) {
 	dec := d.dependencies.decorator(decoratorID)
 	for _, tID := range tagsIDs {
 		d.graph.AddDep(dec.id, d.dependencies.tag(tID).id)
 	}
+}
+
+func (d *dependencyGraph) ParamDependsOnParam(paramID string, dependencyID string) {
+	d.graph.AddDep(
+		d.dependencies.param(paramID).id,
+		d.dependencies.param(dependencyID).id,
+	)
 }
 
 // Deps returns a list of all (direct and indirect) dependencies for the given service

@@ -20,6 +20,8 @@ type serviceDecorator struct {
 }
 
 type container struct {
+	*paramContainer
+
 	graphBuilder interface {
 		warmUp()
 		invalidate()
@@ -28,7 +30,6 @@ type container struct {
 		resolveScope(serviceID string) scope
 	}
 	services       map[string]Service
-	params         map[string]Dependency
 	cacheShared    keyValue
 	serviceLockers map[string]sync.Locker
 	globalLocker   rwlocker
@@ -55,8 +56,8 @@ func New() *container {
 // TODO: remove it, use New
 func NewContainer() *container {
 	c := &container{
+		paramContainer: NewParamContainer(),
 		services:       make(map[string]Service),
-		params:         make(map[string]Dependency),
 		cacheShared:    newSafeMap(),
 		serviceLockers: make(map[string]sync.Locker),
 		globalLocker:   &sync.RWMutex{},
@@ -73,25 +74,6 @@ func (c *container) CircularDeps() error {
 	defer c.globalLocker.RUnlock()
 
 	return grouperror.Prefix("container.CircularDeps(): ", c.graphBuilder.circularDeps())
-}
-
-func (c *container) _overrideParam(paramID string, s Dependency) { //nolint:unused
-	c.globalLocker.Lock()
-	defer c.globalLocker.Unlock()
-
-	panic("todo")
-}
-
-func (c *container) OverrideService(serviceID string, s Service) {
-	c.globalLocker.Lock()
-	defer c.globalLocker.Unlock()
-
-	// TODO: worth to consider whether we should wait till all contexts are done, e.g.:
-	//	c.HotSwap(func(m MutableContainer) {
-	//		m.OverrideService(serviceID, s)
-	//	})
-
-	overrideService(c, serviceID, s)
 }
 
 func (c *container) AddDecorator(tag string, decorator any, deps ...Dependency) {
@@ -144,12 +126,14 @@ func (c *container) resolveDeps(contextualBag keyValue, deps ...Dependency) ([]a
 
 func (c *container) resolveDep(contextualBag keyValue, d Dependency) (any, error) {
 	switch d.type_ {
-	case dependencyNil:
+	case dependencyValue:
 		return d.value, nil
 	case dependencyTag:
 		return c.getTaggedBy(d.tagID, contextualBag)
 	case dependencyService:
 		return c.get(d.serviceID, contextualBag)
+	case dependencyParam:
+		return c.GetParam(d.paramID)
 	case dependencyProvider:
 		return caller.CallProvider(d.provider, nil, convertParams)
 	}
