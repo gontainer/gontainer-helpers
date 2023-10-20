@@ -9,24 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type Transaction *int
-
-type UserStorage struct {
-	Transaction Transaction
-}
-
-type ItemStorage struct {
-	Transaction Transaction
-}
-
-type MyService struct {
-	UserStorage UserStorage
-	ItemStorage ItemStorage
-	Transaction Transaction
-}
-
 func Test_container_Get(t *testing.T) {
-
 	t.Run("Circular dependencies", func(t *testing.T) {
 		c := container.New()
 
@@ -73,6 +56,22 @@ func Test_container_Get(t *testing.T) {
 
 	t.Run("ContextualScope", func(t *testing.T) {
 		t.Run("Default scope", func(t *testing.T) {
+			type Transaction *int
+
+			type UserStorage struct {
+				Transaction Transaction
+			}
+
+			type ItemStorage struct {
+				Transaction Transaction
+			}
+
+			type MyService struct {
+				UserStorage UserStorage
+				ItemStorage ItemStorage
+				Transaction Transaction
+			}
+
 			c := container.New()
 
 			transaction := container.NewService()
@@ -130,7 +129,7 @@ func Test_container_Get(t *testing.T) {
 }
 
 func Test_container_CircularDeps(t *testing.T) {
-	// since we iterate over map `g.container.services` (`map[string]Service`) in the method `graphBuilder.warmUp`,
+	// since we iterate over maps `g.container.services`, and `g.container.params` in the method `graphBuilder.warmUp`,
 	// the order of errors can differ,
 	// so we need to run these tests many times to make sure we have consistent results always
 	for i := 0; i < 50; i++ {
@@ -145,9 +144,16 @@ func Test_container_CircularDeps(t *testing.T) {
 		s2.SetField("service1", container.NewDependencyService("service1"))
 		c.OverrideService("service2", s2)
 
+		c.OverrideParam("name", container.NewDependencyParam("name"))
+		c.OverrideParam("a", container.NewDependencyParam("b"))
+		c.OverrideParam("b", container.NewDependencyParam("c"))
+		c.OverrideParam("c", container.NewDependencyParam("a"))
+
 		expected := []string{
 			`container.CircularDeps(): @service1 -> @service1`,
 			`container.CircularDeps(): @service1 -> @service2 -> @service1`,
+			`container.CircularDeps(): %a% -> %b% -> %c% -> %a%`,
+			`container.CircularDeps(): %name% -> %name%`,
 		}
 		errAssert.EqualErrorGroup(t, c.CircularDeps(), expected)
 	}
