@@ -10,33 +10,29 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-//func Test_paramContainer_concurrency(t *testing.T) {
-//	const max = 100
-//
-//	t.Run("Cache for shared params", func(t *testing.T) {
-//		// fatal error: concurrent map writes
-//
-//		c := container.NewParamContainer()
-//
-//		for i := 0; i < max; i++ {
-//			c.OverrideParam(fmt.Sprintf("param%d", i), container.NewDependencyValue(123))
-//		}
-//
-//		wg := sync.WaitGroup{}
-//		wg.Add(max)
-//		for j := 0; j < max; j++ {
-//			i := j
-//			go func() {
-//				defer wg.Done()
-//				_, _ = c.GetParam(fmt.Sprintf("param%d", i))
-//			}()
-//		}
-//		wg.Wait()
-//	})
-//}
-
 func Test_container_concurrency(t *testing.T) {
 	const max = 100
+
+	t.Run("Cache for params", func(t *testing.T) {
+		// fatal error: concurrent map writes
+
+		c := container.New()
+
+		for i := 0; i < max; i++ {
+			c.OverrideParam(fmt.Sprintf("param%d", i), container.NewDependencyValue(123))
+		}
+
+		wg := sync.WaitGroup{}
+		wg.Add(max)
+		for j := 0; j < max; j++ {
+			i := j
+			go func() {
+				defer wg.Done()
+				_, _ = c.GetParam(fmt.Sprintf("param%d", i))
+			}()
+		}
+		wg.Wait()
+	})
 
 	t.Run("Cache for shared services", func(t *testing.T) {
 		// make sure we don't have the following errors
