@@ -8,38 +8,18 @@ import (
 )
 
 /*
-ConvertAndCopy works similar to Copy, but it converts the type whenever it is possible.
-
-	var (
-		from int = 5
-		to   uint
-	)
-	err := copier.ConvertAndCopy(from, &to)
-	fmt.Println(to) // 5
-
-Deprecated: add param convert to func Copy
-*/
-func ConvertAndCopy(from any, to any) error {
-	return copyTo(from, to, true)
-}
-
-/*
 Copy copies a value of `from` to `to`.
 
 	from := 5
 	b := 0
-	Copy(from, &to)
+	Copy(from, &to, false)
 	fmt.Println(to) // 5
 */
-func Copy(from any, to any) error {
-	return copyTo(from, to, false)
-}
-
-func copyTo(from any, to any, convert bool) (err error) {
+func Copy(from any, to any, convert bool) error {
 	t := reflect.ValueOf(to)
 
 	if t.Kind() != reflect.Ptr {
-		return fmt.Errorf("expected pointer, %T given", from)
+		return fmt.Errorf("expected %s, %T given", reflect.Pointer.String(), to)
 	}
 
 	f, err := intReflect.ValueOf(from, t.Elem().Type(), convert)

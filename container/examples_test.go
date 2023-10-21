@@ -310,7 +310,7 @@ func ExampleNew_decorator() {
 
 	var greeterObj Greeter
 	tmp, _ := c.Get("greeter")
-	_ = copier.Copy(tmp, &greeterObj)
+	_ = copier.Copy(tmp, &greeterObj, true)
 	fmt.Println(greeterObj.Greet())
 
 	// Output: Hello! How are you?

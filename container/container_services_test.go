@@ -96,7 +96,7 @@ func Test_container_createNewService(t *testing.T) {
 
 		var server *Server
 		tmp, err := c.Get("server")
-		require.NoError(t, copier.Copy(tmp, &server))
+		require.NoError(t, copier.Copy(tmp, &server, true))
 		assert.NoError(t, err)
 		assert.Equal(t, "localhost", server.Host)
 		assert.Equal(t, 8080, server.Port)

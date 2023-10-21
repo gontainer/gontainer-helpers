@@ -6,12 +6,12 @@ import (
 	"github.com/gontainer/gontainer-helpers/copier"
 )
 
-func ExampleConvertAndCopy_ok() {
+func ExampleCopy_convertOK() {
 	var (
 		from = int(5) // uint is not assignable to int,
-		to   uint     // but ConvertAndCopy can convert the type
+		to   uint     // but Copy can convert the type
 	)
-	err := copier.ConvertAndCopy(from, &to)
+	err := copier.Copy(from, &to, true)
 	fmt.Println(to)
 	fmt.Println(err)
 	// Output:
@@ -24,7 +24,7 @@ func ExampleCopy_ok() {
 		from = 5 // the type of the variable `to` can be different from the type of the variable `from`
 		to   any // as long as the value of the `from` is assignable to the `to`
 	)
-	err := copier.Copy(from, &to)
+	err := copier.Copy(from, &to, false)
 	fmt.Println(to)
 	fmt.Println(err)
 	// Output:
@@ -37,7 +37,7 @@ func ExampleCopy_err1() {
 		from = int(5)
 		to   uint
 	)
-	err := copier.Copy(from, &to)
+	err := copier.Copy(from, &to, false)
 	fmt.Println(to)
 	fmt.Println(err)
 	// Output:
@@ -50,7 +50,7 @@ func ExampleCopy_err2() {
 		from float32 = 5
 		to   uint    = 0
 	)
-	err := copier.Copy(from, &to)
+	err := copier.Copy(from, &to, false)
 	fmt.Println(to)
 	fmt.Println(err)
 	// Output:
@@ -63,7 +63,7 @@ func ExampleCopy_err3() {
 		from *int
 		to   *uint
 	)
-	err := copier.Copy(from, &to)
+	err := copier.Copy(from, &to, false)
 	fmt.Println(to)
 	fmt.Println(err)
 	// Output:
