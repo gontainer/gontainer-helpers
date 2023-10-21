@@ -27,7 +27,6 @@ func TestContainer_Server(t *testing.T) {
 
 	for i := 0; i < max; i++ {
 		i := i
-		time.Sleep(time.Nanosecond)
 		wg.Add(2)
 		go func() {
 			defer wg.Done()
