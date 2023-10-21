@@ -204,3 +204,80 @@ func main() {
 }
 ```
 </details>
+
+**Wither injection**
+
+Use `AppendCall`.
+
+<details>
+  <summary>See code</summary>
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/gontainer/gontainer-helpers/container"
+)
+
+type Person struct {
+	Name string
+}
+
+func (p Person) WithName(n string) Person {
+	p.Name = n
+	return p
+}
+
+func main() {
+	s := container.NewService()
+	s.SetValue(Person{})
+	s.AppendWither("WithName", container.NewDependencyValue("Jane"))
+
+	c := container.New()
+	c.OverrideService("jane", s)
+
+	jane, _ := c.Get("jane")
+	fmt.Printf("%+v\n", jane)
+	// Output: {Name:Jane}
+}
+```
+</details>
+
+**Field injection**
+
+Use `SetField`.
+
+<details>
+  <summary>See code</summary>
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/gontainer/gontainer-helpers/container"
+)
+
+type Person struct {
+	Name string
+}
+
+func main() {
+	s := container.NewService()
+	s.SetValue(Person{})
+	s.SetField("Name", container.NewDependencyValue("Jane"))
+
+	c := container.New()
+	c.OverrideService("jane", s)
+
+	jane, _ := c.Get("jane")
+	fmt.Printf("%+v\n", jane)
+	// Output: {Name:Jane}
+}
+```
+</details>
+
+**Tagging**
