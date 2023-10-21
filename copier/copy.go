@@ -19,7 +19,7 @@ func Copy(from any, to any, convert bool) error {
 	t := reflect.ValueOf(to)
 
 	if t.Kind() != reflect.Ptr {
-		return fmt.Errorf("expected %s, %T given", reflect.Pointer.String(), to)
+		return fmt.Errorf("expected %s, %T given", reflect.Ptr.String(), to)
 	}
 
 	f, err := intReflect.ValueOf(from, t.Elem().Type(), convert)
