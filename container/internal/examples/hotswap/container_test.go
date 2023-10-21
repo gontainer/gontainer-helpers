@@ -44,7 +44,7 @@ func TestContainer_Server(t *testing.T) {
 		go func() {
 			defer wg.Done()
 
-			// the commented code won't work as expected
+			// the commented code does not guarantee atomicity
 			// we have to use HotSwap
 			// c.OverrideParam("a", container.NewDependencyValue(i))
 			// time.Sleep(time.Millisecond * 2)
