@@ -70,22 +70,22 @@ func (s *Service) Tag(tag string, priority int) *Service {
 	return s
 }
 
-func (s *Service) ScopeDefault() *Service {
+func (s *Service) SetScopeDefault() *Service {
 	s.scope = scopeDefault
 	return s
 }
 
-func (s *Service) ScopeShared() *Service {
+func (s *Service) SetScopeShared() *Service {
 	s.scope = scopeShared
 	return s
 }
 
-func (s *Service) ScopeContextual() *Service {
+func (s *Service) SetScopeContextual() *Service {
 	s.scope = scopeContextual
 	return s
 }
 
-func (s *Service) ScopeNonShared() *Service {
+func (s *Service) SetScopeNonShared() *Service {
 	s.scope = scopeNonShared
 	return s
 }

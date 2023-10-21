@@ -61,7 +61,7 @@ func ExampleNew_getInContext() {
 		// we know whether it is a new or cached one by comparing them
 		return new(int)
 	})
-	pointer.ScopeContextual() // make it contextual!
+	pointer.SetScopeContextual() // make it contextual!
 	c.OverrideService("pointer", pointer)
 
 	var (
@@ -100,13 +100,13 @@ func ExampleNew_oneContextManyContainers() {
 	c1 := container.New()
 	s1 := container.NewService()
 	s1.SetValue(5)
-	s1.ScopeContextual()
+	s1.SetScopeContextual()
 	c1.OverrideService("number", s1)
 
 	c2 := container.New()
 	s2 := container.NewService()
 	s2.SetValue(6)
-	s2.ScopeContextual()
+	s2.SetScopeContextual()
 	c2.OverrideService("number", s2)
 
 	// attach two containers to the same context
@@ -324,7 +324,7 @@ func ExampleNew_scopeShared() {
 		i++
 		return i
 	})
-	num.ScopeShared()
+	num.SetScopeShared()
 
 	c := container.New()
 	c.OverrideService("number", num)
@@ -346,7 +346,7 @@ func ExampleNew_scopeNonShared() {
 		i++
 		return i
 	})
-	num.ScopeNonShared()
+	num.SetScopeNonShared()
 
 	c := container.New()
 	c.OverrideService("number", num)

@@ -29,7 +29,7 @@ func Test_container_concurrency(t *testing.T) {
 		svcNextInt.SetConstructor(func() int64 {
 			return atomic.AddInt64(&next, 1)
 		})
-		svcNextInt.ScopeContextual()
+		svcNextInt.SetScopeContextual()
 		c.OverrideService("nextInt", svcNextInt)
 
 		svcNum := container.NewService()
@@ -103,7 +103,7 @@ func Test_container_concurrency(t *testing.T) {
 		for i := 0; i < max; i++ {
 			s := container.NewService()
 			s.SetValue(struct{}{})
-			s.ScopeShared()
+			s.SetScopeShared()
 			c.OverrideService(fmt.Sprintf("service%d", i), s)
 		}
 
@@ -130,7 +130,7 @@ func Test_container_concurrency(t *testing.T) {
 		for i := 0; i < max; i++ {
 			s := container.NewService()
 			s.SetValue(struct{}{})
-			s.ScopeContextual()
+			s.SetScopeContextual()
 			c.OverrideService(fmt.Sprintf("service-context%d", i), s)
 		}
 
@@ -213,7 +213,7 @@ func Test_container_concurrency(t *testing.T) {
 			c.OverrideService(fmt.Sprintf("service%d", i), newService("tag"))
 
 			sCtx := newService("tag-context")
-			sCtx.ScopeContextual()
+			sCtx.SetScopeContextual()
 			c.OverrideService(fmt.Sprintf("service-context%d", i), sCtx)
 		}
 
@@ -235,7 +235,7 @@ func Test_container_concurrency(t *testing.T) {
 				defer wg.Done()
 
 				s := newService("tag-context")
-				s.ScopeContextual()
+				s.SetScopeContextual()
 				c.OverrideService(nCtx, s)
 			}()
 

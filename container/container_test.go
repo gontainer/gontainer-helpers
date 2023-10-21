@@ -79,7 +79,7 @@ func Test_container_Get(t *testing.T) {
 				var t int
 				return &t
 			})
-			transaction.ScopeContextual()
+			transaction.SetScopeContextual()
 			c.OverrideService("transaction", transaction)
 
 			userStorage := container.NewService()
@@ -114,7 +114,7 @@ func Test_container_Get(t *testing.T) {
 			}()
 
 			func() {
-				transaction.ScopeNonShared()
+				transaction.SetScopeNonShared()
 				c.OverrideService("transaction", transaction)
 
 				tmp, err := c.Get("myService")

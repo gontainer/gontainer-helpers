@@ -146,11 +146,11 @@ func Test_container_get_doNotCacheOnError(t *testing.T) {
 			})
 			switch scope {
 			case "shared":
-				fiveSvc.ScopeShared()
+				fiveSvc.SetScopeShared()
 			case "contextual":
-				fiveSvc.ScopeContextual()
+				fiveSvc.SetScopeContextual()
 			case "default":
-				fiveSvc.ScopeDefault()
+				fiveSvc.SetScopeDefault()
 			}
 
 			c := container.New()
@@ -189,7 +189,7 @@ func Test_container_get_cache(t *testing.T) {
 		atomic.AddUint64(counterCtx, 1)
 		return nil
 	})
-	serviceCtx.ScopeContextual()
+	serviceCtx.SetScopeContextual()
 
 	serviceShared := container.NewService()
 	serviceShared.SetConstructor(func() any {
