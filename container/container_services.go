@@ -11,6 +11,15 @@ import (
 	"github.com/gontainer/gontainer-helpers/v2/setter"
 )
 
+func contextDone(ctx context.Context) bool {
+	select {
+	case <-ctx.Done():
+		return true
+	default:
+		return false
+	}
+}
+
 func (c *Container) Get(id string) (any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
@@ -22,7 +31,14 @@ func (c *Container) GetInContext(ctx context.Context, id string) (any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
-	return c.get(id, c.contextBag(ctx))
+	// contextBag checks whether the context is valid,
+	// so it must be executed before checking whether the context is done
+	bag := c.contextBag(ctx)
+	if contextDone(ctx) {
+		return nil, fmt.Errorf("GetInContext(%+q): %w", id, ctx.Err())
+	}
+
+	return c.get(id, bag)
 }
 
 func (c *Container) GetTaggedBy(tag string) ([]any, error) {
@@ -36,7 +52,14 @@ func (c *Container) GetTaggedByInContext(ctx context.Context, tag string) ([]any
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
-	return c.getTaggedBy(tag, c.contextBag(ctx))
+	// contextBag checks whether the context is valid,
+	// so it must be executed before checking whether the context is done
+	bag := c.contextBag(ctx)
+	if contextDone(ctx) {
+		return nil, fmt.Errorf("GetTaggedByInContext(%+q): %w", tag, ctx.Err())
+	}
+
+	return c.getTaggedBy(tag, bag)
 }
 
 func (c *Container) IsTaggedBy(id string, tag string) bool {
