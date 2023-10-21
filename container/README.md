@@ -113,7 +113,7 @@ container.NewDependencyTag("employee")
 
 **Service**
 
-It refers to a service with the given ID in the container.
+It refers to a service with the given id in the container.
 
 ```go
 container.NewDependencyService("db")
@@ -121,7 +121,7 @@ container.NewDependencyService("db")
 
 **Param**
 
-It refers to a param with the given ID in the container.
+It refers to a param with the given id in the container.
 
 ```go
 container.NewDependencyParam("db.password")
@@ -135,4 +135,27 @@ A function that is being invoked whenever the given dependency is requested.
 container.NewDependencyProvider(func() string {
     return os.Getenv("DB_PASSWORD")
 })
+```
+
+## Services
+
+**Creating a new service**
+
+```go
+type Person struct {
+	Name string
+}
+
+svc1 := container.NewService()
+svc1.SetValue(Person{}) // create the service using a value
+
+svc2 := container.NewService()
+svc.SetConstructor(
+	func (n string) Person { // use a constructor to create a new service
+		return Person{
+			Name: n
+        }       
+    },
+	container.NewDependencyParam("name"), // inject parameter "name" to the constructor
+)
 ```
