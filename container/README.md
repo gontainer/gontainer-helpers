@@ -141,6 +141,11 @@ container.NewDependencyProvider(func() string {
 
 **Creating a new service**
 
+Use `SetConstructor`.
+
+<details>
+  <summary>See code</summary>
+
 ```go
 type Person struct {
 	Name string
@@ -158,4 +163,38 @@ svc2.SetConstructor(
     },
     container.NewDependencyParam("name"), // inject parameter "name" to the constructor
 )
+```
+</details>
+
+**Setter injection**
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/gontainer/gontainer-helpers/container"
+)
+
+type Person struct {
+	Name string
+}
+
+func (p *Person) SetName(n string) {
+	p.Name = n
+}
+
+func main() {
+	s := container.NewService()
+	s.SetValue(&Person{}) // it must be a pointer
+	s.AppendCall("SetName", container.NewDependencyValue("Jane"))
+
+	c := container.New()
+	c.OverrideService("jane", s)
+
+	jane, _ := c.Get("jane")
+	fmt.Printf("%+v\n", jane)
+	// Output: &{Name:Jane}
+}
 ```
