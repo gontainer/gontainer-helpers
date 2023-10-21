@@ -168,6 +168,11 @@ svc2.SetConstructor(
 
 **Setter injection**
 
+Use `AppendCall`.
+
+<details>
+  <summary>See code</summary>
+
 ```go
 package main
 
@@ -198,3 +203,4 @@ func main() {
 	// Output: &{Name:Jane}
 }
 ```
+</details>
