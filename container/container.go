@@ -49,7 +49,31 @@ var (
 	currentContainerID = new(uint64)
 )
 
-// New creates a concurrent-safe DI Container.
+/*
+New creates a concurrent-safe DI Container.
+
+	type Person struct {
+		Name string
+	}
+
+	s := container.NewService()
+	s.SetConstructor(
+		func(n string) Person {
+			return Person{
+				Name: n,
+			}
+		},
+		container.NewDependencyParam("name"),
+	)
+
+	c := container.New()
+	c.OverrideService("jane", s)
+	c.OverrideParam("name", container.NewDependencyValue("Jane"))
+
+	jane, _ := c.Get("jane")
+	fmt.Printf("%+v\n", jane)
+	// Output: {Name:Jane}
+*/
 func New() *Container {
 	c := &Container{
 		services:            make(map[string]Service),
