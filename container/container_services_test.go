@@ -156,7 +156,9 @@ func TestContainer_Get_doNotCacheOnError(t *testing.T) {
 			c := container.New()
 			c.OverrideService("five", fiveSvc)
 
-			ctx := container.ContextWithContainer(context.Background(), c)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			ctx = container.ContextWithContainer(ctx, c)
 
 			five, err := c.GetInContext(ctx, "five")
 			assert.EqualError(t, err, `get("five"): constructor: cannot call provider func() (interface {}, error): my error`)
@@ -201,9 +203,12 @@ func TestContainer_Get_cache(t *testing.T) {
 	c.OverrideService("serviceCtx", serviceCtx)
 	c.OverrideService("serviceShared", serviceShared)
 
-	ctx1 := container.ContextWithContainer(context.Background(), c)
-	ctx2 := container.ContextWithContainer(context.Background(), c)
-	ctx3 := container.ContextWithContainer(context.Background(), c)
+	parentCtx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	ctx1 := container.ContextWithContainer(parentCtx, c)
+	ctx2 := container.ContextWithContainer(parentCtx, c)
+	ctx3 := container.ContextWithContainer(parentCtx, c)
 
 	max := 100
 	wg := sync.WaitGroup{}

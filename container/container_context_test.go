@@ -38,13 +38,19 @@ func TestContextWithContainer(t *testing.T) {
 	// works in all GO's versions
 
 	t.Run("SuperContainer", func(t *testing.T) {
-		container.ContextWithContainer(context.Background(), container.New())
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		container.ContextWithContainer(ctx, container.New())
 	})
 	t.Run("Wrapped Container", func(t *testing.T) {
-		container.ContextWithContainer(context.Background(), newMyWrappedContainer())
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		container.ContextWithContainer(ctx, newMyWrappedContainer())
 	})
 	t.Run("Wrapped Container with overridden func", func(t *testing.T) {
-		container.ContextWithContainer(context.Background(), newMyContainerWithOverriddenFunc())
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		container.ContextWithContainer(ctx, newMyContainerWithOverriddenFunc())
 	})
 	t.Run("Invalid context", func(t *testing.T) {
 		defer func() {

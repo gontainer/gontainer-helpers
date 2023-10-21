@@ -49,11 +49,14 @@ func ExampleContainer_GetInContext_wrongContext() {
 func ExampleContainer_GetInContext() {
 	c := container.New()
 
-	ctx := context.Background()
-	ctx = container.ContextWithContainer(ctx, c)
-	nestedCtx, cancel := context.WithCancel(ctx)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	anotherCtx := container.ContextWithContainer(context.Background(), c)
+	ctx = container.ContextWithContainer(ctx, c)
+	nestedCtx, nestedCancel := context.WithCancel(ctx)
+	defer nestedCancel()
+	anotherCtx, anotherCancel := context.WithCancel(context.Background())
+	defer anotherCancel()
+	anotherCtx = container.ContextWithContainer(anotherCtx, c)
 
 	pointer := container.NewService()
 	pointer.SetConstructor(func() *int {
@@ -110,7 +113,9 @@ func ExampleContainer_GetInContext_oneContextManyContainers() {
 	c2.OverrideService("number", s2)
 
 	// attach two containers to the same context
-	ctx := container.ContextWithContainer(context.Background(), c1)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ctx = container.ContextWithContainer(ctx, c1)
 	ctx = container.ContextWithContainer(ctx, c2)
 
 	// invoke `GetInContext` to cache the value

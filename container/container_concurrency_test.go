@@ -134,7 +134,9 @@ func TestContainer_concurrency(t *testing.T) {
 			c.OverrideService(fmt.Sprintf("service-context%d", i), s)
 		}
 
-		ctx := container.ContextWithContainer(context.Background(), c)
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		ctx = container.ContextWithContainer(ctx, c)
 
 		wg := sync.WaitGroup{}
 		wg.Add(max)
@@ -217,7 +219,9 @@ func TestContainer_concurrency(t *testing.T) {
 			c.OverrideService(fmt.Sprintf("service-context%d", i), sCtx)
 		}
 
-		ctx := container.ContextWithContainer(context.Background(), c)
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		ctx = container.ContextWithContainer(ctx, c)
 
 		wg := sync.WaitGroup{}
 		wg.Add(max * 9)
