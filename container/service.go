@@ -28,12 +28,20 @@ func NewService() Service {
 	}
 }
 
+func (s *Service) resetCreationMethods() {
+	s.value = nil
+	s.constructor = nil
+	s.constructorDeps = nil
+}
+
 func (s *Service) SetValue(v any) *Service {
+	s.resetCreationMethods()
 	s.value = v
 	return s
 }
 
 func (s *Service) SetConstructor(fn any, deps ...Dependency) *Service {
+	s.resetCreationMethods()
 	s.constructor = fn
 	s.constructorDeps = deps
 	return s
