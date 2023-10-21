@@ -126,6 +126,14 @@ func ExampleNew_oneContextManyContainers() {
 }
 
 func ExampleNew_simple() {
+	type Person struct {
+		Name string
+	}
+
+	type People struct {
+		People []Person
+	}
+
 	// create Mary Jane
 	mary := container.NewService()
 	mary.SetConstructor(func() Person {
@@ -163,6 +171,10 @@ func ExampleNew_simple() {
 }
 
 func ExampleNew_errorServiceDoesNotExist() {
+	type Person struct {
+		Name string
+	}
+
 	mary := container.NewService()
 	mary.SetConstructor(func() Person {
 		return Person{}
@@ -180,6 +192,10 @@ func ExampleNew_errorServiceDoesNotExist() {
 }
 
 func ExampleNew_errorFieldDoesNotExist() {
+	type Person struct {
+		Name string
+	}
+
 	mary := container.NewService()
 	mary.SetConstructor(func() Person {
 		return Person{}
@@ -197,12 +213,12 @@ func ExampleNew_errorFieldDoesNotExist() {
 	// container.get("mary"): set field "FullName": set (*interface {})."FullName": field "FullName" does not exist
 }
 
-type Spouse struct {
-	Name   string
-	Spouse *Spouse
-}
-
 func ExampleNew_circularDependency() {
+	type Spouse struct {
+		Name   string
+		Spouse *Spouse
+	}
+
 	wife := container.NewService()
 	wife.SetConstructor(func() *Spouse {
 		return &Spouse{}
@@ -345,6 +361,10 @@ func ExampleNew_scopeNonShared() {
 }
 
 func ExampleNew_getTaggedBy() {
+	type Person struct {
+		Name string
+	}
+
 	p1 := container.NewService()
 	p1.SetValue(Person{})
 	p1.SetField("Name", container.NewDependencyValue("person1"))
@@ -374,20 +394,21 @@ func ExampleNew_getTaggedBy() {
 	// [{person2} {person3} {person1}]
 }
 
-type Server struct {
-	Host string
-	Port int
-}
-
-func NewServer(host string, port int) *Server {
-	return &Server{Host: host, Port: port}
-}
-
 func ExampleNew_invalidConstructorParameters() {
+	type Server struct {
+		Host string
+		Port int
+	}
+
 	s := container.NewService()
 	// invalid arguments
 	s.SetConstructor(
-		NewServer,
+		func(host string, port int) *Server {
+			return &Server{
+				Host: host,
+				Port: port,
+			}
+		},
 		container.NewDependencyValue(nil),         // it should be a string!
 		container.NewDependencyValue("localhost"), // it should be an int!
 	)

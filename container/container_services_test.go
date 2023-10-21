@@ -243,3 +243,12 @@ func Test_container_get_cache(t *testing.T) {
 	// serviceShared is shared, so will be cached once, globally
 	assert.Equal(t, uint64(1), atomic.LoadUint64(counterShared))
 }
+
+type Server struct {
+	Host string
+	Port int
+}
+
+func NewServer(host string, port int) *Server {
+	return &Server{Host: host, Port: port}
+}

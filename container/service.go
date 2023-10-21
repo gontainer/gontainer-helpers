@@ -9,7 +9,6 @@ type serviceCall struct {
 type serviceField struct {
 	name string
 	dep  Dependency
-	_    struct{}
 }
 
 type Service struct {
