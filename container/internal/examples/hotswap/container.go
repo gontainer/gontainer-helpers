@@ -57,10 +57,9 @@ func newHandleHomePage(c *Container) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// assign context to the container
 		ctx := container.ContextWithContainer(r.Context(), c)
-		// uncomment the following line if you want to pass the request to another func
-		// r := r.Clone(ctx)
+		r = r.Clone(ctx)
 
-		_ = ctx
+		_, _ = ctx, r
 
 		_, _ = w.Write([]byte(fmt.Sprintf("%d=%d", c.ParamA(), c.ParamB())))
 	})
