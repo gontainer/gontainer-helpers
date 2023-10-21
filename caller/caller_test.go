@@ -155,7 +155,6 @@ func TestCall(t *testing.T) {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				// TODO it panics for `false`, return an error
 				r, err := caller.Call(s.fn, s.args, true)
 				assert.NoError(t, err)
 				assert.Equal(t, s.expected, r)
