@@ -111,6 +111,24 @@ func NewDB(username, password string) (*sql.DB, error) {
 ```
 </details>
 
+**Sample wither**
+
+<details>
+  <summary>See code</summary>
+
+```go
+type Person struct {
+	Name string
+}
+
+// WithName is a wither.
+func (p Person) WithName(n string) Person {
+	p.Name = n
+	return p
+}
+```
+</details>
+
 ### Scopes
 
 Scopes are applicable to services only. Parameters are not scope-aware, once created parameter is cached forever,
@@ -240,7 +258,7 @@ func main() {
 
 **Wither injection**
 
-Use `AppendCall`.
+Use `AppendWither`.
 
 <details>
   <summary>See code</summary>
