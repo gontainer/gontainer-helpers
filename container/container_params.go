@@ -20,7 +20,7 @@ func (c *Container) getParam(id string) (result any, err error) {
 
 	defer func() {
 		if err != nil {
-			err = grouperror.Prefix(fmt.Sprintf("Container.getParam(%+q): ", id), err)
+			err = grouperror.Prefix(fmt.Sprintf("getParam(%+q): ", id), err)
 		}
 	}()
 

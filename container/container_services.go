@@ -54,7 +54,7 @@ func (c *Container) IsTaggedBy(id string, tag string) bool {
 func (c *Container) get(id string, contextualBag keyValue) (result any, err error) {
 	defer func() {
 		if err != nil {
-			err = grouperror.Prefix(fmt.Sprintf("Container.get(%+q): ", id), err)
+			err = grouperror.Prefix(fmt.Sprintf("get(%+q): ", id), err)
 		}
 	}()
 
@@ -233,7 +233,7 @@ func (c *Container) decorateService(
 func (c *Container) getTaggedBy(tag string, contextualBag keyValue) (result []any, err error) {
 	defer func() {
 		if err != nil {
-			err = grouperror.Prefix(fmt.Sprintf("Container.getTaggedBy(%+q): ", tag), err)
+			err = grouperror.Prefix(fmt.Sprintf("getTaggedBy(%+q): ", tag), err)
 		}
 	}()
 

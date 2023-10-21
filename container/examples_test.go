@@ -31,7 +31,7 @@ func ExampleContainer_GetInContext_wrongContext() {
 
 	ctx := context.Background()
 	// uncomment the following line to remove the panic:
-	// ctx = Container.ContextWithContainer(ctx)
+	// ctx = container.ContextWithContainer(ctx)
 
 	five := container.NewService()
 	five.SetValue(5)
@@ -43,7 +43,7 @@ func ExampleContainer_GetInContext_wrongContext() {
 	_, _ = c.GetInContext(ctx, "five")
 
 	// Output:
-	// panic: the given context is not attached to the given Container, call `ctx = container.ContextWithContainer(ctx, c)`
+	// panic: the given context is not attached to the given container, call `ctx = container.ContextWithContainer(ctx, c)`
 }
 
 func ExampleContainer_GetInContext() {
@@ -188,7 +188,7 @@ func ExampleContainer_Get_errorServiceDoesNotExist() {
 	_, err := c.Get("mary")
 	fmt.Println(err)
 
-	// Output: Container.get("mary"): service does not exist
+	// Output: get("mary"): service does not exist
 }
 
 func ExampleContainer_Get_errorFieldDoesNotExist() {
@@ -210,7 +210,7 @@ func ExampleContainer_Get_errorFieldDoesNotExist() {
 	fmt.Println(err)
 
 	// Output:
-	// Container.get("mary"): set field "FullName": set (*interface {})."FullName": field "FullName" does not exist
+	// get("mary"): set field "FullName": set (*interface {})."FullName": field "FullName" does not exist
 }
 
 func ExampleContainer_CircularDeps() {
@@ -240,7 +240,7 @@ func ExampleContainer_CircularDeps() {
 	_, err := c.Get("wife")
 	fmt.Println(err)
 
-	// Output: Container.get("wife"): circular dependencies: @husband -> @wife -> @husband
+	// Output: get("wife"): circular dependencies: @husband -> @wife -> @husband
 }
 
 func ExampleContainer_Get_setter() {
@@ -445,8 +445,8 @@ func ExampleContainer_Get_invalidConstructorParameters() {
 	fmt.Println(err)
 
 	// Output:
-	// Container.get("server"): constructor: cannot call provider func(string, int) *container_test.Server: arg0: cannot convert <nil> to string
-	// Container.get("server"): constructor: cannot call provider func(string, int) *container_test.Server: arg1: cannot convert string to int
+	// get("server"): constructor: cannot call provider func(string, int) *container_test.Server: arg0: cannot convert <nil> to string
+	// get("server"): constructor: cannot call provider func(string, int) *container_test.Server: arg1: cannot convert string to int
 }
 
 func ExampleContainer_IsTaggedBy() {

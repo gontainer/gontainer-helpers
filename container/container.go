@@ -71,7 +71,7 @@ func (c *Container) CircularDeps() error {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
-	return grouperror.Prefix("Container.CircularDeps(): ", c.graphBuilder.circularDeps())
+	return grouperror.Prefix("CircularDeps(): ", c.graphBuilder.circularDeps())
 }
 
 func (c *Container) AddDecorator(tag string, decorator any, deps ...Dependency) {

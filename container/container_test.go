@@ -33,23 +33,23 @@ func TestContainer_Get(t *testing.T) {
 		svc, err := c.Get("s1")
 		assert.Nil(t, svc)
 		expected := []string{
-			`Container.get("s1"): circular dependencies: @s1 -> @s2 -> @s3 -> @s1`,
-			`Container.get("s1"): circular dependencies: @s1 -> @s1`,
+			`get("s1"): circular dependencies: @s1 -> @s2 -> @s3 -> @s1`,
+			`get("s1"): circular dependencies: @s1 -> @s1`,
 		}
 		errAssert.EqualErrorGroup(t, err, expected)
 
 		param, err := c.GetParam("fullname")
 		assert.Nil(t, param)
 		expected = []string{
-			`Container.getParam("fullname"): circular dependencies: %fullname% -> %name% -> %fullname%`,
+			`getParam("fullname"): circular dependencies: %fullname% -> %name% -> %fullname%`,
 		}
 		errAssert.EqualErrorGroup(t, err, expected)
 
 		expected = []string{
-			`Container.CircularDeps(): @s1 -> @s2 -> @s3 -> @s1`,
-			`Container.CircularDeps(): @s1 -> @s1`,
-			`Container.CircularDeps(): %fullname% -> %name% -> %fullname%`,
-			`Container.CircularDeps(): %lastname% -> %lastname%`,
+			`CircularDeps(): @s1 -> @s2 -> @s3 -> @s1`,
+			`CircularDeps(): @s1 -> @s1`,
+			`CircularDeps(): %fullname% -> %name% -> %fullname%`,
+			`CircularDeps(): %lastname% -> %lastname%`,
 		}
 		errAssert.EqualErrorGroup(t, c.CircularDeps(), expected)
 	})
@@ -150,10 +150,10 @@ func TestContainer_CircularDeps(t *testing.T) {
 		c.OverrideParam("c", container.NewDependencyParam("a"))
 
 		expected := []string{
-			`Container.CircularDeps(): @service1 -> @service1`,
-			`Container.CircularDeps(): @service1 -> @service2 -> @service1`,
-			`Container.CircularDeps(): %a% -> %b% -> %c% -> %a%`,
-			`Container.CircularDeps(): %name% -> %name%`,
+			`CircularDeps(): @service1 -> @service1`,
+			`CircularDeps(): @service1 -> @service2 -> @service1`,
+			`CircularDeps(): %a% -> %b% -> %c% -> %a%`,
+			`CircularDeps(): %name% -> %name%`,
 		}
 		errAssert.EqualErrorGroup(t, c.CircularDeps(), expected)
 	}
