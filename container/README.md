@@ -11,6 +11,7 @@ go get -u github.com/gontainer/gontainer-helpers/container@latest
 3. [Scopes](#scopes)
 4. [Dependencies](#dependencies)
 5. [Services](#services)
+6. [Parameters](#parameters)
 
 ## Quick start
 
@@ -317,5 +318,33 @@ To define the scope of the given service, use on of the following methods:
 ```go
 s := container.NewService()
 s.SetScopeContextual()
+```
+</details>
+
+## Parameters
+
+Parameters are being registered as dependencies. See [dependencies](#dependencies).
+
+<details>
+  <summary>See code</summary>
+
+```go
+package main
+
+import (
+	"fmt"
+	"math"
+
+	"github.com/gontainer/gontainer-helpers/container"
+)
+
+func main() {
+	c := container.New()
+	c.OverrideParam("pi", container.NewDependencyValue(math.Pi))
+
+	pi, _ := c.GetParam("pi")
+	fmt.Printf("%.2f\n", pi)
+	// Output: 3.14
+}
 ```
 </details>
