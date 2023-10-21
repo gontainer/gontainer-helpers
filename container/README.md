@@ -150,7 +150,7 @@ svc1 := container.NewService()
 svc1.SetValue(Person{}) // create the service using a value
 
 svc2 := container.NewService()
-svc.SetConstructor(
+svc2.SetConstructor(
 	func (n string) Person { // use a constructor to create a new service
 		return Person{
 			Name: n
