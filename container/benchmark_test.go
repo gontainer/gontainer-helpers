@@ -71,7 +71,9 @@ func BenchmarkContainer_scopeContextual_in_same_context(b *testing.B) {
 	e.SetField("Name", container.NewDependencyValue("Mary"))
 	e.SetScopeContextual()
 	c.OverrideService("employee", e)
-	ctx := container.ContextWithContainer(context.Background(), c)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ctx = container.ContextWithContainer(ctx, c)
 	_, _ = c.GetInContext(ctx, "employee") // warm up
 	b.ResetTimer()
 
