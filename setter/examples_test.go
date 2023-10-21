@@ -29,7 +29,7 @@ func ExampleSet_errFieldDoesNotExists() {
 
 func ExampleSet_errNoPtr() {
 	type Person struct {
-		name string
+		name string //nolint:unused
 	}
 	var person Person
 	err := setter.Set(person, "name", "Mary", false)
