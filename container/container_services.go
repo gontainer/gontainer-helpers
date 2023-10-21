@@ -155,7 +155,7 @@ func (c *container) setServiceFields(
 			errs[i] = grouperror.Prefix(fmt.Sprintf("field value %+q: ", f.name), err)
 			continue
 		}
-		err = setter.ConvertAndSet(&result, f.name, fieldVal)
+		err = setter.Set(&result, f.name, fieldVal, convertParams)
 		if err != nil {
 			errs[i] = grouperror.Prefix(fmt.Sprintf("set field %+q: ", f.name), err)
 		}
