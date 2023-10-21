@@ -2,6 +2,10 @@
 
 This package provides a concurrently safe DI container. It supports scoped variables, and hot swapping.
 
+```bash
+go get -u github.com/gontainer/gontainer-helpers/container@latest
+```
+
 ## Quick start
 
 ```go
@@ -281,3 +285,5 @@ func main() {
 </details>
 
 **Tagging**
+
+TODO
