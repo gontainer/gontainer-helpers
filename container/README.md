@@ -292,4 +292,30 @@ func main() {
 
 **Tagging**
 
-TODO
+To tag a service use the function `Tag`. The first argument is a tag name, the second one is a priority,
+used for sorting services, whenever the given tag is requested.
+
+<details>
+  <summary>See code</summary>
+```go
+s := container.NewService()
+s.Tag("handler", 0)
+```
+</details>
+
+**Scope**
+
+To define the scope of the given service, use on of the following methods:
+
+1. `SetScopeDefault`
+2. `SetScopeShared`
+3. `SetScopeContextual`
+4. `SetScopeNonShared`
+
+<details>
+  <summary>See code</summary>
+```go
+s := container.NewService()
+s.SetScopeContextual()
+```
+</details>
