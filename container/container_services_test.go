@@ -34,10 +34,10 @@ func Test_container_executeServiceCalls(t *testing.T) {
 		c.OverrideService("service", s)
 
 		expected := []string{
-			"container.get(\"service\"): resolve args \"SetName\": arg #0: could not fetch the name from the config",
-			"container.get(\"service\"): call \"SetAge\": invalid func (*interface {}).\"SetAge\"",
-			"container.get(\"service\"): call \"SetColor\": invalid func (*interface {}).\"SetColor\"",
-			"container.get(\"service\"): wither \"WithLogger\": (struct {}).\"WithLogger\": invalid func (struct {}).\"WithLogger\"",
+			`container.get("service"): resolve args "SetName": arg #0: cannot call provider func() (interface {}, error): could not fetch the name from the config`,
+			`container.get("service"): call "SetAge": cannot call method (*interface {})."SetAge": invalid func (*interface {})."SetAge"`,
+			`container.get("service"): call "SetColor": cannot call method (*interface {})."SetColor": invalid func (*interface {})."SetColor"`,
+			`container.get("service"): wither "WithLogger": (struct {})."WithLogger": cannot call wither (struct {})."WithLogger": invalid func (struct {})."WithLogger"`,
 		}
 
 		svc, err := c.Get("service")
@@ -57,7 +57,7 @@ func Test_container_createNewService(t *testing.T) {
 		c.OverrideService("service", s)
 		service, err := c.Get("service")
 		assert.Nil(t, service)
-		assert.EqualError(t, err, `container.get("service"): constructor: could not create`)
+		assert.EqualError(t, err, `container.get("service"): constructor: cannot call provider func() (interface {}, error): could not create`)
 	})
 	t.Run("Errors in args", func(t *testing.T) {
 		s := container.NewService()
@@ -75,8 +75,8 @@ func Test_container_createNewService(t *testing.T) {
 		c.OverrideService("server", s)
 
 		expected := []string{
-			`container.get("server"): constructor args: arg #0: unexpected error`,
-			`container.get("server"): constructor args: arg #1: unexpected error`,
+			`container.get("server"): constructor args: arg #0: cannot call provider func() (interface {}, error): unexpected error`,
+			`container.get("server"): constructor args: arg #1: cannot call provider func() (interface {}, error): unexpected error`,
 		}
 
 		svc, err := c.Get("server")
@@ -117,7 +117,7 @@ func Test_container_setServiceFields(t *testing.T) {
 
 		expected := []string{
 			`container.get("service"): set field "Name": set (*interface {})."Name": field "Name" does not exist`,
-			`container.get("service"): field value "Age": unexpected error`,
+			`container.get("service"): field value "Age": cannot call provider func() (interface {}, error): unexpected error`,
 		}
 
 		svc, err := c.Get("service")
@@ -159,7 +159,7 @@ func Test_container_get_doNotCacheOnError(t *testing.T) {
 			ctx := container.ContextWithContainer(context.Background(), c)
 
 			five, err := c.GetInContext(ctx, "five")
-			assert.EqualError(t, err, `container.get("five"): constructor: my error`)
+			assert.EqualError(t, err, `container.get("five"): constructor: cannot call provider func() (interface {}, error): my error`)
 			assert.Nil(t, five)
 
 			// second invocation does not return error

@@ -420,8 +420,8 @@ func ExampleNew_invalidConstructorParameters() {
 	fmt.Println(err)
 
 	// Output:
-	// container.get("server"): constructor: arg0: cannot convert <nil> to string
-	// container.get("server"): constructor: arg1: cannot convert string to int
+	// container.get("server"): constructor: cannot call provider func(string, int) *container_test.Server: arg0: cannot convert <nil> to string
+	// container.get("server"): constructor: cannot call provider func(string, int) *container_test.Server: arg1: cannot convert string to int
 }
 
 func ExampleNew_isTaggedBy() {

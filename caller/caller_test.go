@@ -31,7 +31,7 @@ func TestCall(t *testing.T) {
 			{fn: (*error)(nil)},
 			{fn: struct{}{}},
 		}
-		const expectedRegexp = "\\Aexpected func, .* given\\z"
+		const expectedRegexp = "\\Acannot call func .*: expected func, .* given\\z"
 		for i, tmp := range scenarios {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
@@ -44,7 +44,7 @@ func TestCall(t *testing.T) {
 	})
 
 	t.Run("Given invalid argument", func(t *testing.T) {
-		const msg = "arg0: cannot convert struct {} to []int"
+		const msg = "cannot call func func([]int): arg0: cannot convert struct {} to []int"
 		callee := func([]int) {}
 		params := []any{
 			struct{}{},
@@ -64,8 +64,8 @@ func TestCall(t *testing.T) {
 		_, err := caller.Call(callee, params, true)
 
 		expected := []string{
-			"arg0: cannot convert struct {} to []int",
-			"arg1: cannot convert string to *int",
+			"cannot call func func([]int, *int): arg0: cannot convert struct {} to []int",
+			"cannot call func func([]int, *int): arg1: cannot convert string to *int",
 		}
 		errAssert.EqualErrorGroup(t, err, expected)
 	})
@@ -96,7 +96,7 @@ func TestCall(t *testing.T) {
 	})
 
 	t.Run("Given too few arguments", func(t *testing.T) {
-		const msg = "not enough input arguments"
+		const msg = "cannot call func func(int): not enough input arguments"
 		scenarios := []struct {
 			fn   any
 			args []any
@@ -180,7 +180,7 @@ func TestCall(t *testing.T) {
 			"[]struct{}{} to []type": {
 				fn:    func([]int) {},
 				input: []struct{}{},
-				error: "arg0: cannot convert []struct {} to []int",
+				error: "cannot call func func([]int): arg0: cannot convert []struct {} to []int",
 			},
 			"nil to any": {
 				fn: func(v any) any {

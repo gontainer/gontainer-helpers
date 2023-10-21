@@ -52,10 +52,13 @@ func ExampleCall_error() {
 		return a * b
 	}
 	_, err := caller.Call(fn, []any{"2", "2"}, true)
+
+	// TODO isn't better [func func(int, int) int]?
+
 	fmt.Println(err)
 	// Output:
-	// arg0: cannot convert string to int
-	// arg1: cannot convert string to int
+	// cannot call func func(int, int) int: arg0: cannot convert string to int
+	// cannot call func func(int, int) int: arg1: cannot convert string to int
 }
 
 func ExampleCall_error2() {
@@ -65,8 +68,8 @@ func ExampleCall_error2() {
 	_, err := caller.Call(fn, []any{"2", "2"}, false)
 	fmt.Println(err)
 	// Output:
-	// arg0: value of type string is not assignable to type int
-	// arg1: value of type string is not assignable to type int
+	// cannot call func func(int, int) int: arg0: value of type string is not assignable to type int
+	// cannot call func func(int, int) int: arg1: value of type string is not assignable to type int
 }
 
 func ExampleCallProvider() {

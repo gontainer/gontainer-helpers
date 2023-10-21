@@ -7,9 +7,19 @@ import (
 	"github.com/gontainer/gontainer-helpers/internal/caller"
 )
 
+// TODO rename params to args
+
 // Call calls the given function with the given arguments.
 // It returns values returned by the function in a slice.
-func Call(fn any, params []any, convertParams bool) ([]any, error) {
+func Call(fn any, params []any, convertParams bool) (_ []any, err error) {
+	defer func() {
+		if err != nil {
+			// TODO maybe better:
+			//err = grouperror.Prefix(fmt.Sprintf("cannot call %T: ", fn), err)
+			err = grouperror.Prefix(fmt.Sprintf("cannot call func %T: ", fn), err)
+		}
+	}()
+
 	v, err := caller.Func(fn)
 	if err != nil {
 		return nil, err
@@ -37,7 +47,13 @@ The second return value which is optional must be a type of error.
 
 	mysql, err := CallProvider(p)
 */
-func CallProvider(provider any, params []any, convertParams bool) (any, error) {
+func CallProvider(provider any, params []any, convertParams bool) (_ any, err error) {
+	defer func() {
+		if err != nil {
+			err = grouperror.Prefix(fmt.Sprintf("cannot call provider %T: ", provider), err)
+		}
+	}()
+
 	fn, err := caller.FuncProvider(provider)
 	if err != nil {
 		return nil, err
@@ -59,7 +75,13 @@ func CallProvider(provider any, params []any, convertParams bool) (any, error) {
 }
 
 // CallByName works similar to Call with the difference it calls the method by the name over the given receiver.
-func CallByName(object any, method string, params []any, convertParams bool) ([]any, error) {
+func CallByName(object any, method string, params []any, convertParams bool) (_ []any, err error) {
+	defer func() {
+		if err != nil {
+			err = grouperror.Prefix(fmt.Sprintf("cannot call method (%T).%+q: ", object, method), err)
+		}
+	}()
+
 	fn, err := caller.Method(object, method)
 	if err != nil {
 		return nil, err
@@ -86,9 +108,9 @@ CallWitherByName works similar to CallByName with the difference the method must
 	}
 */
 func CallWitherByName(object any, wither string, params []any, convertParams bool) (_ any, err error) {
-	defer func() { // TODO add it for other Call* func
+	defer func() {
 		if err != nil {
-			err = grouperror.Prefix(fmt.Sprintf("(%T).%+q: ", object, wither), err)
+			err = grouperror.Prefix(fmt.Sprintf("cannot call wither (%T).%+q: ", object, wither), err)
 		}
 	}()
 
