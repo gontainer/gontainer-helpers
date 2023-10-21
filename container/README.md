@@ -307,26 +307,27 @@ Use `SetField`.
 package main
 
 import (
-	"fmt"
+   "fmt"
 
-	"github.com/gontainer/gontainer-helpers/v2/container"
+   "github.com/gontainer/gontainer-helpers/v2/container"
 )
 
 type Person struct {
-	Name string
+   Name string
 }
 
 func main() {
-	s := container.NewService()
-	s.SetValue(Person{})
-	s.SetField("Name", container.NewDependencyValue("Jane"))
+   s := container.NewService()
+   s.SetValue(Person{})
+   s.SetField("Name", container.NewDependencyParam("name"))
 
-	c := container.New()
-	c.OverrideService("jane", s)
+   c := container.New()
+   c.OverrideService("jane", s)
+   c.OverrideParam("name", container.NewDependencyValue("Jane"))
 
-	jane, _ := c.Get("jane")
-	fmt.Printf("%+v\n", jane)
-	// Output: {Name:Jane}
+   jane, _ := c.Get("jane")
+   fmt.Printf("%+v\n", jane)
+   // Output: {Name:Jane}
 }
 ```
 </details>
@@ -338,6 +339,7 @@ used for sorting services, whenever the given tag is requested.
 
 <details>
   <summary>See code</summary>
+
 ```go
 s := container.NewService()
 s.Tag("handler", 0)
@@ -355,6 +357,7 @@ To define the scope of the given service, use on of the following methods:
 
 <details>
   <summary>See code</summary>
+
 ```go
 s := container.NewService()
 s.SetScopeContextual()
