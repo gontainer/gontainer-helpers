@@ -7,8 +7,6 @@ import (
 	"github.com/gontainer/gontainer-helpers/internal/caller"
 )
 
-// TODO rename params to args
-
 // Call calls the given function with the given arguments.
 // It returns values returned by the function in a slice.
 func Call(fn any, args []any, convertArgs bool) (_ []any, err error) {
