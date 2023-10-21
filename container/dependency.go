@@ -11,7 +11,7 @@ const (
 	dependencyProvider
 )
 
-var dependencyStringMapping = map[dependencyType]string{
+var dependencyNames = map[dependencyType]string{
 	dependencyMissing:  "dependencyMissing",
 	dependencyValue:    "dependencyValue",
 	dependencyTag:      "dependencyTag",
@@ -21,7 +21,7 @@ var dependencyStringMapping = map[dependencyType]string{
 }
 
 func (d dependencyType) String() string {
-	if s, ok := dependencyStringMapping[d]; ok {
+	if s, ok := dependencyNames[d]; ok {
 		return s
 	}
 	return "unknown"

@@ -9,7 +9,7 @@ const (
 	scopeNonShared               // New instance is created each time you request it from the Container
 )
 
-var scopeStringMapping = map[scope]string{
+var scopeNames = map[scope]string{
 	scopeDefault:    "scopeDefault",
 	scopeShared:     "scopeShared",
 	scopeContextual: "scopeContextual",
@@ -17,7 +17,7 @@ var scopeStringMapping = map[scope]string{
 }
 
 func (s scope) String() string {
-	if str, ok := scopeStringMapping[s]; ok {
+	if str, ok := scopeNames[s]; ok {
 		return str
 	}
 	return "unknown"
