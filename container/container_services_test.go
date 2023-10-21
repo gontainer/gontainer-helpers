@@ -37,7 +37,7 @@ func Test_container_executeServiceCalls(t *testing.T) {
 			`container.get("service"): resolve args "SetName": arg #0: cannot call provider func() (interface {}, error): could not fetch the name from the config`,
 			`container.get("service"): call "SetAge": cannot call method (*interface {})."SetAge": invalid func (*interface {})."SetAge"`,
 			`container.get("service"): call "SetColor": cannot call method (*interface {})."SetColor": invalid func (*interface {})."SetColor"`,
-			`container.get("service"): wither "WithLogger": (struct {})."WithLogger": cannot call wither (struct {})."WithLogger": invalid func (struct {})."WithLogger"`,
+			`container.get("service"): wither "WithLogger": cannot call wither (struct {})."WithLogger": invalid func (struct {})."WithLogger"`,
 		}
 
 		svc, err := c.Get("service")
