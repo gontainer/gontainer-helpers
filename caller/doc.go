@@ -7,7 +7,7 @@ Package caller provides functions that allow calling other functions with unknow
 		return a + b
 	}
 
-	returns, _ := caller.Call(sum, 2, 3)
+	returns, _ := caller.Call(sum, []any{2, 3}, false)
 	fmt.Println(returns) // [5]
 
 # Provider
@@ -40,7 +40,7 @@ Provider that may return an error:
 	    return db, nil
 	}
 
-	// db, err := caller.CallProvider(NewDB, "root", "root")
+	// db, err := caller.CallProvider(NewDB, []any{"root", "root"}, false)
 	// if err != nil {
 	// 	panic(err)
 	// }
@@ -58,7 +58,7 @@ It is a method that returns one value always:
 		return p
 	}
 
-	// p, _ := caller.CallWitherByName(caller.Person{}, "WithName", "Jane")
+	// p, _ := caller.CallWitherByName(caller.Person{}, []any{"WithName", "Jane"}, false)
 	// fmt.Println(p) // {Jane}
 */
 package caller
