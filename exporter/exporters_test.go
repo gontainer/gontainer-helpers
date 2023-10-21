@@ -119,19 +119,19 @@ func TestExport(t *testing.T) {
 		},
 		{
 			input:  []any{1, "2", 3.14},
-			output: `[]any{int(1), "2", float64(3.14)}`,
+			output: `[]interface{}{int(1), "2", float64(3.14)}`,
 		},
 		{
 			input:  [3]any{1, "2", 3.14},
-			output: `[3]any{int(1), "2", float64(3.14)}`,
+			output: `[3]interface{}{int(1), "2", float64(3.14)}`,
 		},
 		{
 			input:  []any{},
-			output: "make([]any, 0)",
+			output: "make([]interface{}, 0)",
 		},
 		{
 			input:  [0]any{},
-			output: "[0]any{}",
+			output: "[0]interface{}{}",
 		},
 		{
 			input: []any{struct{}{}},
@@ -180,11 +180,11 @@ func TestExport(t *testing.T) {
 		},
 		{
 			input:  []any{nil, nil, nil},
-			output: "[]any{nil, nil, nil}",
+			output: "[]interface{}{nil, nil, nil}",
 		},
 		{
 			input:  [3]any{},
-			output: "[3]any{nil, nil, nil}",
+			output: "[3]interface{}{nil, nil, nil}",
 		},
 	}
 

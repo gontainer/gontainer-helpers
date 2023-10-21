@@ -205,7 +205,7 @@ type interfaceSliceExporter struct {
 func (i interfaceSliceExporter) export(v any) (string, error) {
 	val := reflect.ValueOf(v)
 	if val.Type().Kind() == reflect.Slice && val.Len() == 0 {
-		return "make([]any, 0)", nil
+		return "make([]interface{}, 0)", nil
 	}
 	parts := make([]string, val.Len())
 	for j := 0; j < val.Len(); j++ {
@@ -216,9 +216,9 @@ func (i interfaceSliceExporter) export(v any) (string, error) {
 		parts[j] = part
 	}
 
-	prefix := "[]any"
+	prefix := "[]interface{}"
 	if val.Type().Kind() == reflect.Array {
-		prefix = fmt.Sprintf("[%d]any", val.Len())
+		prefix = fmt.Sprintf("[%d]interface{}", val.Len())
 	}
 
 	return prefix + "{" + strings.Join(parts, ", ") + "}", nil
