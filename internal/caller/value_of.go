@@ -16,7 +16,7 @@ func Func(fn any) (reflect.Value, error) {
 		return reflect.Value{}, fmt.Errorf("invalid func: %T", fn)
 	}
 	if v.Kind() != reflect.Func {
-		return reflect.Value{}, fmt.Errorf("expected `%s`, `%T` given", reflect.Func.String(), fn)
+		return reflect.Value{}, fmt.Errorf("expected %s, %T given", reflect.Func.String(), fn)
 	}
 	return v, nil
 }
@@ -46,7 +46,7 @@ func Method(object any, method string) (reflect.Value, error) {
 		fn = obj.MethodByName(method)
 	}
 	if !fn.IsValid() {
-		return reflect.Value{}, fmt.Errorf("invalid func `%T`.%+q", object, method)
+		return reflect.Value{}, fmt.Errorf("invalid func (%T).%+q", object, method)
 	}
 	return fn, nil
 }

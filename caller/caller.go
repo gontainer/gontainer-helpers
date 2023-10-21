@@ -3,6 +3,7 @@ package caller
 import (
 	"fmt"
 
+	"github.com/gontainer/gontainer-helpers/grouperror"
 	"github.com/gontainer/gontainer-helpers/internal/caller"
 )
 
@@ -84,15 +85,22 @@ CallWitherByName works similar to CallByName with the difference the method must
 	    fmt.Printf("%+v", p2) // {name:Mary}
 	}
 */
-func CallWitherByName(object any, wither string, params []any, convertParams bool) (any, error) {
+func CallWitherByName(object any, wither string, params []any, convertParams bool) (_ any, err error) {
+	defer func() { // TODO add it for other Call* func
+		if err != nil {
+			err = grouperror.Prefix(fmt.Sprintf("(%T).%+q: ", object, wither), err)
+		}
+	}()
+
 	fn, err := caller.Wither(object, wither)
 	if err != nil {
 		return nil, err
 	}
 
 	r, err := caller.CallFunc(fn, params, convertParams)
-	if r == nil {
-		return nil, fmt.Errorf("`%T`.%+q: %w", object, wither, err)
+	var v any
+	if len(r) > 0 {
+		v = r[0]
 	}
-	return r[0], err
+	return v, err
 }

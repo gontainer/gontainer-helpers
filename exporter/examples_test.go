@@ -33,7 +33,7 @@ func ExampleCastToString_nil() {
 func ExampleCastToString_notSupported() {
 	_, err := exporter.CastToString(struct{}{})
 	fmt.Println(err)
-	// Output: type `struct {}` is not supported
+	// Output: type struct {} is not supported
 }
 
 func ExampleExport_int() {
@@ -107,5 +107,5 @@ func ExampleExport_emptyArray2() {
 func ExampleExport_err() {
 	_, err := exporter.Export(struct{}{})
 	fmt.Println(err)
-	// Output: type `struct {}` is not supported
+	// Output: type struct {} is not supported
 }

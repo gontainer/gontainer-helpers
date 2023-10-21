@@ -31,7 +31,7 @@ func TestCall(t *testing.T) {
 			{fn: (*error)(nil)},
 			{fn: struct{}{}},
 		}
-		const expectedRegexp = "\\Aexpected `func`, .* given\\z"
+		const expectedRegexp = "\\Aexpected func, .* given\\z"
 		for i, tmp := range scenarios {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
@@ -297,7 +297,7 @@ func TestCallProvider(t *testing.T) {
 
 	t.Run("Given invalid provider", func(t *testing.T) {
 		_, err := caller.CallProvider(5, nil, false)
-		assert.EqualError(t, err, "expected `func`, `int` given")
+		assert.EqualError(t, err, "expected func, int given")
 	})
 
 	t.Run("Given provider panics", func(t *testing.T) {
@@ -379,19 +379,19 @@ func TestCallWitherByName(t *testing.T) {
 				object: person{},
 				wither: "withName",
 				params: nil,
-				error:  "invalid func `caller_test.person`.\"withName\"",
+				error:  "(caller_test.person).\"withName\": invalid func (caller_test.person).\"withName\"",
 			},
 			{
 				object: person{},
 				wither: "Clone",
 				params: nil,
-				error:  "wither must return 1 value, given function returns 2 values",
+				error:  "(caller_test.person).\"Clone\": wither must return 1 value, given function returns 2 values",
 			},
 			{
 				object: person{},
 				wither: "WithName",
 				params: nil,
-				error:  "`caller_test.person`.\"WithName\": not enough input arguments",
+				error:  "(caller_test.person).\"WithName\": not enough input arguments",
 			},
 		}
 

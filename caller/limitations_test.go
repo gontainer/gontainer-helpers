@@ -50,14 +50,14 @@ func TestLimitations(t *testing.T) {
 				t.Run("v := book{}; CallByName(v, ...", func(t *testing.T) {
 					b := book{}
 					r, err := caller.CallByName(b, "SetTitle", []any{harryPotterTitle}, false)
-					assert.EqualError(t, err, "invalid func `caller_test.book`.\"SetTitle\"")
+					assert.EqualError(t, err, `invalid func (caller_test.book)."SetTitle"`)
 					assert.Nil(t, r)
 					assert.Zero(t, b)
 				})
 				t.Run("var v any = book{}; CallByName(&v, ...", func(t *testing.T) {
 					var b any = book{}
 					r, err := caller.CallByName(&b, "SetTitle", []any{harryPotterTitle}, false)
-					assert.EqualError(t, err, "invalid func `*interface {}`.\"SetTitle\"")
+					assert.EqualError(t, err, `invalid func (*interface {})."SetTitle"`)
 					assert.Nil(t, r)
 					assert.Equal(t, emptyBook, b)
 				})
@@ -141,7 +141,7 @@ func TestLimitations(t *testing.T) {
 		t.Run("An unexported method", func(t *testing.T) {
 			b := book{}
 			_, err := caller.CallByName(&b, "setTitle", []any{harryPotter}, false)
-			assert.EqualError(t, err, "invalid func `*caller_test.book`.\"setTitle\"")
+			assert.EqualError(t, err, `invalid func (*caller_test.book)."setTitle"`)
 		})
 	})
 }

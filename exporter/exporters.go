@@ -44,7 +44,7 @@ func Export(i any) (string, error) {
 func MustExport(i any) string {
 	r, err := Export(i)
 	if err != nil {
-		panic(fmt.Sprintf("cannot export `%T` to string: %s", i, err.Error()))
+		panic(fmt.Sprintf("cannot export %T to string: %s", i, err.Error()))
 	}
 	return r
 }
@@ -67,7 +67,7 @@ func CastToString(i any) (string, error) {
 func MustCastToString(i any) string {
 	r, err := CastToString(i)
 	if err != nil {
-		panic(fmt.Sprintf("cannot cast `%T` to string: %s", i, err.Error()))
+		panic(fmt.Sprintf("cannot cast %T to string: %s", i, err.Error()))
 	}
 	return r
 }
@@ -92,7 +92,7 @@ func (c chainExporter) export(v any) (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("type `%T` is not supported", v)
+	return "", fmt.Errorf("type %T is not supported", v)
 }
 
 func newChainExporter(exporters ...subExporter) *chainExporter {
