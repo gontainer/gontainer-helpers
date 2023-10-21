@@ -31,7 +31,7 @@ func TestCall(t *testing.T) {
 			{fn: (*error)(nil)},
 			{fn: struct{}{}},
 		}
-		const expectedRegexp = "\\Acannot call func .*: expected func, .* given\\z"
+		const expectedRegexp = "\\Acannot call .*: expected func, .* given\\z"
 		for i, tmp := range scenarios {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
@@ -44,7 +44,7 @@ func TestCall(t *testing.T) {
 	})
 
 	t.Run("Given invalid argument", func(t *testing.T) {
-		const msg = "cannot call func func([]int): arg0: cannot convert struct {} to []int"
+		const msg = "cannot call func([]int): arg0: cannot convert struct {} to []int"
 		callee := func([]int) {}
 		params := []any{
 			struct{}{},
@@ -64,8 +64,8 @@ func TestCall(t *testing.T) {
 		_, err := caller.Call(callee, params, true)
 
 		expected := []string{
-			"cannot call func func([]int, *int): arg0: cannot convert struct {} to []int",
-			"cannot call func func([]int, *int): arg1: cannot convert string to *int",
+			"cannot call func([]int, *int): arg0: cannot convert struct {} to []int",
+			"cannot call func([]int, *int): arg1: cannot convert string to *int",
 		}
 		errAssert.EqualErrorGroup(t, err, expected)
 	})
@@ -90,13 +90,13 @@ func TestCall(t *testing.T) {
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
 				_, err := caller.Call(s.fn, s.args, true)
-				assert.EqualError(t, err, msg)
+				assert.ErrorContains(t, err, msg)
 			})
 		}
 	})
 
 	t.Run("Given too few arguments", func(t *testing.T) {
-		const msg = "cannot call func func(int): not enough input arguments"
+		const msg = "not enough input arguments"
 		scenarios := []struct {
 			fn   any
 			args []any
@@ -115,7 +115,7 @@ func TestCall(t *testing.T) {
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
 				_, err := caller.Call(s.fn, s.args, true)
-				assert.EqualError(t, err, msg)
+				assert.ErrorContains(t, err, msg)
 			})
 		}
 	})
@@ -180,7 +180,7 @@ func TestCall(t *testing.T) {
 			"[]struct{}{} to []type": {
 				fn:    func([]int) {},
 				input: []struct{}{},
-				error: "cannot call func func([]int): arg0: cannot convert []struct {} to []int",
+				error: "cannot call func([]int): arg0: cannot convert []struct {} to []int",
 			},
 			"nil to any": {
 				fn: func(v any) any {
@@ -255,32 +255,32 @@ func TestCallProvider(t *testing.T) {
 		}{
 			{
 				provider: func() {},
-				err:      "provider must return 1 or 2 values, given function returns 0 values",
+				err:      "cannot call provider func(): provider must return 1 or 2 values, given function returns 0 values",
 			},
 			{
 				provider: func() (any, any, any) {
 					return nil, nil, nil
 				},
-				err: "provider must return 1 or 2 values, given function returns 3 values",
+				err: "cannot call provider func() (interface {}, interface {}, interface {}): provider must return 1 or 2 values, given function returns 3 values",
 			},
 			{
 				provider: func() (any, any) {
 					return nil, nil
 				},
-				err: "second value returned by provider must implement error interface",
+				err: "cannot call provider func() (interface {}, interface {}): second value returned by provider must implement error interface",
 			},
 			{
 				provider: func() (any, error) {
 					return nil, errors.New("test error")
 				},
-				err: "test error",
+				err: "cannot call provider func() (interface {}, error): test error", // todo maybe provider returned an error?
 			},
 			{
 				provider: func() any {
 					return nil
 				},
 				params: []any{1, 2, 3},
-				err:    "too many input arguments",
+				err:    "cannot call provider func() interface {}: too many input arguments",
 			},
 		}
 
@@ -379,19 +379,19 @@ func TestCallWitherByName(t *testing.T) {
 				object: person{},
 				wither: "withName",
 				params: nil,
-				error:  "(caller_test.person).\"withName\": invalid func (caller_test.person).\"withName\"",
+				error:  `cannot call wither (caller_test.person)."withName": invalid func (caller_test.person)."withName"`,
 			},
 			{
 				object: person{},
 				wither: "Clone",
 				params: nil,
-				error:  "(caller_test.person).\"Clone\": wither must return 1 value, given function returns 2 values",
+				error:  `cannot call wither (caller_test.person)."Clone": wither must return 1 value, given function returns 2 values`,
 			},
 			{
 				object: person{},
 				wither: "WithName",
 				params: nil,
-				error:  "(caller_test.person).\"WithName\": not enough input arguments",
+				error:  `cannot call wither (caller_test.person)."WithName": not enough input arguments`,
 			},
 		}
 
