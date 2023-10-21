@@ -93,6 +93,24 @@ First return may be of any type. Second return if exists must be of a type error
 4. **Wither** - a method that returns a single value always.
 Withers in opposition to setters are being used to achieve immutable structures.
 
+**Sample providers**
+
+<details>
+  <summary>See code</summary>
+
+```go
+func GetPassword() string {
+	return os.Getenv("PASSWORD")
+}
+```
+
+```go
+func NewDB(username, password string) (*sql.DB, error) {
+	return sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/test", username, password))
+}
+```
+</details>
+
 ### Scopes
 
 Scopes are applicable to services only. Parameters are not scope-aware, once created parameter is cached forever,
@@ -156,7 +174,7 @@ container.NewDependencyProvider(func() string {
 
 **Creating a new service**
 
-Use `SetConstructor`.
+Use `SetConstructor`. Constructor is a provider (see [definitions](#definitions)).
 
 <details>
   <summary>See code</summary>
