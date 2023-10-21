@@ -390,6 +390,52 @@ func ExampleContainer_Get_scopeNonShared() {
 	// Output: 1 2
 }
 
+func ExampleContainer_Get_taggedServices() {
+	type Superhero struct {
+		Name string
+	}
+
+	type Team struct {
+		Superheroes []Superhero
+	}
+
+	// describe Iron Man
+	ironMan := container.NewService()
+	ironMan.SetValue(Superhero{
+		Name: "Iron Man",
+	})
+	ironMan.Tag("avengers", 0)
+
+	// describe Thor
+	thor := container.NewService()
+	thor.SetValue(Superhero{
+		Name: "Thor",
+	})
+	thor.Tag("avengers", 1) // Thor has a higher priority
+
+	// describe Hulk
+	hulk := container.NewService()
+	hulk.SetValue(Superhero{
+		Name: "Hulk",
+	})
+	hulk.Tag("avengers", 0)
+
+	// describe Avengers
+	team := container.NewService()
+	team.SetValue(Team{})
+	team.SetField("Superheroes", container.NewDependencyTag("avengers"))
+
+	c := container.New()
+	c.OverrideService("ironMan", ironMan)
+	c.OverrideService("thor", thor)
+	c.OverrideService("hulk", hulk)
+	c.OverrideService("avengers", team)
+
+	avengers, _ := c.Get("avengers")
+	fmt.Printf("%+v\n", avengers)
+	// Output: {Superheroes:[{Name:Thor} {Name:Hulk} {Name:Iron Man}]}
+}
+
 func ExampleContainer_GetTaggedBy() {
 	type Person struct {
 		Name string
