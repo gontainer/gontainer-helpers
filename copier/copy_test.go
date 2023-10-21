@@ -105,7 +105,7 @@ func TestCopy(t *testing.T) {
 	})
 	t.Run("Given errors", func(t *testing.T) {
 		t.Run("non-pointer value", func(t *testing.T) {
-			const msg = "expected pointer, `int` given"
+			const msg = "expected pointer, int given"
 			assert.EqualError(
 				t,
 				copier.Copy(5, 5),
@@ -117,7 +117,7 @@ func TestCopy(t *testing.T) {
 		assert.EqualError(
 			t,
 			copier.Copy(5, nil),
-			"expected pointer, `invalid` given", // TODO unify with other errors
+			"expected pointer, int given", // TODO unify with other errors
 		)
 	})
 }

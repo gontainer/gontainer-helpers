@@ -39,7 +39,7 @@ func copyTo(from any, to any, convert bool) (err error) {
 	t := reflect.ValueOf(to)
 
 	if t.Kind() != reflect.Ptr {
-		return fmt.Errorf("expected pointer, `%s` given", t.Kind())
+		return fmt.Errorf("expected pointer, %T given", from)
 	}
 
 	f, err := intReflect.ValueOf(from, t.Elem().Type(), convert)
