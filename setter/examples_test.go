@@ -3,7 +3,7 @@ package setter_test
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/setter"
+	"github.com/gontainer/gontainer-helpers/v2/setter"
 )
 
 func ExampleSet_ok() {

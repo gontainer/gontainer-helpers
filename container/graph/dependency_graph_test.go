@@ -3,8 +3,8 @@ package graph_test
 import (
 	"testing"
 
-	"github.com/gontainer/gontainer-helpers/container/graph"
-	errAssert "github.com/gontainer/gontainer-helpers/grouperror/assert"
+	"github.com/gontainer/gontainer-helpers/v2/container/graph"
+	errAssert "github.com/gontainer/gontainer-helpers/v2/grouperror/assert"
 )
 
 func TestNew(t *testing.T) {

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"unsafe"
 
-	"github.com/gontainer/gontainer-helpers/grouperror"
-	intReflect "github.com/gontainer/gontainer-helpers/internal/reflect"
+	"github.com/gontainer/gontainer-helpers/v2/grouperror"
+	intReflect "github.com/gontainer/gontainer-helpers/v2/internal/reflect"
 )
 
 func set(strct any, field string, val any, convert bool) (err error) {

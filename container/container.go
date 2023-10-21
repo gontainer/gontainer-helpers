@@ -7,9 +7,9 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/gontainer/gontainer-helpers/caller"
-	"github.com/gontainer/gontainer-helpers/container/internal/groupcontext"
-	"github.com/gontainer/gontainer-helpers/grouperror"
+	"github.com/gontainer/gontainer-helpers/v2/caller"
+	"github.com/gontainer/gontainer-helpers/v2/container/internal/groupcontext"
+	"github.com/gontainer/gontainer-helpers/v2/grouperror"
 )
 
 type Container struct {

@@ -3,7 +3,7 @@ package exporter_test
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/exporter"
+	"github.com/gontainer/gontainer-helpers/v2/exporter"
 )
 
 func ExampleCastToString_string() {

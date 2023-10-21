@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gontainer/gontainer-helpers/copier"
+	"github.com/gontainer/gontainer-helpers/v2/copier"
 	"github.com/stretchr/testify/assert"
 )
 

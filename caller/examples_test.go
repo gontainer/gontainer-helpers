@@ -3,7 +3,7 @@ package caller_test
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/caller"
+	"github.com/gontainer/gontainer-helpers/v2/caller"
 )
 
 type Person struct {

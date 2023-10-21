@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/gontainer/gontainer-helpers/grouperror"
-	helpersReflect "github.com/gontainer/gontainer-helpers/internal/reflect"
+	"github.com/gontainer/gontainer-helpers/v2/grouperror"
+	helpersReflect "github.com/gontainer/gontainer-helpers/v2/internal/reflect"
 )
 
 type reflectType struct {

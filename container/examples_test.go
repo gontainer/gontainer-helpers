@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/gontainer/gontainer-helpers/container"
-	"github.com/gontainer/gontainer-helpers/copier"
+	"github.com/gontainer/gontainer-helpers/v2/container"
+	"github.com/gontainer/gontainer-helpers/v2/copier"
 )
 
 type Person struct {

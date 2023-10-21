@@ -1,4 +1,4 @@
-module github.com/gontainer/gontainer-helpers
+module github.com/gontainer/gontainer-helpers/v2
 
 go 1.14
 

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/gontainer/gontainer-helpers/container"
+	"github.com/gontainer/gontainer-helpers/v2/container"
 	"github.com/stretchr/testify/assert"
 )
 

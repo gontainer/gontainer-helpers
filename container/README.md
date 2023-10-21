@@ -3,7 +3,7 @@
 This package provides a concurrently safe DI container. It supports scoped variables, and hot swapping.
 
 ```bash
-go get -u github.com/gontainer/gontainer-helpers/container@latest
+go get -u github.com/gontainer/gontainer-helpers/v2/container@latest
 ```
 
 1. [Quick start](#quick-start)
@@ -23,7 +23,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/container"
+	"github.com/gontainer/gontainer-helpers/v2/container"
 )
 
 type Superhero struct {
@@ -194,7 +194,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/container"
+	"github.com/gontainer/gontainer-helpers/v2/container"
 )
 
 type Person struct {
@@ -233,7 +233,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/container"
+	"github.com/gontainer/gontainer-helpers/v2/container"
 )
 
 type Person struct {
@@ -273,7 +273,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/container"
+	"github.com/gontainer/gontainer-helpers/v2/container"
 )
 
 type Person struct {
@@ -339,7 +339,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/gontainer/gontainer-helpers/container"
+	"github.com/gontainer/gontainer-helpers/v2/container"
 )
 
 func main() {

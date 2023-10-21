@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gontainer/gontainer-helpers/caller"
-	errAssert "github.com/gontainer/gontainer-helpers/grouperror/assert"
+	"github.com/gontainer/gontainer-helpers/v2/caller"
+	errAssert "github.com/gontainer/gontainer-helpers/v2/grouperror/assert"
 	"github.com/stretchr/testify/assert"
 )
 

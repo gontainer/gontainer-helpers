@@ -5,7 +5,7 @@ import (
 	"sort"
 	"sync"
 
-	containerGraph "github.com/gontainer/gontainer-helpers/container/graph"
+	containerGraph "github.com/gontainer/gontainer-helpers/v2/container/graph"
 )
 
 type graphBuilder struct {

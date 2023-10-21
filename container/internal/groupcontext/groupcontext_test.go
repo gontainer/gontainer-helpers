@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gontainer/gontainer-helpers/container/internal/groupcontext"
+	"github.com/gontainer/gontainer-helpers/v2/container/internal/groupcontext"
 	"github.com/stretchr/testify/assert"
 )
 

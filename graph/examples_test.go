@@ -3,7 +3,7 @@ package graph_test
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/graph"
+	"github.com/gontainer/gontainer-helpers/v2/graph"
 )
 
 func ExampleNew_circularDeps() {

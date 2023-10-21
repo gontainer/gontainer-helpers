@@ -3,7 +3,7 @@ package copier_test
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/copier"
+	"github.com/gontainer/gontainer-helpers/v2/copier"
 )
 
 func ExampleCopy_convertOK() {

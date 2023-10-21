@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	intReflect "github.com/gontainer/gontainer-helpers/internal/reflect"
+	intReflect "github.com/gontainer/gontainer-helpers/v2/internal/reflect"
 )
 
 /*

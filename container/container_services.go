@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/gontainer/gontainer-helpers/caller"
-	"github.com/gontainer/gontainer-helpers/grouperror"
-	"github.com/gontainer/gontainer-helpers/setter"
+	"github.com/gontainer/gontainer-helpers/v2/caller"
+	"github.com/gontainer/gontainer-helpers/v2/grouperror"
+	"github.com/gontainer/gontainer-helpers/v2/setter"
 )
 
 func (c *Container) Get(id string) (any, error) {
