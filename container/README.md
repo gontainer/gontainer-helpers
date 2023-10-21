@@ -2,15 +2,15 @@
 
 This package provides a concurrently safe DI container. It supports scoped variables, and hot swapping.
 
+```bash
+go get -u github.com/gontainer/gontainer-helpers/container@latest
+```
+
 1. [Quick start](#quick-start)
 2. [Definitions](#definitions)
 3. [Scopes](#scopes)
 4. [Dependencies](#dependencies)
 5. [Services](#services)
-
-```bash
-go get -u github.com/gontainer/gontainer-helpers/container@latest
-```
 
 ## Quick start
 
