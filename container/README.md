@@ -7,7 +7,7 @@ go get -u github.com/gontainer/gontainer-helpers/container@latest
 ```
 
 1. [Quick start](#quick-start)
-2. [Components](#components)
+2. [Overview](#overview)
    1. [Definitions](#definitions)
    2. [Scopes](#scopes)
    3. [Dependencies](#dependencies)
@@ -82,7 +82,7 @@ func main() {
 }
 ```
 
-## Components
+## Overview
 
 ### Definitions
 
