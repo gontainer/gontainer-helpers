@@ -7,11 +7,13 @@ go get -u github.com/gontainer/gontainer-helpers/container@latest
 ```
 
 1. [Quick start](#quick-start)
-2. [Definitions](#definitions)
-3. [Scopes](#scopes)
-4. [Dependencies](#dependencies)
-5. [Services](#services)
-6. [Parameters](#parameters)
+2. [Components](#components)
+   1. [Definitions](#definitions)
+   2. [Scopes](#scopes)
+   3. [Dependencies](#dependencies)
+   4. [Services](#services)
+   5. [Parameters](#parameters)
+3. [Usage](#usage)
 
 ## Quick start
 
@@ -80,7 +82,9 @@ func main() {
 }
 ```
 
-## Definitions
+## Components
+
+### Definitions
 
 1. **Service** - any struct, variable, func that you use in your application, e.g. `*sql.DB`.
 2. **Parameter** - a variable that holds a configuration. E.g. a password can be a parameter.
@@ -89,7 +93,7 @@ First return may be of any type. Second return if exists must be of a type error
 4. **Wither** - a method that returns a single value always.
 Withers in opposition to setters are being used to achieve immutable structures.
 
-## Scopes
+### Scopes
 
 Scopes are applicable to services only. Parameters are not scope-aware, once created parameter is cached forever,
 although `HotSwap` lets overriding them.
@@ -101,7 +105,7 @@ although `HotSwap` lets overriding them.
 If the given service has at least one direct or indirect contextual dependency,
 its scope will be contextual, otherwise it will be shared.
 
-## Dependencies
+### Dependencies
 
 Dependencies describe values we inject to our services.
 
@@ -148,7 +152,7 @@ container.NewDependencyProvider(func() string {
 })
 ```
 
-## Services
+### Services
 
 **Creating a new service**
 
@@ -321,7 +325,7 @@ s.SetScopeContextual()
 ```
 </details>
 
-## Parameters
+### Parameters
 
 Parameters are being registered as dependencies. See [dependencies](#dependencies).
 
@@ -348,3 +352,7 @@ func main() {
 }
 ```
 </details>
+
+## Usage
+
+TODO
