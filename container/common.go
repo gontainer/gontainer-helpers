@@ -2,7 +2,7 @@ package container
 
 const (
 	// TODO: should we convert values?
-	convertParams = true
+	convertArgs = true
 )
 
 type rwlocker interface {

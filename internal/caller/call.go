@@ -30,10 +30,10 @@ func (t reflectType) inVariadicAware(i int) reflect.Type {
 // CallFunc calls the given func.
 //
 // fn.Kind() MUST BE equal to [reflect.Func]
-func CallFunc(fn reflect.Value, params []any, convertParams bool) (res []any, err error) {
+func CallFunc(fn reflect.Value, args []any, convertArgs bool) (res []any, err error) {
 	fnType := reflectType{fn.Type()}
 
-	if len(params) > fnType.NumIn() && !fnType.IsVariadic() {
+	if len(args) > fnType.NumIn() && !fnType.IsVariadic() {
 		return nil, errors.New("too many input arguments")
 	}
 
@@ -41,15 +41,15 @@ func CallFunc(fn reflect.Value, params []any, convertParams bool) (res []any, er
 	if fnType.IsVariadic() {
 		minParams--
 	}
-	if len(params) < minParams {
+	if len(args) < minParams {
 		return nil, errors.New("not enough input arguments")
 	}
 
-	paramsRef := make([]reflect.Value, len(params))
-	errs := make([]error, 0, len(params))
-	for i, p := range params {
+	paramsRef := make([]reflect.Value, len(args))
+	errs := make([]error, 0, len(args))
+	for i, p := range args {
 		convertTo := fnType.inVariadicAware(i)
-		v, errC := helpersReflect.ValueOf(p, convertTo, convertParams)
+		v, errC := helpersReflect.ValueOf(p, convertTo, convertArgs)
 		if errC != nil {
 			errs = append(errs, grouperror.Prefix(fmt.Sprintf("arg%d: ", i), errC))
 		}

@@ -134,7 +134,7 @@ func (c *container) createNewService(svc Service, contextualBag keyValue) (any, 
 		if err != nil {
 			return nil, grouperror.Prefix("constructor args: ", err)
 		}
-		result, err = caller.CallProvider(svc.constructor, params, convertParams)
+		result, err = caller.CallProvider(svc.constructor, params, convertArgs)
 		if err != nil {
 			return nil, grouperror.Prefix("constructor: ", err)
 		}
@@ -155,7 +155,7 @@ func (c *container) setServiceFields(
 			errs[i] = grouperror.Prefix(fmt.Sprintf("field value %+q: ", f.name), err)
 			continue
 		}
-		err = setter.Set(&result, f.name, fieldVal, convertParams)
+		err = setter.Set(&result, f.name, fieldVal, convertArgs)
 		if err != nil {
 			errs[i] = grouperror.Prefix(fmt.Sprintf("set field %+q: ", f.name), err)
 		}
@@ -183,7 +183,7 @@ func (c *container) executeServiceCalls(
 		}
 
 		if call.wither {
-			result, err = caller.CallWitherByName(result, call.method, params, convertParams)
+			result, err = caller.CallWitherByName(result, call.method, params, convertArgs)
 			if err != nil {
 				errs[i] = grouperror.Prefix(fmt.Sprintf("%s %+q: ", action, call.method), err)
 				// wither may return a nil value for error,
@@ -191,7 +191,7 @@ func (c *container) executeServiceCalls(
 				break
 			}
 		} else {
-			_, err = caller.CallByName(&result, call.method, params, convertParams)
+			_, err = caller.CallByName(&result, call.method, params, convertArgs)
 			errs[i] = grouperror.Prefix(fmt.Sprintf("%s %+q: ", action, call.method), err)
 		}
 	}
@@ -221,7 +221,7 @@ func (c *container) decorateService(
 			return nil, grouperror.Prefix(fmt.Sprintf("resolve decorator args #%d: ", i), err)
 		}
 		params = append([]any{payload}, params...)
-		result, err = caller.CallProvider(dec.fn, params, convertParams)
+		result, err = caller.CallProvider(dec.fn, params, convertArgs)
 		if err != nil {
 			return nil, grouperror.Prefix(fmt.Sprintf("decorator #%d: ", i), err)
 		}

@@ -11,7 +11,7 @@ import (
 
 // Call calls the given function with the given arguments.
 // It returns values returned by the function in a slice.
-func Call(fn any, params []any, convertParams bool) (_ []any, err error) {
+func Call(fn any, args []any, convertArgs bool) (_ []any, err error) {
 	defer func() {
 		if err != nil {
 			err = grouperror.Prefix(fmt.Sprintf("cannot call %T: ", fn), err)
@@ -22,7 +22,7 @@ func Call(fn any, params []any, convertParams bool) (_ []any, err error) {
 	if err != nil {
 		return nil, err
 	}
-	return caller.CallFunc(v, params, convertParams)
+	return caller.CallFunc(v, args, convertArgs)
 }
 
 /*
@@ -45,7 +45,7 @@ The second return value which is optional must be a type of error.
 
 	mysql, err := CallProvider(p)
 */
-func CallProvider(provider any, params []any, convertParams bool) (_ any, err error) {
+func CallProvider(provider any, args []any, convertArgs bool) (_ any, err error) {
 	defer func() {
 		if err != nil {
 			err = grouperror.Prefix(fmt.Sprintf("cannot call provider %T: ", provider), err)
@@ -57,7 +57,7 @@ func CallProvider(provider any, params []any, convertParams bool) (_ any, err er
 		return nil, err
 	}
 
-	results, err := caller.CallFunc(fn, params, convertParams)
+	results, err := caller.CallFunc(fn, args, convertArgs)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func CallProvider(provider any, params []any, convertParams bool) (_ any, err er
 }
 
 // CallByName works similar to Call with the difference it calls the method by the name over the given receiver.
-func CallByName(object any, method string, params []any, convertParams bool) (_ []any, err error) {
+func CallByName(object any, method string, args []any, convertArgs bool) (_ []any, err error) {
 	defer func() {
 		if err != nil {
 			err = grouperror.Prefix(fmt.Sprintf("cannot call method (%T).%+q: ", object, method), err)
@@ -84,7 +84,7 @@ func CallByName(object any, method string, params []any, convertParams bool) (_ 
 	if err != nil {
 		return nil, err
 	}
-	return caller.CallFunc(fn, params, convertParams)
+	return caller.CallFunc(fn, args, convertArgs)
 }
 
 /*
@@ -105,7 +105,7 @@ CallWitherByName works similar to CallByName with the difference the method must
 	    fmt.Printf("%+v", p2) // {name:Mary}
 	}
 */
-func CallWitherByName(object any, wither string, params []any, convertParams bool) (_ any, err error) {
+func CallWitherByName(object any, wither string, args []any, convertArgs bool) (_ any, err error) {
 	defer func() {
 		if err != nil {
 			err = grouperror.Prefix(fmt.Sprintf("cannot call wither (%T).%+q: ", object, wither), err)
@@ -117,7 +117,7 @@ func CallWitherByName(object any, wither string, params []any, convertParams boo
 		return nil, err
 	}
 
-	r, err := caller.CallFunc(fn, params, convertParams)
+	r, err := caller.CallFunc(fn, args, convertArgs)
 	var v any
 	if len(r) > 0 {
 		v = r[0]
