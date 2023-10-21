@@ -42,7 +42,7 @@ func CallFunc(fn reflect.Value, params []any, convertParams bool) (res []any, er
 		minParams--
 	}
 	if len(params) < minParams {
-		return nil, errors.New("too few input arguments")
+		return nil, errors.New("not enough input arguments")
 	}
 
 	paramsRef := make([]reflect.Value, len(params))

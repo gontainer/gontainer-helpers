@@ -96,7 +96,7 @@ func TestCall(t *testing.T) {
 	})
 
 	t.Run("Given too few arguments", func(t *testing.T) {
-		const msg = "too few input arguments"
+		const msg = "not enough input arguments"
 		scenarios := []struct {
 			fn   any
 			args []any
@@ -391,7 +391,7 @@ func TestCallWitherByName(t *testing.T) {
 				object: person{},
 				wither: "WithName",
 				params: nil,
-				error:  "`caller_test.person`.\"WithName\": too few input arguments",
+				error:  "`caller_test.person`.\"WithName\": not enough input arguments",
 			},
 		}
 
