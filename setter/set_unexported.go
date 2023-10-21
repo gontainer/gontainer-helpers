@@ -6,10 +6,17 @@ import (
 	"strings"
 	"unsafe"
 
+	"github.com/gontainer/gontainer-helpers/grouperror"
 	intReflect "github.com/gontainer/gontainer-helpers/internal/reflect"
 )
 
-func set(strct any, field string, val any, convert bool) error {
+func set(strct any, field string, val any, convert bool) (err error) {
+	defer func() {
+		if err != nil {
+			err = grouperror.Prefix(fmt.Sprintf("set (%T).%+q: ", strct, field), err)
+		}
+	}()
+
 	if field == "_" {
 		return fmt.Errorf(`"_" is not supported`)
 	}
@@ -26,23 +33,16 @@ func set(strct any, field string, val any, convert bool) error {
 		chain = chain[1:]
 	}
 
-	wrap := func(err error) error {
-		if err == nil {
-			return nil
-		}
-		return fmt.Errorf("set (%T).%+q: %w", strct, field, err)
-	}
-
 	switch {
 	// s := struct{ val int }{}
 	// Set(&s...
 	case chain.equalTo(reflect.Ptr, reflect.Struct):
-		return wrap(setOnValue(
+		return setOnValue(
 			reflectVal.Elem(),
 			field,
 			val,
 			convert,
-		))
+		)
 
 	// case chain.equalTo(reflect.Ptr, reflect.Interface, reflect.Ptr (, reflect.Ptr...), reflect.Struct):
 	// var s any = &struct{ val int }{}
@@ -52,7 +52,7 @@ func set(strct any, field string, val any, convert bool) error {
 		for i := 0; i < len(chain)-2; i++ {
 			elem = elem.Elem()
 		}
-		return wrap(setOnValue(elem, field, val, convert))
+		return setOnValue(elem, field, val, convert)
 
 	// var s any = struct{ val int }{}
 	// Set(&s...
@@ -60,7 +60,7 @@ func set(strct any, field string, val any, convert bool) error {
 		v := reflectVal.Elem()
 		tmp := reflect.New(v.Elem().Type()).Elem()
 		tmp.Set(v.Elem())
-		if err := wrap(setOnValue(tmp, field, val, convert)); err != nil {
+		if err := setOnValue(tmp, field, val, convert); err != nil {
 			return err
 		}
 		v.Set(tmp)

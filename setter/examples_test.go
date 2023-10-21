@@ -28,12 +28,13 @@ func ExampleSet_errFieldDoesNotExists() {
 }
 
 func ExampleSet_errNoPtr() {
-	person := struct {
+	type Person struct {
 		name string
-	}{}
+	}
+	var person Person
 	err := setter.Set(person, "name", "Mary", false)
 	fmt.Println(err)
-	// Output: expected pointer to struct, struct given
+	// Output: set (setter_test.Person)."name": expected pointer to struct, struct given
 }
 
 func ExampleSet_convert() {

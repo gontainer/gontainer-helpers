@@ -76,7 +76,7 @@ func TestSet(t *testing.T) {
 		assert.EqualError(
 			t,
 			Set(struct{ _ int }{}, "_", 123, false),
-			`"_" is not supported`,
+			`set (struct { _ int })."_": "_" is not supported`,
 		)
 	})
 	t.Run("anonymous struct", func(t *testing.T) {
@@ -207,7 +207,7 @@ func TestSet(t *testing.T) {
 		t.Run("Invalid pointer dest", func(t *testing.T) {
 			p := 5
 			err := Set(&p, "FirstName", "Mary", false)
-			assert.EqualError(t, err, "expected pointer to struct, ptr.int given")
+			assert.EqualError(t, err, `set (*int)."FirstName": expected pointer to struct, ptr.int given`)
 		})
 		t.Run("Invalid type of value", func(t *testing.T) {
 			t.Run("Convert", func(t *testing.T) {
