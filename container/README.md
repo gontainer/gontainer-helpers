@@ -50,7 +50,7 @@ func buildContainer() *container.Container {
 	thor.SetValue(Superhero{
 		Name: "Thor",
 	})
-	thor.Tag("avengers", 1) // Thor has higher priority
+	thor.Tag("avengers", 1) // Thor has a higher priority
 
 	// describe Hulk
 	hulk := container.NewService()
