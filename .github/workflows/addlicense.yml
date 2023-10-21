@@ -1,0 +1,32 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  build:
+    name: Addlicense
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go: [ '1.21' ]
+    steps:
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go }}
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - run: go install github.com/google/addlicense@latest
+
+    - name: Addlicense
+      run: addlicense -c "Bartłomiej Krukowski" -l mit -y 2023 -check .
