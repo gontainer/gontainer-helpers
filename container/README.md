@@ -40,3 +40,10 @@ func main() {
 	// ... more code
 }
 ```
+
+## Definitions
+
+1. **Service** - any struct, variable, func that you use in your application, e.g. `*sql.DB`.
+2. **Parameter** - a variable that holds a configuration. E.g. a password can be a parameter.
+3. **Provider** - a function that returns one or two values. First return may be of any type. Second return if exists must be of a type error.
+4. **Wither** - a method that returns a single value always. Withers in opposition to setters are being used to achieve immutable structures.
