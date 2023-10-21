@@ -89,3 +89,50 @@ although `HotSwap` lets overriding them.
 4. **Default** - a runtime-determining scope.
 If the given service has at least one direct or indirect contextual dependency,
 its scope will be contextual, otherwise it will be shared.
+
+## Dependencies
+
+Dependencies describe values we inject to our services.
+
+**Value**
+
+Hardcoded value. The simplest possible dependency.
+
+```go
+container.NewDependencyValue("https://go.dev/")
+```
+
+**Tag**
+
+Search in the container for all services with the given tag.
+Sort them by priority first, then by name, and return a slice of them.
+
+```go
+container.NewDependencyTag("employee")
+```
+
+**Service**
+
+It refers to a service with the given ID in the container.
+
+```go
+container.NewDependencyService("db")
+```
+
+**Param**
+
+It refers to a param with the given ID in the container.
+
+```go
+container.NewDependencyParam("db.password")
+```
+
+**Provider**
+
+A function that is being invoked whenever the given dependency is requested.
+
+```go
+container.NewDependencyProvider(func() string {
+    return os.Getenv("DB_PASSWORD")
+})
+```
