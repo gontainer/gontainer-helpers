@@ -83,7 +83,7 @@ func TestNew_hotSwap(t *testing.T) {
 		}
 
 		runGoroutines()
-		time.Sleep(time.Nanosecond)
+		time.Sleep(time.Nanosecond * 10)
 		c.HotSwap(func(mc container.MutableContainer) {
 			mc.InvalidateServicesCache("person", "people")
 		})
