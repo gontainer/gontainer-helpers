@@ -35,3 +35,12 @@ func ExampleSet_errNoPtr() {
 	fmt.Println(err)
 	// Output: expected pointer to struct, struct given
 }
+
+func ExampleSet_convert() {
+	person := struct {
+		age int32
+	}{}
+	_ = setter.Set(&person, "age", uint8(30), true)
+	fmt.Printf("%#v\n", person)
+	// Output: struct { age int32 }{age:30}
+}
