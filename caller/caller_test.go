@@ -297,7 +297,7 @@ func TestCallProvider(t *testing.T) {
 
 	t.Run("Given invalid provider", func(t *testing.T) {
 		_, err := caller.CallProvider(5, nil, false)
-		assert.EqualError(t, err, "expected func, int given")
+		assert.EqualError(t, err, "cannot call provider int: expected func, int given")
 	})
 
 	t.Run("Given provider panics", func(t *testing.T) {
