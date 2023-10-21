@@ -53,6 +53,7 @@ func TestContainer_Server(t *testing.T) {
 			// HotSwap guarantees atomicity
 			c.HotSwap(func(c container.MutableContainer) {
 				c.OverrideParam("a", container.NewDependencyValue(i))
+				// sleep to simulate an edge case
 				time.Sleep(time.Millisecond * 2)
 				c.OverrideParam("b", container.NewDependencyValue(i))
 			})
