@@ -5,7 +5,7 @@ package container_test
 //	"errors"
 //	"testing"
 //
-//	"github.com/gontainer/gontainer-helpers/container"
+//	"github.com/gontainer/gontainer-helpers/Container"
 //	"github.com/stretchr/testify/assert"
 //)
 //
@@ -15,8 +15,8 @@ package container_test
 //			assert.Equal(t, "paramContainer.OverrideParam does not accept `dependencyService`", recover())
 //		}()
 //
-//		c := container.NewParamContainer()
-//		c.OverrideParam("transaction", container.NewDependencyService("db"))
+//		c := Container.NewParamContainer()
+//		c.OverrideParam("transaction", Container.NewDependencyService("db"))
 //	})
 //
 //	t.Run("Simple", func(t *testing.T) {
@@ -25,9 +25,9 @@ package container_test
 //			e  = 2.72
 //		)
 //
-//		c := container.NewParamContainer()
-//		c.OverrideParam("pi", container.NewDependencyValue(pi))
-//		c.OverrideParam("e", container.NewDependencyProvider(func() float64 { return e }))
+//		c := Container.NewParamContainer()
+//		c.OverrideParam("pi", Container.NewDependencyValue(pi))
+//		c.OverrideParam("e", Container.NewDependencyProvider(func() float64 { return e }))
 //
 //		v1, err := c.GetParam("pi")
 //		assert.NoError(t, err)
@@ -39,8 +39,8 @@ package container_test
 //	})
 //
 //	t.Run("Error", func(t *testing.T) {
-//		c := container.NewParamContainer()
-//		c.OverrideParam("env", container.NewDependencyProvider(func() (any, error) {
+//		c := Container.NewParamContainer()
+//		c.OverrideParam("env", Container.NewDependencyProvider(func() (any, error) {
 //			return nil, errors.New("could not read env variable")
 //		}))
 //

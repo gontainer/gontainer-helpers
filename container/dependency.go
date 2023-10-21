@@ -36,7 +36,7 @@ type Dependency struct {
 	provider  any
 }
 
-// NewDependencyValue creates a nil-Dependency, it does not depend on anything in the container
+// NewDependencyValue creates a nil-Dependency, it does not depend on anything in the Container
 func NewDependencyValue(v any) Dependency {
 	return Dependency{
 		type_: dependencyValue,

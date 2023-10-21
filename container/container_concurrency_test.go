@@ -12,10 +12,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_container_concurrency(t *testing.T) {
+func TestContainer_concurrency(t *testing.T) {
 	const max = 100
 
-	t.Run("ContextualBag", func(t *testing.T) {
+	t.Run("Contextual bag", func(t *testing.T) {
 		// Values A, B, C, and D must be equal in the same context but they must differ in different contexts.
 
 		type Numbers struct {

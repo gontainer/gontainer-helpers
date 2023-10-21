@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_container_Get(t *testing.T) {
+func TestContainer_Get(t *testing.T) {
 	t.Run("Circular dependencies", func(t *testing.T) {
 		c := container.New()
 
@@ -33,23 +33,23 @@ func Test_container_Get(t *testing.T) {
 		svc, err := c.Get("s1")
 		assert.Nil(t, svc)
 		expected := []string{
-			`container.get("s1"): circular dependencies: @s1 -> @s2 -> @s3 -> @s1`,
-			`container.get("s1"): circular dependencies: @s1 -> @s1`,
+			`Container.get("s1"): circular dependencies: @s1 -> @s2 -> @s3 -> @s1`,
+			`Container.get("s1"): circular dependencies: @s1 -> @s1`,
 		}
 		errAssert.EqualErrorGroup(t, err, expected)
 
 		param, err := c.GetParam("fullname")
 		assert.Nil(t, param)
 		expected = []string{
-			`container.getParam("fullname"): circular dependencies: %fullname% -> %name% -> %fullname%`,
+			`Container.getParam("fullname"): circular dependencies: %fullname% -> %name% -> %fullname%`,
 		}
 		errAssert.EqualErrorGroup(t, err, expected)
 
 		expected = []string{
-			`container.CircularDeps(): @s1 -> @s2 -> @s3 -> @s1`,
-			`container.CircularDeps(): @s1 -> @s1`,
-			`container.CircularDeps(): %fullname% -> %name% -> %fullname%`,
-			`container.CircularDeps(): %lastname% -> %lastname%`,
+			`Container.CircularDeps(): @s1 -> @s2 -> @s3 -> @s1`,
+			`Container.CircularDeps(): @s1 -> @s1`,
+			`Container.CircularDeps(): %fullname% -> %name% -> %fullname%`,
+			`Container.CircularDeps(): %lastname% -> %lastname%`,
 		}
 		errAssert.EqualErrorGroup(t, c.CircularDeps(), expected)
 	})
@@ -128,8 +128,8 @@ func Test_container_Get(t *testing.T) {
 	})
 }
 
-func Test_container_CircularDeps(t *testing.T) {
-	// since we iterate over maps `g.container.services`, and `g.container.params` in the method `graphBuilder.warmUp`,
+func TestContainer_CircularDeps(t *testing.T) {
+	// since we iterate over maps `g.Container.services`, and `g.Container.params` in the method `graphBuilder.warmUp`,
 	// the order of errors can differ,
 	// so we need to run these tests many times to make sure we have consistent results always
 	for i := 0; i < 50; i++ {
@@ -150,10 +150,10 @@ func Test_container_CircularDeps(t *testing.T) {
 		c.OverrideParam("c", container.NewDependencyParam("a"))
 
 		expected := []string{
-			`container.CircularDeps(): @service1 -> @service1`,
-			`container.CircularDeps(): @service1 -> @service2 -> @service1`,
-			`container.CircularDeps(): %a% -> %b% -> %c% -> %a%`,
-			`container.CircularDeps(): %name% -> %name%`,
+			`Container.CircularDeps(): @service1 -> @service1`,
+			`Container.CircularDeps(): @service1 -> @service2 -> @service1`,
+			`Container.CircularDeps(): %a% -> %b% -> %c% -> %a%`,
+			`Container.CircularDeps(): %name% -> %name%`,
 		}
 		errAssert.EqualErrorGroup(t, c.CircularDeps(), expected)
 	}

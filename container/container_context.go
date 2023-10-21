@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-func (c *container) contextBag(ctx context.Context) keyValue {
+func (c *Container) contextBag(ctx context.Context) keyValue {
 	bag := ctx.Value(c.id)
 	if bag == nil {
 		panic("the given context is not attached to the given container, call `ctx = container.ContextWithContainer(ctx, c)`")
@@ -12,15 +12,15 @@ func (c *container) contextBag(ctx context.Context) keyValue {
 	return bag.(keyValue)
 }
 
-func (c *container) getContainerID() ctxKey {
+func (c *Container) getContainerID() ctxKey {
 	return c.id
 }
 
-func (c *container) getGroupContext() interface{ Add(context.Context) } {
+func (c *Container) getGroupContext() interface{ Add(context.Context) } {
 	return c.groupContext
 }
 
-func (c *container) getContextLocker() rwlocker {
+func (c *Container) getContextLocker() rwlocker {
 	return c.contextLocker
 }
 

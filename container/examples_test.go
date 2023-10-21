@@ -26,12 +26,12 @@ type People struct {
 	People []Person
 }
 
-func ExampleNew_wrongContext() {
+func ExampleContainer_GetInContext_wrongContext() {
 	c := container.New()
 
 	ctx := context.Background()
 	// uncomment the following line to remove the panic:
-	// ctx = container.ContextWithContainer(ctx)
+	// ctx = Container.ContextWithContainer(ctx)
 
 	five := container.NewService()
 	five.SetValue(5)
@@ -43,10 +43,10 @@ func ExampleNew_wrongContext() {
 	_, _ = c.GetInContext(ctx, "five")
 
 	// Output:
-	// panic: the given context is not attached to the given container, call `ctx = container.ContextWithContainer(ctx, c)`
+	// panic: the given context is not attached to the given Container, call `ctx = container.ContextWithContainer(ctx, c)`
 }
 
-func ExampleNew_getInContext() {
+func ExampleContainer_GetInContext() {
 	c := container.New()
 
 	ctx := context.Background()
@@ -96,7 +96,7 @@ func ExampleNew_getInContext() {
 	// GetInContext() and Get() return different values: true
 }
 
-func ExampleNew_oneContextManyContainers() {
+func ExampleContainer_GetInContext_oneContextManyContainers() {
 	c1 := container.New()
 	s1 := container.NewService()
 	s1.SetValue(5)
@@ -125,7 +125,7 @@ func ExampleNew_oneContextManyContainers() {
 	// 6 <nil>
 }
 
-func ExampleNew_simple() {
+func ExampleContainer_Get() {
 	type Person struct {
 		Name string
 	}
@@ -157,7 +157,7 @@ func ExampleNew_simple() {
 	people.SetValue(People{})                                       // instead of providing a constructor, we can provide a value directly
 	people.SetField("People", container.NewDependencyTag("person")) // fetch all objects tagged as "person", and assign them to the field "people"
 
-	// create a container, and append all services there
+	// create a Container, and append all services there
 	c := container.New()
 	c.OverrideService("mary", mary)
 	c.OverrideService("peter", peter)
@@ -170,7 +170,7 @@ func ExampleNew_simple() {
 	// Output: {People:[{Name:Mary Jane} {Name:Peter Parker}]}
 }
 
-func ExampleNew_errorServiceDoesNotExist() {
+func ExampleContainer_Get_errorServiceDoesNotExist() {
 	type Person struct {
 		Name string
 	}
@@ -182,16 +182,16 @@ func ExampleNew_errorServiceDoesNotExist() {
 	mary.SetField("Name", container.NewDependencyValue("Mary Jane"))
 
 	c := container.New()
-	// oops... we forgot to add the variable `mary` to the container
+	// oops... we forgot to add the variable `mary` to the Container
 	// c.OverrideService("mary", mary)
 
 	_, err := c.Get("mary")
 	fmt.Println(err)
 
-	// Output: container.get("mary"): service does not exist
+	// Output: Container.get("mary"): service does not exist
 }
 
-func ExampleNew_errorFieldDoesNotExist() {
+func ExampleContainer_Get_errorFieldDoesNotExist() {
 	type Person struct {
 		Name string
 	}
@@ -210,10 +210,10 @@ func ExampleNew_errorFieldDoesNotExist() {
 	fmt.Println(err)
 
 	// Output:
-	// container.get("mary"): set field "FullName": set (*interface {})."FullName": field "FullName" does not exist
+	// Container.get("mary"): set field "FullName": set (*interface {})."FullName": field "FullName" does not exist
 }
 
-func ExampleNew_circularDependency() {
+func ExampleContainer_CircularDeps() {
 	type Spouse struct {
 		Name   string
 		Spouse *Spouse
@@ -240,10 +240,10 @@ func ExampleNew_circularDependency() {
 	_, err := c.Get("wife")
 	fmt.Println(err)
 
-	// Output: container.get("wife"): circular dependencies: @husband -> @wife -> @husband
+	// Output: Container.get("wife"): circular dependencies: @husband -> @wife -> @husband
 }
 
-func ExampleNew_setter() {
+func ExampleContainer_Get_setter() {
 	mary := container.NewService()
 	mary.SetConstructor(func() *Person { // we have to use a pointer, because we use a setter
 		return &Person{}
@@ -259,7 +259,7 @@ func ExampleNew_setter() {
 	// Output: &{Mary Jane}
 }
 
-func ExampleNew_wither() {
+func ExampleContainer_Get_wither() {
 	mary := container.NewService()
 	mary.SetConstructor(func() Person {
 		return Person{}
@@ -299,7 +299,32 @@ func PoliteGreeterDecorator(payload container.DecoratorPayload) politeGreeter {
 	}
 }
 
-func ExampleNew_decorator() {
+func ExampleContainer_Get_decorator() {
+	/*
+		type Greeter interface {
+			Greet() string
+		}
+
+		type greeter struct{}
+
+		func (g greeter) Greet() string {
+			return "How are you?"
+		}
+
+		type politeGreeter struct {
+			parent Greeter
+		}
+
+		func (p politeGreeter) Greet() string {
+			return fmt.Sprintf("Hello! %s", p.parent.Greet())
+		}
+
+		func PoliteGreeterDecorator(payload container.DecoratorPayload) politeGreeter {
+			return politeGreeter{
+				parent: payload.Service.(greeter),
+			}
+		}
+	*/
 	g := container.NewService()
 	g.SetValue(greeter{})
 	g.Tag("greeter-tag", 0)
@@ -316,7 +341,7 @@ func ExampleNew_decorator() {
 	// Output: Hello! How are you?
 }
 
-func ExampleNew_scopeShared() {
+func ExampleContainer_Get_scopeShared() {
 	i := 0
 
 	num := container.NewService()
@@ -338,7 +363,7 @@ func ExampleNew_scopeShared() {
 	// Output: 1 1
 }
 
-func ExampleNew_scopeNonShared() {
+func ExampleContainer_Get_scopeNonShared() {
 	i := 0
 
 	num := container.NewService()
@@ -360,7 +385,7 @@ func ExampleNew_scopeNonShared() {
 	// Output: 1 2
 }
 
-func ExampleNew_getTaggedBy() {
+func ExampleContainer_GetTaggedBy() {
 	type Person struct {
 		Name string
 	}
@@ -394,7 +419,7 @@ func ExampleNew_getTaggedBy() {
 	// [{person2} {person3} {person1}]
 }
 
-func ExampleNew_invalidConstructorParameters() {
+func ExampleContainer_Get_invalidConstructorParameters() {
 	type Server struct {
 		Host string
 		Port int
@@ -420,11 +445,11 @@ func ExampleNew_invalidConstructorParameters() {
 	fmt.Println(err)
 
 	// Output:
-	// container.get("server"): constructor: cannot call provider func(string, int) *container_test.Server: arg0: cannot convert <nil> to string
-	// container.get("server"): constructor: cannot call provider func(string, int) *container_test.Server: arg1: cannot convert string to int
+	// Container.get("server"): constructor: cannot call provider func(string, int) *container_test.Server: arg0: cannot convert <nil> to string
+	// Container.get("server"): constructor: cannot call provider func(string, int) *container_test.Server: arg1: cannot convert string to int
 }
 
-func ExampleNew_isTaggedBy() {
+func ExampleContainer_IsTaggedBy() {
 	c := container.New()
 
 	pi := container.NewService()

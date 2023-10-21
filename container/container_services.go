@@ -11,35 +11,35 @@ import (
 	"github.com/gontainer/gontainer-helpers/setter"
 )
 
-func (c *container) Get(id string) (any, error) {
+func (c *Container) Get(id string) (any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
 	return c.get(id, newSafeMap())
 }
 
-func (c *container) GetInContext(ctx context.Context, id string) (any, error) {
+func (c *Container) GetInContext(ctx context.Context, id string) (any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
 	return c.get(id, c.contextBag(ctx))
 }
 
-func (c *container) GetTaggedBy(tag string) ([]any, error) {
+func (c *Container) GetTaggedBy(tag string) ([]any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
 	return c.getTaggedBy(tag, newSafeMap())
 }
 
-func (c *container) GetTaggedByInContext(ctx context.Context, tag string) ([]any, error) {
+func (c *Container) GetTaggedByInContext(ctx context.Context, tag string) ([]any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
 	return c.getTaggedBy(tag, c.contextBag(ctx))
 }
 
-func (c *container) IsTaggedBy(id string, tag string) bool {
+func (c *Container) IsTaggedBy(id string, tag string) bool {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
@@ -51,10 +51,10 @@ func (c *container) IsTaggedBy(id string, tag string) bool {
 	return ok
 }
 
-func (c *container) get(id string, contextualBag keyValue) (result any, err error) {
+func (c *Container) get(id string, contextualBag keyValue) (result any, err error) {
 	defer func() {
 		if err != nil {
-			err = grouperror.Prefix(fmt.Sprintf("container.get(%+q): ", id), err)
+			err = grouperror.Prefix(fmt.Sprintf("Container.get(%+q): ", id), err)
 		}
 	}()
 
@@ -126,7 +126,7 @@ func (c *container) get(id string, contextualBag keyValue) (result any, err erro
 	return result, nil
 }
 
-func (c *container) createNewService(svc Service, contextualBag keyValue) (any, error) {
+func (c *Container) createNewService(svc Service, contextualBag keyValue) (any, error) {
 	result := svc.value
 
 	if svc.constructor != nil {
@@ -143,7 +143,7 @@ func (c *container) createNewService(svc Service, contextualBag keyValue) (any, 
 	return result, nil
 }
 
-func (c *container) setServiceFields(
+func (c *Container) setServiceFields(
 	result any,
 	svc Service,
 	contextualBag keyValue,
@@ -163,7 +163,7 @@ func (c *container) setServiceFields(
 	return result, grouperror.Join(errs...)
 }
 
-func (c *container) executeServiceCalls(
+func (c *Container) executeServiceCalls(
 	result any,
 	svc Service,
 	contextualBag keyValue,
@@ -199,7 +199,7 @@ func (c *container) executeServiceCalls(
 	return result, grouperror.Join(errs...)
 }
 
-func (c *container) decorateService(
+func (c *Container) decorateService(
 	id string,
 	result any,
 	svc Service,
@@ -230,10 +230,10 @@ func (c *container) decorateService(
 	return result, nil
 }
 
-func (c *container) getTaggedBy(tag string, contextualBag keyValue) (result []any, err error) {
+func (c *Container) getTaggedBy(tag string, contextualBag keyValue) (result []any, err error) {
 	defer func() {
 		if err != nil {
-			err = grouperror.Prefix(fmt.Sprintf("container.getTaggedBy(%+q): ", tag), err)
+			err = grouperror.Prefix(fmt.Sprintf("Container.getTaggedBy(%+q): ", tag), err)
 		}
 	}()
 

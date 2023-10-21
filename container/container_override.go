@@ -5,14 +5,14 @@ import (
 	"sync"
 )
 
-func (c *container) OverrideParam(paramID string, d Dependency) {
+func (c *Container) OverrideParam(paramID string, d Dependency) {
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()
 
 	overrideParam(c, paramID, d)
 }
 
-func (c *container) OverrideService(serviceID string, s Service) {
+func (c *Container) OverrideService(serviceID string, s Service) {
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()
 
@@ -24,7 +24,7 @@ func (c *container) OverrideService(serviceID string, s Service) {
 	overrideService(c, serviceID, s)
 }
 
-func overrideService(c *container, serviceID string, s Service) {
+func overrideService(c *Container, serviceID string, s Service) {
 	c.graphBuilder.invalidate()
 
 	switch s.scope {
@@ -52,7 +52,7 @@ func overrideService(c *container, serviceID string, s Service) {
 	}
 }
 
-func overrideParam(c *container, paramID string, d Dependency) {
+func overrideParam(c *Container, paramID string, d Dependency) {
 	c.graphBuilder.invalidate()
 
 	switch d.type_ {

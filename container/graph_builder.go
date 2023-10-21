@@ -9,7 +9,7 @@ import (
 )
 
 type graphBuilder struct {
-	container            *container
+	container            *Container
 	valid                bool
 	locker               rwlocker
 	servicesCycles       map[string][]int
@@ -18,7 +18,7 @@ type graphBuilder struct {
 	computedCircularDeps [][]containerGraph.Dependency
 }
 
-func newGraphBuilder(c *container) *graphBuilder {
+func newGraphBuilder(c *Container) *graphBuilder {
 	return &graphBuilder{
 		container: c,
 		valid:     false,
@@ -101,7 +101,7 @@ func (g *graphBuilder) warmUp() {
 
 	graph := containerGraph.New()
 
-	// iterate over `g.container.services` in the same order always,
+	// iterate over `g.Container.services` in the same order always,
 	// otherwise we would add elements to the tree in different order
 	// it may lead to having inconsistent results in the method `CircularDeps()`
 	sIDs := make([]string, 0, len(g.container.services))

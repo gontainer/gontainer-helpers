@@ -40,10 +40,10 @@ func TestContextWithContainer(t *testing.T) {
 	t.Run("SuperContainer", func(t *testing.T) {
 		container.ContextWithContainer(context.Background(), container.New())
 	})
-	t.Run("Wrapped container", func(t *testing.T) {
+	t.Run("Wrapped Container", func(t *testing.T) {
 		container.ContextWithContainer(context.Background(), newMyWrappedContainer())
 	})
-	t.Run("Wrapped container with overridden func", func(t *testing.T) {
+	t.Run("Wrapped Container with overridden func", func(t *testing.T) {
 		container.ContextWithContainer(context.Background(), newMyContainerWithOverriddenFunc())
 	})
 	t.Run("Invalid context", func(t *testing.T) {

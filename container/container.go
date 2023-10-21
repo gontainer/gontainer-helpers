@@ -13,17 +13,6 @@ import (
 )
 
 type Container struct {
-	*container
-}
-
-// New creates a concurrent-safe DI container.
-func New() *Container {
-	return &Container{
-		container: newContainer(),
-	}
-}
-
-type container struct {
 	graphBuilder interface {
 		warmUp()
 		invalidate()
@@ -60,9 +49,9 @@ var (
 	currentContainerID = new(uint64)
 )
 
-// newContainer creates a concurrent-safe DI container.
-func newContainer() *container {
-	c := &container{
+// New creates a concurrent-safe DI Container.
+func New() *Container {
+	c := &Container{
 		services:            make(map[string]Service),
 		cacheSharedServices: newSafeMap(),
 		serviceLockers:      make(map[string]sync.Locker),
@@ -78,14 +67,14 @@ func newContainer() *container {
 	return c
 }
 
-func (c *container) CircularDeps() error {
+func (c *Container) CircularDeps() error {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
-	return grouperror.Prefix("container.CircularDeps(): ", c.graphBuilder.circularDeps())
+	return grouperror.Prefix("Container.CircularDeps(): ", c.graphBuilder.circularDeps())
 }
 
-func (c *container) AddDecorator(tag string, decorator any, deps ...Dependency) {
+func (c *Container) AddDecorator(tag string, decorator any, deps ...Dependency) {
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()
 
@@ -98,7 +87,7 @@ func (c *container) AddDecorator(tag string, decorator any, deps ...Dependency) 
 	})
 }
 
-func (c *container) resolveDeps(contextualBag keyValue, deps ...Dependency) ([]any, error) {
+func (c *Container) resolveDeps(contextualBag keyValue, deps ...Dependency) ([]any, error) {
 	r := make([]any, len(deps))
 	errs := make([]error, len(deps))
 
@@ -111,7 +100,7 @@ func (c *container) resolveDeps(contextualBag keyValue, deps ...Dependency) ([]a
 	return r, grouperror.Join(errs...)
 }
 
-func (c *container) resolveDep(contextualBag keyValue, d Dependency) (any, error) {
+func (c *Container) resolveDep(contextualBag keyValue, d Dependency) (any, error) {
 	switch d.type_ {
 	case dependencyValue:
 		return d.value, nil

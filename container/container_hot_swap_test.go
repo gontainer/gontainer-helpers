@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNew_hotSwap(t *testing.T) {
+func TestContainer_HotSwap(t *testing.T) {
 	t.Run("Wait for <-ctx.Done()", func(t *testing.T) {
 		c := container.New()
 		s := time.Now()

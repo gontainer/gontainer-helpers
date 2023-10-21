@@ -10,7 +10,7 @@ type MutableContainer interface {
 }
 
 type mutableContainer struct {
-	parent *container
+	parent *Container
 }
 
 func (m mutableContainer) OverrideService(serviceID string, s Service) {
@@ -45,9 +45,9 @@ func (m mutableContainer) InvalidateAllParamsCache() {
 	}
 }
 
-// HotSwap lets safely modify the given container in a concurrent environment.
-// It waits for all `<-ctx.Done()`, then locks all invocations of [ContextWithContainer] for the same container.
-func (c *container) HotSwap(fn func(MutableContainer)) {
+// HotSwap lets safely modify the given Container in a concurrent environment.
+// It waits for all `<-ctx.Done()`, then locks all invocations of [ContextWithContainer] for the same Container.
+func (c *Container) HotSwap(fn func(MutableContainer)) {
 	// lock the executions of ContextWithContainer
 	c.contextLocker.Lock()
 	defer c.contextLocker.Unlock()
@@ -55,7 +55,7 @@ func (c *container) HotSwap(fn func(MutableContainer)) {
 	// wait till all contexts are done
 	c.groupContext.Wait()
 
-	// lock all operations on the container
+	// lock all operations on the Container
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()
 
