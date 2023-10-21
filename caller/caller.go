@@ -14,9 +14,7 @@ import (
 func Call(fn any, params []any, convertParams bool) (_ []any, err error) {
 	defer func() {
 		if err != nil {
-			// TODO maybe better:
-			//err = grouperror.Prefix(fmt.Sprintf("cannot call %T: ", fn), err)
-			err = grouperror.Prefix(fmt.Sprintf("cannot call func %T: ", fn), err)
+			err = grouperror.Prefix(fmt.Sprintf("cannot call %T: ", fn), err)
 		}
 	}()
 
