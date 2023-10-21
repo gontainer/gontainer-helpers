@@ -21,7 +21,7 @@ func (g *groupContext) Wait() {
 
 var (
 	// TODO: should it be enabled?
-	panicOnNilChannel = false
+	panicOnNilChannel = true
 )
 
 func (g *groupContext) assertValidContext(ctx context.Context) {

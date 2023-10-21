@@ -12,6 +12,14 @@ import (
 )
 
 func TestNew(t *testing.T) {
+	t.Run("Invalid context", func(t *testing.T) {
+		defer func() {
+			assert.Equal(t, "a receive from a nil channel blocks forever: ctx.Done() == nil", recover())
+		}()
+
+		g := groupcontext.New()
+		g.Add(context.TODO())
+	})
 	t.Run("Context already cancelled", func(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
@@ -30,9 +38,11 @@ func TestNew(t *testing.T) {
 	})
 
 	t.Run("Context never cancelled", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel() // it's called after executing the tests
 		ctxs := []context.Context{
-			context.Background(),
-			context.WithValue(context.Background(), "my key", "my value"), //nolint:staticcheck
+			ctx,
+			context.WithValue(ctx, "my key", "my value"), //nolint:staticcheck
 		}
 		for i, ctx := range ctxs {
 			ctx := ctx
