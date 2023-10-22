@@ -64,7 +64,7 @@ func TestContainer_Server(t *testing.T) {
 				}
 
 				// Changing the following params is not an atomic operation.
-				// It is possible that another goroutines read a new value of "a", and a new value of "b".
+				// It is possible that another goroutines read a new value of "a", and an old value of "b".
 				c.OverrideParam("a", container.NewDependencyValue(i))
 				time.Sleep(delay)
 				c.OverrideParam("b", container.NewDependencyValue(i))
