@@ -173,6 +173,31 @@ func TestSet(t *testing.T) {
 		assert.NoError(t, Set(&p, "Name", "Jane", false))
 		assert.Equal(t, person{Name: "Jane"}, p)
 	})
+	t.Run("var a any = struct{}; a2 := &a; Set(&a2...", func(t *testing.T) {
+		var p any = person{}
+		p2 := &p
+		assert.NoError(t, Set(&p2, "Name", "Jane", false))
+		assert.Equal(t, person{Name: "Jane"}, p)
+	})
+	t.Run("loop #1", func(t *testing.T) {
+		var p any
+		p = &p
+		assert.EqualError(
+			t,
+			Set(&p, "Name", "Jane", false),
+			`set (*interface {})."Name": unexpected pointers loop`,
+		)
+	})
+	t.Run("loop #2", func(t *testing.T) {
+		var a, b any
+		a = &b
+		b = &a
+		assert.EqualError(
+			t,
+			Set(a, "Name", "Jane", false),
+			`set (*interface {})."Name": unexpected pointers loop`,
+		)
+	})
 	t.Run("unexported type of field", func(t *testing.T) {
 		p := person{}
 		assert.NoError(t, Set(&p, "wallet", wallet{amount: 400}, false))
