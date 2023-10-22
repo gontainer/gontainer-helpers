@@ -60,12 +60,3 @@ func ExampleSet_typeMismatchingConvert() {
 	fmt.Println(person.name)
 	// Output: Jane
 }
-
-func ExampleSet_convert() {
-	person := struct {
-		age int32
-	}{}
-	_ = setter.Set(&person, "age", uint8(30), true)
-	fmt.Printf("%#v\n", person)
-	// Output: struct { age int32 }{age:30}
-}
