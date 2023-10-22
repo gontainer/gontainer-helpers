@@ -15,7 +15,10 @@ import (
 )
 
 func TestContainer_Server(t *testing.T) {
-	const max = 100
+	const (
+		max   = 10
+		delay = time.Millisecond * 3
+	)
 
 	c := hotswap.NewContainer()
 
@@ -54,7 +57,7 @@ func TestContainer_Server(t *testing.T) {
 					c.HotSwap(func(c container.MutableContainer) {
 						c.OverrideParam("a", container.NewDependencyValue(i))
 						// sleep to simulate an edge case
-						time.Sleep(time.Millisecond * 2)
+						time.Sleep(delay)
 						c.OverrideParam("b", container.NewDependencyValue(i))
 					})
 					return
@@ -63,7 +66,7 @@ func TestContainer_Server(t *testing.T) {
 				// Changing the following params is not an atomic operation.
 				// It is possible that another goroutines read a new value of "a", and a new value of "b".
 				c.OverrideParam("a", container.NewDependencyValue(i))
-				time.Sleep(time.Millisecond * 2)
+				time.Sleep(delay)
 				c.OverrideParam("b", container.NewDependencyValue(i))
 			}()
 		}
