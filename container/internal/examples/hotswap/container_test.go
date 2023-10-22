@@ -31,9 +31,7 @@ func TestContainer_Server(t *testing.T) {
 			i := i
 			wg.Add(2)
 
-			// Perform an HTTP-request and check whether ir return
-			// `{1}={2}`
-			// where {1} and {2} are equal
+			// Perform an HTTP-request and check whether it returns "c.ParamA() == c.ParamB()"
 			go func() {
 				defer wg.Done()
 
