@@ -83,10 +83,13 @@ func TestContainer_HotSwap(t *testing.T) {
 		}
 
 		runGoroutines()
-		time.Sleep(time.Nanosecond * 10)
-		c.HotSwap(func(mc container.MutableContainer) {
-			mc.InvalidateServicesCache("person", "people")
-		})
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			c.HotSwap(func(mc container.MutableContainer) {
+				mc.InvalidateServicesCache("person", "people")
+			})
+		}()
 		runGoroutines()
 		wg.Wait()
 
