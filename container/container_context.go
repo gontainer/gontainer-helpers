@@ -30,6 +30,16 @@ type contextualContainer interface {
 	getContextLocker() rwlocker
 }
 
+/*
+ContextWithContainer creates a new context, and attaches the given [Container] to it.
+The given context MUST be cancellable (ctx.Done() != nil).
+Using the interface instead of the [*Container] lets us for using the struct embedding.
+
+	c := container.New()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ctx = container.ContextWithContainer(ctx, c)
+*/
 func ContextWithContainer(parent context.Context, container contextualContainer) context.Context {
 	container.getContextLocker().RLock()
 	defer container.getContextLocker().RUnlock()
