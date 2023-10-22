@@ -35,10 +35,21 @@ ContextWithContainer creates a new context, and attaches the given [Container] t
 The given context MUST be cancellable (ctx.Done() != nil).
 Using the interface instead of the [*Container] lets us for using the struct embedding.
 
+# Example
+
 	c := container.New()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	ctx = container.ContextWithContainer(ctx, c)
+
+# HTTP handler
+
+	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := container.ContextWithContainer(r.Context(), c)
+		r = r.Clone(ctx)
+
+		// your code
+	})
 */
 func ContextWithContainer(parent context.Context, container contextualContainer) context.Context {
 	container.getContextLocker().RLock()
