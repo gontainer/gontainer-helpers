@@ -16,7 +16,7 @@ import (
 
 func TestContainer_Server(t *testing.T) {
 	const (
-		max   = 10
+		max   = 100
 		delay = time.Millisecond * 3
 	)
 
