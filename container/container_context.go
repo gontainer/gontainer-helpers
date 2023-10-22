@@ -24,13 +24,13 @@ func (c *Container) getContextLocker() rwlocker {
 	return c.contextLocker
 }
 
-type contextableContainer interface {
+type contextualContainer interface {
 	getContainerID() ctxKey
 	getGroupContext() interface{ Add(context.Context) }
 	getContextLocker() rwlocker
 }
 
-func ContextWithContainer(parent context.Context, container contextableContainer) context.Context {
+func ContextWithContainer(parent context.Context, container contextualContainer) context.Context {
 	container.getContextLocker().RLock()
 	defer container.getContextLocker().RUnlock()
 
