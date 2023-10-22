@@ -8,7 +8,7 @@ import (
 )
 
 /*
-Copy copies a value of `from` to `to`.
+Copy copies a value of `from` to `to`. The third parameter says whether the value should be converted whenever possible.
 
 	from := 5
 	b := 0
