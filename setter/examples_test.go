@@ -37,6 +37,30 @@ func ExampleSet_errNoPtr() {
 	// Output: set (setter_test.Person)."name": expected pointer to struct, struct given
 }
 
+func ExampleSet_typeMismatchingError() {
+	type name string
+
+	type Person struct {
+		name string //nolint:unused
+	}
+	var person Person
+	err := setter.Set(&person, "name", name("Jane"), false)
+	fmt.Println(err)
+	// Output: set (*setter_test.Person)."name": value of type setter_test.name is not assignable to type string
+}
+
+func ExampleSet_typeMismatchingConvert() {
+	type name string
+
+	type Person struct {
+		name string //nolint:unused
+	}
+	var person Person
+	_ = setter.Set(&person, "name", name("Jane"), true)
+	fmt.Println(person.name)
+	// Output: Jane
+}
+
 func ExampleSet_convert() {
 	person := struct {
 		age int32
