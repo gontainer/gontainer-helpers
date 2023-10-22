@@ -1,7 +1,6 @@
 package hotswap
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gontainer/gontainer-helpers/v2/container"
@@ -57,10 +56,14 @@ func newHandleHomePage(c *Container) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// assign context to the container
 		ctx := container.ContextWithContainer(r.Context(), c)
-		r = r.Clone(ctx)
+		*r = *r.Clone(ctx)
 
 		_, _ = ctx, r
 
-		_, _ = w.Write([]byte(fmt.Sprintf("%d=%d", c.ParamA(), c.ParamB())))
+		if c.ParamA() == c.ParamB() {
+			_, _ = w.Write([]byte("c.ParamA() == c.ParamB()"))
+		} else {
+			_, _ = w.Write([]byte("c.ParamA() != c.ParamB()"))
+		}
 	})
 }

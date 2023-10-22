@@ -3,7 +3,6 @@ package hotswap_test
 import (
 	"io/ioutil"
 	"net/http/httptest"
-	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -44,9 +43,7 @@ func TestContainer_Server(t *testing.T) {
 				buff, err := ioutil.ReadAll(r.Body)
 				require.NoError(t, err)
 
-				vals := strings.SplitN(string(buff), "=", 2)
-
-				if vals[0] != vals[1] {
+				if string(buff) != "c.ParamA() == c.ParamB()" {
 					atomic.AddUint64(&inconsistency, 1)
 				}
 			}()
