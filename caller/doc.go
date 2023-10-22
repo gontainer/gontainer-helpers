@@ -53,12 +53,12 @@ It is a method that returns one value always:
 		Name string
 	}
 
-	func (p Person) WithName(n string) Person {
+	func (p Person) WithName(n string) Person { // it is a wither
 		p.Name = n
 		return p
 	}
 
-	// p, _ := caller.CallWitherByName(caller.Person{}, []any{"WithName", "Jane"}, false)
+	// p, _ := caller.CallWitherByName(caller.Person{}, "WithName", []any{"Jane"}, false)
 	// fmt.Println(p) // {Jane}
 */
 package caller
