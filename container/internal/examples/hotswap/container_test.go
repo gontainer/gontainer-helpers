@@ -70,6 +70,6 @@ func TestContainer_Server(t *testing.T) {
 		return inconsistency == 0
 	}
 
-	assert.True(t, runGoroutines(true))
-	assert.False(t, runGoroutines(false))
+	assert.True(t, runGoroutines(true), "Expected consistent results")
+	assert.False(t, runGoroutines(false), "Expected inconsistent results")
 }
