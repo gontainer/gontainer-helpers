@@ -179,6 +179,13 @@ func TestSet(t *testing.T) {
 		assert.NoError(t, Set(&p2, "Name", "Jane", false))
 		assert.Equal(t, person{Name: "Jane"}, p)
 	})
+	t.Run("TODO", func(t *testing.T) {
+		var p any = person{}
+		p2 := &p
+		var p3 any = &p2
+		assert.NoError(t, Set(&p3, "Name", "Jane", false))
+		assert.Equal(t, person{Name: "Jane"}, p)
+	})
 	t.Run("loop #1", func(t *testing.T) {
 		var p any
 		p = &p
