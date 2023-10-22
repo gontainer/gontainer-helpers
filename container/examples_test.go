@@ -218,7 +218,7 @@ func ExampleContainer_Get_errorFieldDoesNotExist() {
 	// get("mary"): set field "FullName": set (*interface {})."FullName": field "FullName" does not exist
 }
 
-func ExampleContainer_CircularDeps_services() {
+func ExampleContainer_Get_circularDepsServices() {
 	type Spouse struct {
 		Name   string
 		Spouse *Spouse
@@ -248,7 +248,7 @@ func ExampleContainer_CircularDeps_services() {
 	// Output: get("wife"): circular dependencies: @husband -> @wife -> @husband
 }
 
-func ExampleContainer_CircularDeps_params() {
+func ExampleContainer_Get_circularDepsParams() {
 	c := container.New()
 	c.OverrideParam("name", container.NewDependencyParam("name"))
 
@@ -256,6 +256,38 @@ func ExampleContainer_CircularDeps_params() {
 	fmt.Println(err)
 
 	// Output: getParam("name"): circular dependencies: %name% -> %name%
+}
+
+func ExampleContainer_CircularDeps() {
+	type Spouse struct {
+		Name   string
+		Spouse *Spouse
+	}
+
+	wife := container.NewService()
+	wife.SetConstructor(func() *Spouse {
+		return &Spouse{}
+	})
+	wife.SetField("Name", container.NewDependencyValue("Mary Jane"))
+	wife.SetField("Spouse", container.NewDependencyService("husband"))
+
+	husband := container.NewService()
+	husband.SetConstructor(func() *Spouse {
+		return &Spouse{}
+	})
+	husband.SetField("Name", container.NewDependencyValue("Peter Parker"))
+	husband.SetField("Spouse", container.NewDependencyService("wife"))
+
+	c := container.New()
+	c.OverrideService("wife", wife)
+	c.OverrideService("husband", husband)
+	c.OverrideParam("name", container.NewDependencyParam("name"))
+
+	fmt.Println(c.CircularDeps())
+
+	// Output:
+	// CircularDeps(): @husband -> @wife -> @husband
+	// CircularDeps(): %name% -> %name%
 }
 
 func ExampleContainer_Get_setter() {
