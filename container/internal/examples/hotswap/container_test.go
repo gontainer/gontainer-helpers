@@ -15,7 +15,7 @@ import (
 )
 
 func TestContainer_Server(t *testing.T) {
-	const max = 50
+	const max = 100
 
 	c := hotswap.NewContainer()
 
