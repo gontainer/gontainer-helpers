@@ -218,7 +218,7 @@ func ExampleContainer_Get_errorFieldDoesNotExist() {
 	// get("mary"): set field "FullName": set (*interface {})."FullName": field "FullName" does not exist
 }
 
-func ExampleContainer_CircularDeps() {
+func ExampleContainer_CircularDeps_services() {
 	type Spouse struct {
 		Name   string
 		Spouse *Spouse
@@ -246,6 +246,16 @@ func ExampleContainer_CircularDeps() {
 	fmt.Println(err)
 
 	// Output: get("wife"): circular dependencies: @husband -> @wife -> @husband
+}
+
+func ExampleContainer_CircularDeps_params() {
+	c := container.New()
+	c.OverrideParam("name", container.NewDependencyParam("name"))
+
+	_, err := c.GetParam("name")
+	fmt.Println(err)
+
+	// Output: getParam("name"): circular dependencies: %name% -> %name%
 }
 
 func ExampleContainer_Get_setter() {
