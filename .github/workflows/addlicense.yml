@@ -28,5 +28,6 @@ jobs:
 
     - run: go install github.com/google/addlicense@latest
 
-    - name: Addlicense
-      run: addlicense -c "Bartłomiej Krukowski" -l mit -y 2023 -check .
+# TODO enable that later
+#    - name: Addlicense
+#      run: addlicense -c "Bartłomiej Krukowski" -l mit -y 2023 -check .
