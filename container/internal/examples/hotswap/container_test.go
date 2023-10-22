@@ -31,6 +31,10 @@ func TestContainer_Server(t *testing.T) {
 		for i := 0; i < max; i++ {
 			i := i
 			wg.Add(2)
+
+			// Perform an HTTP-request and check whether ir return
+			// `{1}={2}`
+			// where {1} and {2} are equal
 			go func() {
 				defer wg.Done()
 
@@ -46,6 +50,8 @@ func TestContainer_Server(t *testing.T) {
 					atomic.AddUint64(&inconsistency, 1)
 				}
 			}()
+
+			// Override params "a" and "b" in the container
 			go func() {
 				defer wg.Done()
 
