@@ -1,5 +1,7 @@
 package container
 
+import "sync"
+
 type MutableContainer interface {
 	OverrideService(serviceID string, s Service)
 	OverrideParam(paramID string, d Dependency)
@@ -11,6 +13,11 @@ type MutableContainer interface {
 
 type mutableContainer struct {
 	parent *Container
+	locker sync.Locker
+}
+
+func newMutableContainer(parent *Container) *mutableContainer {
+	return &mutableContainer{parent: parent, locker: &sync.Mutex{}}
 }
 
 func (m mutableContainer) OverrideService(serviceID string, s Service) {
@@ -61,5 +68,5 @@ func (c *Container) HotSwap(fn func(MutableContainer)) {
 
 	defer c.graphBuilder.warmUp()
 
-	fn(mutableContainer{parent: c})
+	fn(newMutableContainer(c))
 }
