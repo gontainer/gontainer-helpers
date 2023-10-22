@@ -554,11 +554,10 @@ func ExampleContainer_IsTaggedBy() {
 	three.Tag("int", 0)
 	c.OverrideService("three", three)
 
-	fmt.Println(
-		c.IsTaggedBy("pi", "int"),
-		c.IsTaggedBy("three", "int"),
-	)
+	fmt.Printf("pi is tagged by int: %v\n", c.IsTaggedBy("pi", "int"))
+	fmt.Printf("three is tagged by int: %v\n", c.IsTaggedBy("three", "int"))
 
 	// Output:
-	// false true
+	// pi is tagged by int: false
+	// three is tagged by int: true
 }
