@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -25,7 +26,7 @@ func TestContainer_Server(t *testing.T) {
 	client := s.Client()
 
 	runGoroutines := func(hotSwap bool) (consistent bool) {
-		consistent = true
+		inconsistency := uint64(0)
 		wg := sync.WaitGroup{}
 		for i := 0; i < max; i++ {
 			i := i
@@ -41,7 +42,9 @@ func TestContainer_Server(t *testing.T) {
 
 				vals := strings.SplitN(string(buff), "=", 2)
 
-				consistent = consistent && vals[0] == vals[1]
+				if vals[0] != vals[1] {
+					atomic.AddUint64(&inconsistency, 1)
+				}
 			}()
 			go func() {
 				defer wg.Done()
@@ -64,7 +67,7 @@ func TestContainer_Server(t *testing.T) {
 			}()
 		}
 		wg.Wait()
-		return consistent
+		return inconsistency == 0
 	}
 
 	assert.True(t, runGoroutines(true))
