@@ -56,7 +56,7 @@ func newHandleHomePage(c *Container) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// assign context to the container
 		ctx := container.ContextWithContainer(r.Context(), c)
-		*r = *r.Clone(ctx)
+		r = r.Clone(ctx)
 
 		_, _ = ctx, r
 
