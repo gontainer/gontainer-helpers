@@ -21,14 +21,23 @@ func newMutableContainer(parent *Container) *mutableContainer {
 }
 
 func (m mutableContainer) OverrideService(serviceID string, s Service) {
+	m.locker.Lock()
+	defer m.locker.Unlock()
+
 	overrideService(m.parent, serviceID, s)
 }
 
 func (m mutableContainer) OverrideParam(paramID string, d Dependency) {
+	m.locker.Lock()
+	defer m.locker.Unlock()
+
 	overrideParam(m.parent, paramID, d)
 }
 
 func (m mutableContainer) InvalidateServicesCache(servicesIDs ...string) {
+	m.locker.Lock()
+	defer m.locker.Unlock()
+
 	for _, sID := range servicesIDs {
 		m.parent.cacheSharedServices.delete(sID)
 	}
@@ -41,6 +50,9 @@ func (m mutableContainer) InvalidateAllServicesCache() {
 }
 
 func (m mutableContainer) InvalidateParamsCache(paramsIDs ...string) {
+	m.locker.Lock()
+	defer m.locker.Unlock()
+
 	for _, pID := range paramsIDs {
 		m.parent.cacheParams.delete(pID)
 	}
