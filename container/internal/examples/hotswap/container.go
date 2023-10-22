@@ -10,8 +10,8 @@ type Container struct {
 	*container.Container
 }
 
-func (c *Container) ServeMux() *http.ServeMux {
-	s, err := c.Get("mux")
+func (c *Container) HTTPHandler() http.Handler {
+	s, err := c.Get("http-handler")
 	if err != nil {
 		panic(err)
 	}
@@ -45,7 +45,7 @@ func NewContainer() *Container {
 		container.NewDependencyValue(newHandleHomePage(c)),
 	)
 
-	c.OverrideService("mux", m)
+	c.OverrideService("http-handler", m)
 	c.OverrideParam("a", container.NewDependencyValue(0))
 	c.OverrideParam("b", container.NewDependencyValue(0))
 

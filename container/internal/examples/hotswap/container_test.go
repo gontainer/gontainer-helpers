@@ -19,12 +19,12 @@ func TestContainer_Server(t *testing.T) {
 
 	c := hotswap.NewContainer()
 
-	s := httptest.NewServer(c.ServeMux())
+	s := httptest.NewServer(c.HTTPHandler())
 	defer s.Close()
 
 	client := s.Client()
 
-	runGoroutines := func(hotSwap bool) (consistent bool) {
+	performTest := func(hotSwap bool) (consistent bool) {
 		inconsistency := uint64(0)
 		wg := sync.WaitGroup{}
 		for i := 0; i < max; i++ {
@@ -71,6 +71,6 @@ func TestContainer_Server(t *testing.T) {
 		return inconsistency == 0
 	}
 
-	assert.True(t, runGoroutines(true), "Expected consistent results")
-	assert.False(t, runGoroutines(false), "Expected inconsistent results")
+	assert.True(t, performTest(true), "Expected consistent results")
+	assert.False(t, performTest(false), "Expected inconsistent results")
 }
