@@ -15,6 +15,7 @@ go get -u github.com/gontainer/gontainer-helpers/v2/container@latest
    5. [Parameters](#parameters)
 3. [Usage](#usage)
    1. [HotSwap](#hotswap)
+   2. [Contextual scope](#contextual-scope)
 
 ## Quick start
 
@@ -403,6 +404,9 @@ then blocks attaching other contexts, and modifies the container.
 
 Let's create an HTTP endpoint that will use the container:
 
+<details>
+  <summary>See code</summary>
+
 ```go
 func MyHTTPEndpoint(c *container.Container) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -416,10 +420,14 @@ func MyHTTPEndpoint(c *container.Container) http.Handler {
 	})
 }
 ```
+</details>
 
 Now we need to change the configuration.
 Instead of restarting the server, we can use the HotSwap function.
 E.g.:
+
+<details>
+  <summary>See code</summary>
 
 ```go
 // RefreshConfigEveryMinute refreshes the configuration of the container every minute
@@ -456,3 +464,8 @@ func RefreshConfigEveryMinute(c *container.Container) {
 	}()
 }
 ```
+</details>
+
+### Contextual scope
+
+TODO
