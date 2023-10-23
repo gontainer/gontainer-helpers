@@ -67,7 +67,9 @@ The given context MUST be cancellable (ctx.Done() != nil).
 	})
 	c = container.HTTPHandlerWithContainer(h, c)
 
-See [*Container.Self].
+See:
+ 1. [*Container.Self]
+ 2. [HTTPHandlerWithContainer]
 */
 func ContextWithContainer(parent context.Context, container Self) context.Context {
 	c := container.Self()
