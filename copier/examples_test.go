@@ -9,7 +9,7 @@ import (
 func ExampleCopy_convertOK() {
 	var (
 		from = int(5) // uint is not assignable to int,
-		to   uint     // but Copy can convert the type
+		to   uint     // but [copier.Copy] can convert the type
 	)
 	err := copier.Copy(from, &to, true)
 	fmt.Println(to)
