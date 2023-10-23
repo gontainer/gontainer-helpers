@@ -421,7 +421,7 @@ func MyHTTPEndpoint(c *container.Container) http.Handler {
 }
 ```
 
-...or even easier...
+...or even easier, use built-in `HTTPHandlerWithContainer`...
 
 ```go
 var (
