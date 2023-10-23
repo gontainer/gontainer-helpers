@@ -17,7 +17,7 @@ func (c *Container) OverrideParam(paramID string, d Dependency) {
 }
 
 // OverrideService adds a service to the [*Container].
-// If a parameter with the given ID already exists, it will be replaced by the new one.
+// If a service with the given ID already exists, it will be replaced by the new one.
 //
 // See [Service].
 func (c *Container) OverrideService(serviceID string, s Service) {
