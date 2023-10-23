@@ -12,6 +12,7 @@ import (
 
 /*
 Set assigns the value `val` to the field `field` on the struct `strct`.
+If the third argument equals true, it converts the type whenever it is possible.
 Unexported fields are supported.
 
 	type Person struct {
