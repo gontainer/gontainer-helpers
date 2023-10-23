@@ -163,3 +163,17 @@ func TestContainer_CircularDeps(t *testing.T) {
 		errAssert.EqualErrorGroup(t, c.CircularDeps(), expected)
 	}
 }
+
+func TestContainer_OverrideService(t *testing.T) {
+	t.Run("Missing constructor", func(t *testing.T) {
+		defer func() {
+			assert.Equal(
+				t,
+				`overrideService("service"): service has neither a constructor nor a value`,
+				recover(),
+			)
+		}()
+		c := container.New()
+		c.OverrideService("service", container.NewService())
+	})
+}
