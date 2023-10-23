@@ -402,7 +402,7 @@ HotSwap lets us gracefully change anything in the container in real time.
 It waits till all contexts attached to the container are done,
 then blocks attaching other contexts, and modifies the container.
 
-Let's create an HTTP endpoint that will use the container:
+Let's create an HTTP handler that will use the container:
 
 <details>
   <summary>See code</summary>
@@ -419,6 +419,22 @@ func MyHTTPEndpoint(c *container.Container) http.Handler {
 		// your code
 	})
 }
+```
+
+...or even easier...
+
+```
+var (
+   h http.Handler
+   c *container.Container
+)
+
+// create your HTTP handler
+h = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+   // your code
+})
+// decorate your HTTP handler, this function automatically binds requests' contexts with the container
+h = container.HTTPHandlerWithContainer(h, c)
 ```
 </details>
 
