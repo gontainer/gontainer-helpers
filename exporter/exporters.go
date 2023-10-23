@@ -53,7 +53,7 @@ func MustExport(i any) string {
 //   - any numeric input returns string that represents its value without a type
 //   - any boolean input returns accordingly a string "true" or "false"
 //   - any string input results in the output that equals the input
-//   - any nil input returns a "nil" string.
+//   - any nil input returns a "nil" string
 func CastToString(i any) (string, error) {
 	if r, ok := i.(string); ok {
 		return r, nil

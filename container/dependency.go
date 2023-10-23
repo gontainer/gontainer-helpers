@@ -30,12 +30,11 @@ func (d dependencyType) String() string {
 /*
 Dependency represents a dependency in a [*Container].
 Use on of the following func to create a new one:
-
- 1. [NewDependencyValue]
- 2. [NewDependencyTag]
- 3. [NewDependencyService]
- 4. [NewDependencyParam]
- 5. [NewDependencyProvider]
+  - [NewDependencyValue]
+  - [NewDependencyTag]
+  - [NewDependencyService]
+  - [NewDependencyParam]
+  - [NewDependencyProvider]
 */
 type Dependency struct {
 	type_     dependencyType
