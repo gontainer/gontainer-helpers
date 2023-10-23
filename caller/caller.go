@@ -9,6 +9,7 @@ import (
 
 // Call calls the given function with the given arguments.
 // It returns values returned by the function in a slice.
+// If the third argument equals true, it converts types whenever it is possible.
 func Call(fn any, args []any, convertArgs bool) (_ []any, err error) {
 	defer func() {
 		if err != nil {
@@ -24,7 +25,7 @@ func Call(fn any, args []any, convertArgs bool) (_ []any, err error) {
 }
 
 /*
-CallProvider works similar to Call with the difference it requires a provider as the first argument.
+CallProvider works similar to [Call] with the difference it requires a provider as the first argument.
 Provider is a function which returns 1 or 2 values.
 The second return value which is optional must be a type of error.
 
@@ -70,7 +71,7 @@ func CallProvider(provider any, args []any, convertArgs bool) (_ any, err error)
 	return r, e
 }
 
-// CallByName works similar to Call with the difference it calls the method by the name over the given receiver.
+// CallByName works similar to [Call] with the difference it calls the method by the name over the given receiver.
 func CallByName(object any, method string, args []any, convertArgs bool) (_ []any, err error) {
 	defer func() {
 		if err != nil {
@@ -86,7 +87,7 @@ func CallByName(object any, method string, args []any, convertArgs bool) (_ []an
 }
 
 /*
-CallWitherByName works similar to CallByName with the difference the method must be a wither.
+CallWitherByName works similar to [CallByName] with the difference the method must be a wither.
 
 	type Person struct {
 	    name string
