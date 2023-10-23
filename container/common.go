@@ -1,7 +1,6 @@
 package container
 
 const (
-	// TODO: should we convert values?
 	convertArgs = true
 )
 
