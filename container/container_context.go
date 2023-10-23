@@ -59,12 +59,14 @@ Using the interface instead of the [*Container] lets us for using the struct emb
 
 # HTTP handler
 
-	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := container.ContextWithContainer(r.Context(), c)
-		r = r.Clone(ctx)
-
+	var (
+		h http.Handler
+		c *container.Container
+	)
+	h = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// your code
 	})
+	c = container.HTTPHandlerWithContainer(h, c)
 */
 func ContextWithContainer(parent context.Context, container Self) context.Context {
 	c := container.Self()
