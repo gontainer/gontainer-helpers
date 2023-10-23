@@ -11,11 +11,11 @@ type Container struct {
 }
 
 func (c *Container) HTTPHandler() http.Handler {
-	s, err := c.Get("http-handler")
+	s, err := c.Get("httpHandler")
 	if err != nil {
 		panic(err)
 	}
-	return s.(*http.ServeMux)
+	return s.(http.Handler)
 }
 
 func (c *Container) ParamA() int {
@@ -45,7 +45,15 @@ func NewContainer() *Container {
 		container.NewDependencyValue(newHandleHomePage(c)),
 	)
 
-	c.OverrideService("http-handler", m)
+	h := container.NewService()
+	h.SetConstructor(
+		container.NewHTTPHandler,
+		container.NewDependencyService("serveMux"),
+		container.NewDependencyValue(c),
+	)
+
+	c.OverrideService("serveMux", m)
+	c.OverrideService("httpHandler", h)
 	c.OverrideParam("a", container.NewDependencyValue(0))
 	c.OverrideParam("b", container.NewDependencyValue(0))
 
@@ -54,12 +62,6 @@ func NewContainer() *Container {
 
 func newHandleHomePage(c *Container) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// assign context to the container
-		ctx := container.ContextWithContainer(r.Context(), c)
-		r = r.Clone(ctx)
-
-		_, _ = ctx, r
-
 		if c.ParamA() == c.ParamB() {
 			_, _ = w.Write([]byte("c.ParamA() == c.ParamB()"))
 		} else {
