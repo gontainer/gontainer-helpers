@@ -12,6 +12,7 @@ import (
 	"github.com/gontainer/gontainer-helpers/v2/grouperror"
 )
 
+// Container is a DI container. Use [New] to allocate a new instance.
 type Container struct {
 	graphBuilder interface {
 		warmUp()
@@ -91,24 +92,12 @@ func New() *Container {
 	return c
 }
 
+// CircularDeps returns an error if there is any circular dependency.
 func (c *Container) CircularDeps() error {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
 	return grouperror.Prefix("CircularDeps(): ", c.graphBuilder.circularDeps())
-}
-
-func (c *Container) AddDecorator(tag string, decorator any, deps ...Dependency) {
-	c.globalLocker.Lock()
-	defer c.globalLocker.Unlock()
-
-	c.graphBuilder.invalidate()
-
-	c.decorators = append(c.decorators, serviceDecorator{
-		tag:  tag,
-		fn:   decorator,
-		deps: deps,
-	})
 }
 
 func (c *Container) resolveDeps(contextualBag keyValue, deps ...Dependency) ([]any, error) {

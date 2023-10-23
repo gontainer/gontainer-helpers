@@ -346,7 +346,7 @@ func PoliteGreeterDecorator(payload container.DecoratorPayload) politeGreeter {
 	}
 }
 
-func ExampleContainer_Get_decorator() {
+func ExampleContainer_AddDecorator() {
 	/*
 		type Greeter interface {
 			Greet() string
