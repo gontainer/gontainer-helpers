@@ -47,7 +47,7 @@ func NewContainer() *Container {
 
 	h := container.NewService()
 	h.SetConstructor(
-		container.NewHTTPHandler,
+		container.HTTPHandlerWithContainer,
 		container.NewDependencyService("serveMux"),
 		container.NewDependencyValue(c),
 	)
