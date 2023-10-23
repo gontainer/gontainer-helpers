@@ -433,7 +433,7 @@ var (
 h = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	// your code
 })
-// decorate your HTTP handler, this function automatically binds requests' contexts with the container
+// decorate your HTTP handler, this function automatically binds contexts with the container
 h = container.HTTPHandlerWithContainer(h, c)
 ```
 
