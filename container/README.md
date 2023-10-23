@@ -258,7 +258,7 @@ func main() {
 ```
 </details>
 
-**Wither injection**
+**Withers**
 
 Use `AppendWither`.
 
