@@ -1,7 +1,10 @@
 package container
 
-import "sync"
+import (
+	"sync"
+)
 
+// MutableContainer represents the interface that is required by [*Container.HotSwap].
 type MutableContainer interface {
 	OverrideService(serviceID string, s Service)
 	OverrideParam(paramID string, d Dependency)
@@ -66,7 +69,7 @@ func (m mutableContainer) InvalidateAllParamsCache() {
 
 /*
 HotSwap lets safely modify the given [Container] in a concurrent environment.
-It waits for all `<-ctx.Done()`, then locks all invocations of [ContextWithContainer] for the same [Container].
+It waits for all `<-ctx.Done()`, then locks all invocations of [ContextWithContainer] for the same [*Container].
 
 	c.HotSwap(func (c container.MutableContainer) {
 		c.OverrideParam("db.password", container.NewDependencyValue("new-password"))

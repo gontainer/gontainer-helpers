@@ -27,6 +27,16 @@ func (d dependencyType) String() string {
 	return "unknown"
 }
 
+/*
+Dependency represents a dependency in a [*Container].
+Use on of the following func to create a new one:
+
+ 1. [NewDependencyValue]
+ 2. [NewDependencyTag]
+ 3. [NewDependencyService]
+ 4. [NewDependencyParam]
+ 5. [NewDependencyProvider]
+*/
 type Dependency struct {
 	type_     dependencyType
 	value     any
@@ -36,7 +46,7 @@ type Dependency struct {
 	provider  any
 }
 
-// NewDependencyValue creates a nil-Dependency, it does not depend on anything in the Container
+// NewDependencyValue creates a value-[Dependency], it does not depend on anything in a [*Container].
 func NewDependencyValue(v any) Dependency {
 	return Dependency{
 		type_: dependencyValue,
@@ -44,7 +54,7 @@ func NewDependencyValue(v any) Dependency {
 	}
 }
 
-// NewDependencyTag creates a Dependency to the given tag
+// NewDependencyTag creates a [Dependency] to the given tag
 func NewDependencyTag(tagID string) Dependency {
 	return Dependency{
 		type_: dependencyTag,
@@ -52,7 +62,7 @@ func NewDependencyTag(tagID string) Dependency {
 	}
 }
 
-// NewDependencyService creates a Dependency to the given Service
+// NewDependencyService creates a [Dependency] to the given Service
 func NewDependencyService(serviceID string) Dependency {
 	return Dependency{
 		type_:     dependencyService,
@@ -60,6 +70,7 @@ func NewDependencyService(serviceID string) Dependency {
 	}
 }
 
+// NewDependencyParam creates a [Dependency] to the given parameter.
 func NewDependencyParam(paramID string) Dependency {
 	return Dependency{
 		type_:   dependencyParam,
@@ -67,6 +78,9 @@ func NewDependencyParam(paramID string) Dependency {
 	}
 }
 
+// NewDependencyProvider creates a [Dependency] that will be returned by the given provider.
+//
+// See caller.CallProvider.
 func NewDependencyProvider(provider any) Dependency {
 	return Dependency{
 		type_:    dependencyProvider,

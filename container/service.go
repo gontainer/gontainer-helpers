@@ -11,6 +11,8 @@ type serviceField struct {
 	dep  Dependency
 }
 
+// Service represents a service in the [*Container].
+// Use [NewService] to create a new instance.
 type Service struct {
 	value           any
 	constructor     any
