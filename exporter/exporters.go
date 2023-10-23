@@ -17,8 +17,8 @@ var (
 )
 
 func newDefaultExporter() exporter {
-	interfaceSliceExporter := &interfaceSliceExporter{}
-	primitiveTypeSliceExporter := &primitiveTypeSliceExporter{}
+	interfaceSliceExp := &interfaceSliceExporter{}
+	primitiveTypeSliceExp := &primitiveTypeSliceExporter{}
 
 	result := newChainExporter(
 		&boolExporter{},
@@ -26,11 +26,11 @@ func newDefaultExporter() exporter {
 		&numberExporter{explicitType: true},
 		&stringExporter{},
 		&bytesExporter{},
-		interfaceSliceExporter,
-		primitiveTypeSliceExporter,
+		interfaceSliceExp,
+		primitiveTypeSliceExp,
 	)
-	interfaceSliceExporter.exporter = result
-	primitiveTypeSliceExporter.exporter = result
+	interfaceSliceExp.exporter = result
+	primitiveTypeSliceExp.exporter = result
 
 	return result
 }
