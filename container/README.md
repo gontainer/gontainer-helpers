@@ -425,13 +425,13 @@ func MyHTTPEndpoint(c *container.Container) http.Handler {
 
 ```go
 var (
-   h http.Handler
-   c *container.Container
+	h http.Handler
+	c *container.Container
 )
 
 // create your HTTP handler
 h = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-   // your code
+	// your code
 })
 // decorate your HTTP handler, this function automatically binds requests' contexts with the container
 h = container.HTTPHandlerWithContainer(h, c)
