@@ -5,10 +5,10 @@ import (
 )
 
 // TODO is it a good idea to add it to this package?
-func HTTPHandlerWithContainer(h http.Handler, c Self) http.Handler {
+func HTTPHandlerWithContainer(handler http.Handler, container Self) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := ContextWithContainer(r.Context(), c)
+		ctx := ContextWithContainer(r.Context(), container)
 		r = r.Clone(ctx)
-		h.ServeHTTP(w, r)
+		handler.ServeHTTP(w, r)
 	})
 }

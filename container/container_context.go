@@ -12,6 +12,9 @@ func (c *Container) contextBag(ctx context.Context) keyValue {
 	return bag.(keyValue)
 }
 
+// Self has been designed for the struct embedding and compatibility with the func [ContextWithContainer].
+//
+// See [*Container.Self].
 type Self interface {
 	Self() *Container
 }
@@ -36,7 +39,7 @@ It is designed for the struct embedding and compatibility with the func [Context
 	// some code
 	ctx = container.ContextWithContainer(ctx, c) // it works, even tho c is of the type *MyContainer
 
-Deprecated: do not use it.
+Deprecated: do not use it, it has been designed for the internal purposes only.
 */
 func (c *Container) Self() *Container {
 	return c
