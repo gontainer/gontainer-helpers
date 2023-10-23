@@ -20,6 +20,7 @@ func contextDone(ctx context.Context) bool {
 	}
 }
 
+// Get returns a service with the given ID.
 func (c *Container) Get(id string) (any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
@@ -27,6 +28,7 @@ func (c *Container) Get(id string) (any, error) {
 	return c.get(id, newSafeMap())
 }
 
+// GetInContext returns a service with the given ID.
 func (c *Container) GetInContext(ctx context.Context, id string) (any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
@@ -41,6 +43,10 @@ func (c *Container) GetInContext(ctx context.Context, id string) (any, error) {
 	return c.get(id, bag)
 }
 
+// GetTaggedBy returns all services tagged by the given tag.
+// The order is determined by the priority (descending) and service ID (ascending).
+//
+// See [Service.Tag].
 func (c *Container) GetTaggedBy(tag string) ([]any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
@@ -48,6 +54,9 @@ func (c *Container) GetTaggedBy(tag string) ([]any, error) {
 	return c.getTaggedBy(tag, newSafeMap())
 }
 
+// GetTaggedByInContext returns all services tagged by the given tag.
+//
+// See [Container.GetTaggedBy].
 func (c *Container) GetTaggedByInContext(ctx context.Context, tag string) ([]any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
@@ -62,6 +71,7 @@ func (c *Container) GetTaggedByInContext(ctx context.Context, tag string) ([]any
 	return c.getTaggedBy(tag, bag)
 }
 
+// IsTaggedBy returns true whenever the given service is tagged by the given tag.
 func (c *Container) IsTaggedBy(id string, tag string) bool {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()

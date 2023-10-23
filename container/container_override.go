@@ -5,6 +5,10 @@ import (
 	"sync"
 )
 
+// OverrideParam adds a parameter to the [*Container].
+// If a parameter with the given ID already exists, it will be replaced by the new one.
+//
+// See [Dependency].
 func (c *Container) OverrideParam(paramID string, d Dependency) {
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()
@@ -12,6 +16,10 @@ func (c *Container) OverrideParam(paramID string, d Dependency) {
 	overrideParam(c, paramID, d)
 }
 
+// OverrideService adds a service to the [*Container].
+// If a parameter with the given ID already exists, it will be replaced by the new one.
+//
+// See [Service].
 func (c *Container) OverrideService(serviceID string, s Service) {
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()

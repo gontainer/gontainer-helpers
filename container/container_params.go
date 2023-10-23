@@ -7,6 +7,7 @@ import (
 	"github.com/gontainer/gontainer-helpers/v2/grouperror"
 )
 
+// GetParam returns a param with the given ID.
 func (c *Container) GetParam(paramID string) (any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
