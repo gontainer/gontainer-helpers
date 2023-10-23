@@ -48,7 +48,6 @@ func (c *Container) Self() *Container {
 /*
 ContextWithContainer creates a new context, and attaches the given [Container] to it.
 The given context MUST be cancellable (ctx.Done() != nil).
-Using the interface instead of the [*Container] lets us for using the struct embedding.
 
 # Example
 
@@ -67,6 +66,8 @@ Using the interface instead of the [*Container] lets us for using the struct emb
 		// your code
 	})
 	c = container.HTTPHandlerWithContainer(h, c)
+
+See [*Container.Self].
 */
 func ContextWithContainer(parent context.Context, container Self) context.Context {
 	c := container.Self()
