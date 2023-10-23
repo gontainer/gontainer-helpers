@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
-	"strings"
 	"unsafe"
 
 	"github.com/gontainer/gontainer-helpers/v2/grouperror"
@@ -38,14 +37,32 @@ func Set(strct any, field string, val any, convert bool) (err error) {
 		return err
 	}
 
-	// removes prepending duplicate Ptr elements
-	// e.g.
-	// s := &struct{ val int }{}
-	// Set(&s... // chain == {Ptr, Ptr, Struct}
+	/*
+		removes prepending duplicate Ptr & Interface elements
+		e.g.:
+			s := &struct{ val int }{}
+			Set(&s, ... // chain == {Ptr, Ptr, Struct}
+
+		or:
+			var s any = &struct{ val int }{}
+			var s2 any = &s
+			var s3 any = &s
+			Set(&s3, ... // chain == {Ptr, Interface, Ptr, Interface, Ptr, Interface, Struct}
+	*/
 	reflectVal := reflect.ValueOf(strct)
-	for len(chain) >= 2 && chain[0] == reflect.Ptr && chain[1] == reflect.Ptr {
-		reflectVal = reflectVal.Elem()
-		chain = chain[1:]
+	for {
+		switch {
+		case len(chain) >= 2 && chain[0] == reflect.Ptr && chain[1] == reflect.Ptr:
+			reflectVal = reflectVal.Elem()
+			chain = chain[1:]
+			continue
+		case len(chain) >= 3 && chain[0] == reflect.Ptr && chain[1] == reflect.Interface && chain[2] == reflect.Ptr:
+			reflectVal = reflectVal.Elem().Elem()
+			chain = chain[2:]
+			continue
+		}
+
+		break
 	}
 
 	switch {
@@ -58,16 +75,6 @@ func Set(strct any, field string, val any, convert bool) (err error) {
 			val,
 			convert,
 		)
-
-	// case chain.equalTo(reflect.Ptr, reflect.Interface, reflect.Ptr (, reflect.Ptr...), reflect.Struct):
-	// var s any = &struct{ val int }{}
-	// Set(&s...
-	case chain.isInterfaceOverPointerChain():
-		elem := reflectVal.Elem()
-		for i := 0; i < len(chain)-2; i++ {
-			elem = elem.Elem()
-		}
-		return setOnValue(elem, field, val, convert)
 
 	// var s any = struct{ val int }{}
 	// Set(&s...
@@ -82,7 +89,7 @@ func Set(strct any, field string, val any, convert bool) (err error) {
 		return nil
 
 	default:
-		return fmt.Errorf("expected pointer to struct, %s given", chain.String())
+		return fmt.Errorf("expected pointer to struct, %T given", strct)
 	}
 }
 
@@ -120,39 +127,6 @@ func (c kindChain) equalTo(kinds ...reflect.Kind) bool {
 	return true
 }
 
-// isInterfaceOverPointerChain is equivalent to:
-// chain.equalTo(reflect.Ptr, reflect.Interface, reflect.Ptr (, reflect.Ptr...), reflect.Struct)
-func (c kindChain) isInterfaceOverPointerChain() bool {
-	if len(c) < 4 {
-		return false
-	}
-	if c[0] != reflect.Ptr {
-		return false
-	}
-	if c[1] != reflect.Interface {
-		return false
-	}
-	if c[len(c)-1] != reflect.Struct {
-		return false
-	}
-
-	for _, curr := range c[2 : len(c)-1] {
-		if curr != reflect.Ptr {
-			return false
-		}
-	}
-
-	return true
-}
-
-func (c kindChain) String() string {
-	parts := make([]string, len(c))
-	for i, k := range c {
-		parts[i] = k.String()
-	}
-	return strings.Join(parts, ".")
-}
-
 func valueToKindChain(val any) (kindChain, error) {
 	var r kindChain
 	v := reflect.ValueOf(val)
@@ -161,7 +135,7 @@ func valueToKindChain(val any) (kindChain, error) {
 		if v.Kind() == reflect.Ptr && !v.IsNil() {
 			ptr := fmt.Sprintf("%p", v.Interface())
 			if _, ok := ptrs[ptr]; ok {
-				return nil, errors.New("unexpected pointers loop")
+				return nil, errors.New("unexpected pointer loop")
 			}
 			ptrs[ptr] = struct{}{}
 		}

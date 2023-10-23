@@ -34,7 +34,7 @@ func ExampleSet_errNoPtr() {
 	var person Person
 	err := setter.Set(person, "name", "Mary", false)
 	fmt.Println(err)
-	// Output: set (setter_test.Person)."name": expected pointer to struct, struct given
+	// Output: set (setter_test.Person)."name": expected pointer to struct, setter_test.Person given
 }
 
 func ExampleSet_typeMismatchingError() {
