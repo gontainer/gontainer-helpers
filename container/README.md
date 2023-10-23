@@ -14,6 +14,7 @@ go get -u github.com/gontainer/gontainer-helpers/v2/container@latest
    4. [Services](#services)
    5. [Parameters](#parameters)
 3. [Usage](#usage)
+   1. [HotSwap](#hotswap)
 
 ## Quick start
 
@@ -394,4 +395,64 @@ func main() {
 
 ## Usage
 
-TODO
+### HotSwap
+
+HotSwap lets us gracefully change anything in the container in real time.
+It waits till all contexts attached to the container are done,
+then blocks attaching other contexts, and modifies the container.
+
+Let's create an HTTP endpoint that will use the container:
+
+```go
+func MyHTTPEndpoint(c *container.Container) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// it creates a new context and guarantees
+		// that the container won't be modified during that request
+		// if you use the HotSwap function
+		ctx := container.ContextWithContainer(r.Context(), c)
+		r = r.Clone(ctx)
+
+		// your code
+	})
+}
+```
+
+Now we need to change the configuration.
+Instead of restarting the server, we can use the HotSwap function.
+E.g.:
+
+```go
+// RefreshConfigEveryMinute refreshes the configuration of the container every minute
+func RefreshConfigEveryMinute(c *container.Container) {
+	go func () {
+		for {
+			<-time.After(time.Minute)
+			
+			c.HotSwap(func(c container.MutableContainer) {
+				// override the value of a param
+				// the cache for that param is automatically invalidated
+				c.OverrideParam("my-param", container.NewDependencyValue(125))
+
+				// override a service
+				// the cache for that service is automatically invalidated
+				db := container.NewService()
+				db.SetConstructor(
+					sql.Open,
+					container.NewDependencyValue("mysql"),
+					container.NewDependencyParam("dataSourceName"),
+				)
+
+				// invalidate the cache for the given params...
+				c.InvalidateParamsCache("paramA", "paramB")
+				// ... or for all of them
+				c.InvalidateAllParamsCache()
+
+				// invalidate the cache for the given service...
+				c.InvalidateServicesCache("serviceA", "serviceB")
+				/// or for all of them
+				c.InvalidateAllServicesCache()
+			})
+		}
+	}()
+}
+```
