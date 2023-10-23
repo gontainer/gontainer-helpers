@@ -194,7 +194,7 @@ container.NewDependencyProvider(func() string {
 
 **Creating a new service**
 
-Use either `SetConstructor` or `SetValue`. Constructor is a provider (see [definitions](#definitions)).
+Use either `SetConstructor` or `SetValue`. Constructor MUST be a provider (see [definitions](#definitions)).
 
 <details>
   <summary>See code</summary>
