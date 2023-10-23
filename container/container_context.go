@@ -12,22 +12,34 @@ func (c *Container) contextBag(ctx context.Context) keyValue {
 	return bag.(keyValue)
 }
 
-func (c *Container) getContainerID() ctxKey {
-	return c.id
+type Self interface {
+	Self() *Container
 }
 
-func (c *Container) getGroupContext() interface{ Add(context.Context) } {
-	return c.groupContext
-}
+/*
+Self returns itself.
+It is designed for the struct embedding and compatibility with the func [ContextWithContainer].
 
-func (c *Container) getContextLocker() rwlocker {
-	return c.contextLocker
-}
+	type MyContainer struct {
+		*container.Self
+	}
 
-type contextualContainer interface {
-	getContainerID() ctxKey
-	getGroupContext() interface{ Add(context.Context) }
-	getContextLocker() rwlocker
+	func (c *MyContainer) Server() *http.Server {
+		s, err := c.Get("server")
+		if err != nil {
+			panic(err)
+		}
+		return s.(*http.Server)
+	}
+
+	var c *MyContainer // build container here
+	// some code
+	ctx = container.ContextWithContainer(ctx, c) // it works, even tho c is of the type *MyContainer
+
+Deprecated: do not use it.
+*/
+func (c *Container) Self() *Container {
+	return c
 }
 
 /*
@@ -51,11 +63,13 @@ Using the interface instead of the [*Container] lets us for using the struct emb
 		// your code
 	})
 */
-func ContextWithContainer(parent context.Context, container contextualContainer) context.Context {
-	container.getContextLocker().RLock()
-	defer container.getContextLocker().RUnlock()
+func ContextWithContainer(parent context.Context, container Self) context.Context {
+	c := container.Self()
 
-	ctx := context.WithValue(parent, container.getContainerID(), newSafeMap())
-	container.getGroupContext().Add(ctx)
+	c.contextLocker.RLock()
+	defer c.contextLocker.RUnlock()
+
+	ctx := context.WithValue(parent, c.id, newSafeMap())
+	c.groupContext.Add(ctx)
 	return ctx
 }
