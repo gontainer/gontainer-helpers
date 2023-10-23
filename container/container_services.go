@@ -29,6 +29,7 @@ func (c *Container) Get(id string) (any, error) {
 }
 
 // GetInContext returns a service with the given ID.
+// It returns an error if the context is done.
 func (c *Container) GetInContext(ctx context.Context, id string) (any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
@@ -55,6 +56,7 @@ func (c *Container) GetTaggedBy(tag string) ([]any, error) {
 }
 
 // GetTaggedByInContext returns all services tagged by the given tag.
+// It returns an error if the context is done.
 //
 // See [Container.GetTaggedBy].
 func (c *Container) GetTaggedByInContext(ctx context.Context, tag string) ([]any, error) {

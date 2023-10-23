@@ -14,15 +14,18 @@ func TestContainer_Get(t *testing.T) {
 		c := container.New()
 
 		s1 := container.NewService()
+		s1.SetValue(nil)
 		s1.SetField("Dependency", container.NewDependencyService("s2"))
 		s1.SetField("dependency2", container.NewDependencyService("s1"))
 		c.OverrideService("s1", s1)
 
 		s2 := container.NewService()
+		s2.SetValue(nil)
 		s2.SetField("Dependency", container.NewDependencyService("s3"))
 		c.OverrideService("s2", s2)
 
 		s3 := container.NewService()
+		s3.SetValue(4)
 		s3.SetField("Dependency", container.NewDependencyService("s1"))
 		c.OverrideService("s3", s3)
 
@@ -136,11 +139,13 @@ func TestContainer_CircularDeps(t *testing.T) {
 		c := container.New()
 
 		s1 := container.NewService()
+		s1.SetValue(nil)
 		s1.SetField("service1", container.NewDependencyService("service1"))
 		s1.SetField("service2", container.NewDependencyService("service2"))
 		c.OverrideService("service1", s1)
 
 		s2 := container.NewService()
+		s2.SetValue(nil)
 		s2.SetField("service1", container.NewDependencyService("service1"))
 		c.OverrideService("service2", s2)
 

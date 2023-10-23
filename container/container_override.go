@@ -37,7 +37,11 @@ func overrideService(c *Container, serviceID string, s Service) {
 		scopeContextual,
 		scopeNonShared:
 	default:
-		panic(fmt.Sprintf("overrideService: invalid scope %s", s.scope.String()))
+		panic(fmt.Sprintf("overrideService(%+q): invalid scope %+q", serviceID, s.scope.String()))
+	}
+
+	if !s.hasCreationMethod {
+		panic(fmt.Sprintf("overrideService(%+q): service has neither a constructor nor a value", serviceID))
 	}
 
 	c.services[serviceID] = s

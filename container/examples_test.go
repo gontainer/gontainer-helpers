@@ -561,3 +561,13 @@ func ExampleContainer_IsTaggedBy() {
 	// pi is tagged by int: false
 	// three is tagged by int: true
 }
+
+func ExampleNewDependencyProvider() {
+	c := container.New()
+	c.OverrideParam("pi", container.NewDependencyProvider(func() float64 {
+		return math.Pi
+	}))
+	pi, _ := c.GetParam("pi")
+	fmt.Printf("%0.2f\n", pi)
+	// Output: 3.14
+}

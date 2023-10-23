@@ -79,8 +79,6 @@ func NewDependencyParam(paramID string) Dependency {
 }
 
 // NewDependencyProvider creates a [Dependency] that will be returned by the given provider.
-//
-// See caller.CallProvider.
 func NewDependencyProvider(provider any) Dependency {
 	return Dependency{
 		type_:    dependencyProvider,
