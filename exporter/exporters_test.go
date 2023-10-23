@@ -144,8 +144,8 @@ func TestExport(t *testing.T) {
 			panic: "cannot export [1]interface {} to string: cannot export array[0]: type struct {} is not supported",
 		},
 		{
-			input:  []int{1, 2, 3},
-			output: "[]int{int(1), int(2), int(3)}",
+			input:  []int{1, 2, 3, -1000000},
+			output: "[]int{int(1), int(2), int(3), int(-1000000)}",
 		},
 		{
 			input:  [3]int{1, 2, 3},
