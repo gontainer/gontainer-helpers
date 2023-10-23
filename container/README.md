@@ -436,6 +436,17 @@ h = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 // decorate your HTTP handler, this function automatically binds requests' contexts with the container
 h = container.HTTPHandlerWithContainer(h, c)
 ```
+
+...or override `server.Handler`...
+
+```go
+var (
+	s *http.Server
+	c *container.Container
+)
+// your code
+s.Handler = container.HTTPHandlerWithContainer(s.Handler, c)
+```
 </details>
 
 Now we need to change the configuration.
