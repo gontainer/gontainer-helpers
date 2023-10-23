@@ -19,18 +19,12 @@ func ValueOf(i any, to reflect.Type, convertVal bool) (result reflect.Value, err
 		return convert(i, to)
 	}
 
-	defer func() {
-		if err == nil {
-			err = isAssignable(result.Type(), to)
-		}
-	}()
-
 	r := reflect.ValueOf(i)
 	if !r.IsValid() {
 		return zeroForNilable(i, to)
 	}
 
-	return r, nil
+	return r, assignable(r.Type(), to)
 }
 
 func zeroForNilable(i any, t reflect.Type) (reflect.Value, error) {
@@ -56,7 +50,7 @@ func isNilable(k reflect.Kind) bool {
 	return false
 }
 
-func isAssignable(from, to reflect.Type) error {
+func assignable(from, to reflect.Type) error {
 	if !from.AssignableTo(to) {
 		return fmt.Errorf("value of type %s is not assignable to type %s", from.String(), to.String())
 	}
