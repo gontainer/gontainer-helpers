@@ -12,7 +12,6 @@ func TestConvert(t *testing.T) {
 	// TODO
 	t.Run(`Convert parameters`, func(t *testing.T) {
 		float64Val := float64(5)
-		_ = float64Val
 
 		scenarios := map[string]struct {
 			name   string
