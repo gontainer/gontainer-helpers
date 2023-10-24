@@ -45,7 +45,7 @@ func TestContextWithContainer(t *testing.T) {
 			defer func() {
 				assert.Equal(t, `nil context`, recover())
 			}()
-			container.ContextWithContainer(nil, nil)
+			container.ContextWithContainer(nil, nil) //nolint:staticcheck
 		})
 	})
 }
