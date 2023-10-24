@@ -6,36 +6,46 @@ import (
 )
 
 func convertSlice(from reflect.Value, to reflect.Type) (_ reflect.Value, supports bool, _ error) {
-	if isConvertibleSliceOrArray(from.Type(), to) {
+	if isConvertibleSliceOrArray(from, to) {
 		v, err := convertSliceOrArray(from, to)
 		return v, true, err
 	}
 	return reflect.Value{}, false, nil
 }
 
-func isConvertibleSliceOrArray(from reflect.Type, to reflect.Type) bool {
-	if (from.Kind() != reflect.Slice && from.Kind() != reflect.Array) ||
-		(to.Kind() != reflect.Slice && to.Kind() != reflect.Array) {
-		return false
-	}
-
-	if from.Kind() == reflect.Array && to.Kind() == reflect.Array && from.Len() > to.Len() {
-		return false
-	}
-
-	if from.Elem().Kind() == reflect.Interface || to.Elem().Kind() == reflect.Interface {
-		return true
-	}
-
-	if from.Elem().ConvertibleTo(to.Elem()) {
-		return true
-	}
-
-	if isConvertibleSliceOrArray(from.Elem(), to.Elem()) { // TODO it won't work with maps
+func isArrayOrSlice(k reflect.Kind) bool {
+	switch k {
+	case
+		reflect.Slice,
+		reflect.Array:
 		return true
 	}
 
 	return false
+}
+
+func isConvertibleSliceOrArray(from reflect.Value, to reflect.Type) bool {
+	if !isArrayOrSlice(from.Kind()) || !isArrayOrSlice(to.Kind()) {
+		return false
+	}
+
+	if to.Kind() == reflect.Array && to.Len() < from.Len() {
+		return false
+	}
+
+	return true
+}
+
+func isAny(v reflect.Type) bool {
+	if v.Kind() != reflect.Interface {
+		return false
+	}
+
+	if v.NumMethod() > 0 {
+		return false
+	}
+
+	return true
 }
 
 func convertSliceOrArray(from reflect.Value, to reflect.Type) (reflect.Value, error) {
@@ -46,9 +56,18 @@ func convertSliceOrArray(from reflect.Value, to reflect.Type) (reflect.Value, er
 		cp = reflect.MakeSlice(to, from.Len(), from.Cap())
 	}
 
+	if from.Len() == 0 && (!isAny(from.Type().Elem()) || isAny(to.Elem())) {
+		if _, err := convert(
+			reflect.Zero(from.Type().Elem()).Interface(),
+			to.Elem(),
+		); err != nil {
+			return reflect.Value{}, err
+		}
+	}
+
 	// TODO convert nil to nil
 	// TODO check whether values are convertible
-	if from.Kind() == reflect.Slice && from.IsNil() {
+	if from.Kind() == reflect.Slice && from.IsNil() && to.Kind() == reflect.Slice {
 		return reflect.Zero(to), nil
 	}
 
