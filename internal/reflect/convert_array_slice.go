@@ -48,7 +48,7 @@ func convertSliceOrArray(from reflect.Value, to reflect.Type) (reflect.Value, er
 
 	// TODO convert nil to nil
 	// TODO check whether values are convertible
-	if from.IsZero() {
+	if from.Kind() == reflect.Slice && from.IsNil() {
 		return reflect.Zero(to), nil
 	}
 
