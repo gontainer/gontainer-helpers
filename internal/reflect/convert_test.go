@@ -12,13 +12,20 @@ func TestConvert(t *testing.T) {
 	// TODO
 	t.Run(`Convert parameters`, func(t *testing.T) {
 		float64Val := float64(5)
+		_ = float64Val // TODO remove
+
+		a := make([]any, 1)
+		a[0] = a
 
 		scenarios := map[string]struct {
-			name   string
 			input  any
 			output any
 			error  string
 		}{
+			`recursive #1`: {
+				input:  a,
+				output: ([]any)(nil),
+			},
 			`[]any{[]int{1, 2, 3}} to [][2]int{}`: {
 				input:  []any{[]int{1, 2, 3}},
 				output: [][2]int{},
@@ -177,7 +184,8 @@ func TestConvert(t *testing.T) {
 				}
 
 				assert.NoError(t, err)
-				assert.Equal(t, s.output, v.Interface())
+				assert.True(t, reflect.DeepEqual(s.output, v.Interface())) //  todo find an option to compare recursive slices
+				//assert.Equal(t, s.output, v.Interface())
 			})
 		}
 	})
