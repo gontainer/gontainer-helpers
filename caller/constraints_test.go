@@ -24,7 +24,7 @@ func (b book) WithTitle(t string) book {
 	return b
 }
 
-func TestLimitations(t *testing.T) {
+func TestConstraint(t *testing.T) {
 	const (
 		harryPotterTitle = "Harry Potter"
 	)
@@ -36,14 +36,14 @@ func TestLimitations(t *testing.T) {
 
 	// https://github.com/golang/go/wiki/MethodSets#interfaces
 
-	// Method with pointer receiver requires explicit definition of pointer:
+	// Method with a pointer receiver requires explicit definition of the pointer:
 	// v := &book{}; CallByName(v, ...
 	// var v any = &book{}; CallByName(v, ...
 	// v := book{}; CallByName(&v, ...
 	//
 	// Creating variable as a value will not work:
 	// v := book{}; CallByName(v, ...
-	// var v interface = book{}; CallByName(&v, ...
+	// var v interface{} = book{}; CallByName(&v, ...
 	t.Run("Call a method", func(t *testing.T) {
 		t.Run("A pointer receiver", func(t *testing.T) {
 			t.Run("Given errors", func(t *testing.T) {
@@ -67,47 +67,47 @@ func TestLimitations(t *testing.T) {
 					b := book{}
 					r, err := caller.CallByName(&b, "SetTitle", []any{harryPotterTitle}, false)
 					assert.NoError(t, err)
-					assert.Nil(t, r)
+					assert.Len(t, r, 0)
 					assert.Equal(t, harryPotter, b)
 				})
 				t.Run("v := &book{}; CallByName(&v, ...", func(t *testing.T) {
 					b := &book{}
 					r, err := caller.CallByName(&b, "SetTitle", []any{harryPotterTitle}, false)
 					assert.NoError(t, err)
-					assert.Nil(t, r)
+					assert.Len(t, r, 0)
 					assert.Equal(t, &harryPotter, b)
 				})
 				t.Run("v := &book{}; CallByName(v, ...", func(t *testing.T) {
 					b := &book{}
 					r, err := caller.CallByName(b, "SetTitle", []any{harryPotterTitle}, false)
 					assert.NoError(t, err)
-					assert.Nil(t, r)
+					assert.Len(t, r, 0)
 					assert.Equal(t, &harryPotter, b)
 				})
 				t.Run("var v any = &book{}; CallByName(v, ...", func(t *testing.T) {
 					var b any = &book{}
 					r, err := caller.CallByName(b, "SetTitle", []any{harryPotterTitle}, false)
 					assert.NoError(t, err)
-					assert.Nil(t, r)
+					assert.Len(t, r, 0)
 					assert.Equal(t, &harryPotter, b)
 				})
 				t.Run("var v any = &book{}; CallByName(&v, ...", func(t *testing.T) {
 					var b any = &book{}
 					r, err := caller.CallByName(&b, "SetTitle", []any{harryPotterTitle}, false)
 					assert.NoError(t, err)
-					assert.Nil(t, r)
+					assert.Len(t, r, 0)
 					assert.Equal(t, &harryPotter, b)
 				})
 				t.Run("var v interface{ SetTitle(string) } = &book{}; CallByName(v, ...", func(t *testing.T) {
 					var b interface{ SetTitle(string) } = &book{}
 					r, err := caller.CallByName(b, "SetTitle", []any{harryPotterTitle}, false)
 					assert.NoError(t, err)
-					assert.Nil(t, r)
+					assert.Len(t, r, 0)
 					assert.Equal(t, &harryPotter, b)
 				})
 			})
 		})
-		// Methods with value receiver do not have any limitations
+		// Methods with a value receiver do not have any constraints
 		t.Run("A value receiver", func(t *testing.T) {
 			t.Run("b := book{}", func(t *testing.T) {
 				b := book{}
