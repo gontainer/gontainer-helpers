@@ -49,13 +49,6 @@ func isAny(v reflect.Type) bool {
 }
 
 func convertSliceOrArray(from reflect.Value, to reflect.Type) (reflect.Value, error) {
-	var cp reflect.Value
-	if to.Kind() == reflect.Array {
-		cp = reflect.New(reflect.ArrayOf(to.Len(), to.Elem())).Elem()
-	} else {
-		cp = reflect.MakeSlice(to, from.Len(), from.Cap())
-	}
-
 	if from.Len() == 0 && (!isAny(from.Type().Elem()) || isAny(to.Elem())) {
 		if _, err := convert(
 			reflect.Zero(from.Type().Elem()).Interface(),
@@ -69,6 +62,13 @@ func convertSliceOrArray(from reflect.Value, to reflect.Type) (reflect.Value, er
 	// TODO check whether values are convertible
 	if from.Kind() == reflect.Slice && from.IsNil() && to.Kind() == reflect.Slice {
 		return reflect.Zero(to), nil
+	}
+
+	var cp reflect.Value
+	if to.Kind() == reflect.Array {
+		cp = reflect.New(reflect.ArrayOf(to.Len(), to.Elem())).Elem()
+	} else {
+		cp = reflect.MakeSlice(to, from.Len(), from.Cap())
 	}
 
 	for i := 0; i < from.Len(); i++ {
