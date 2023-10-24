@@ -179,7 +179,7 @@ func TestCall(t *testing.T) {
 			"[]struct{}{} to []type": {
 				fn:    func([]int) {},
 				input: []struct{}{},
-				error: "cannot call func([]int): arg0: cannot convert []struct {} to []int",
+				error: `cannot call func([]int): arg0: cannot convert []struct {} to []int: cannot convert struct {} to int`,
 			},
 			"nil to any": {
 				fn: func(v any) any {
