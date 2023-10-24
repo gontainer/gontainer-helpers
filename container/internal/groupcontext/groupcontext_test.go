@@ -14,7 +14,7 @@ import (
 func TestNew(t *testing.T) {
 	t.Run("Invalid context", func(t *testing.T) {
 		defer func() {
-			assert.Equal(t, "a receive from a nil channel blocks forever: ctx.Done() == nil", recover())
+			assert.Equal(t, "ctx.Done() == nil: a receive from a nil channel blocks forever", recover())
 		}()
 
 		g := groupcontext.New()

@@ -72,6 +72,14 @@ See:
   - [HTTPHandlerWithContainer]
 */
 func ContextWithContainer(parent context.Context, container Self) context.Context {
+	if parent == nil {
+		panic("nil context")
+	}
+
+	if container == nil {
+		panic("nil container")
+	}
+
 	c := container.Self()
 
 	c.contextLocker.RLock()

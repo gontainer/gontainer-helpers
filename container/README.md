@@ -498,4 +498,4 @@ func RefreshConfigEveryMinute(c *container.Container) {
 
 ### Contextual scope
 
-TODO
+
