@@ -12,10 +12,12 @@ func TestConvert(t *testing.T) {
 	// TODO
 	t.Run(`Convert parameters`, func(t *testing.T) {
 		float64Val := float64(5)
-		_ = float64Val // TODO remove
 
-		a := make([]any, 1)
+		a := make([]any, 1) // TODO
 		a[0] = a
+
+		b := make([]any, 1)
+		b[0] = b
 
 		scenarios := map[string]struct {
 			input  any
@@ -24,7 +26,7 @@ func TestConvert(t *testing.T) {
 		}{
 			`recursive #1`: {
 				input:  a,
-				output: ([]any)(nil),
+				output: b,
 			},
 			`[]any{[]int{1, 2, 3}} to [][2]int{}`: {
 				input:  []any{[]int{1, 2, 3}},
