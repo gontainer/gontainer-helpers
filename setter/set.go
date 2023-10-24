@@ -53,11 +53,11 @@ func Set(strct any, field string, val any, convert bool) (err error) {
 	reflectVal := reflect.ValueOf(strct)
 	for {
 		switch {
-		case len(chain) >= 2 && chain[0] == reflect.Ptr && chain[1] == reflect.Ptr:
+		case len(chain) >= 2 && chain[:2].equalTo(reflect.Ptr, reflect.Ptr):
 			reflectVal = reflectVal.Elem()
 			chain = chain[1:]
 			continue
-		case len(chain) >= 3 && chain[0] == reflect.Ptr && chain[1] == reflect.Interface && chain[2] == reflect.Ptr:
+		case len(chain) >= 3 && chain[:3].equalTo(reflect.Ptr, reflect.Interface, reflect.Ptr):
 			reflectVal = reflectVal.Elem().Elem()
 			chain = chain[2:]
 			continue
@@ -131,10 +131,10 @@ func (c kindChain) equalTo(kinds ...reflect.Kind) bool {
 func valueToKindChain(val any) (kindChain, error) {
 	var r kindChain
 	v := reflect.ValueOf(val)
-	ptrs := make(map[string]struct{})
+	ptrs := make(map[uintptr]struct{})
 	for {
 		if v.Kind() == reflect.Ptr && !v.IsNil() {
-			ptr := fmt.Sprintf("%p", v.Interface())
+			ptr := v.Elem().UnsafeAddr()
 			if _, ok := ptrs[ptr]; ok {
 				return nil, errors.New("unexpected pointer loop")
 			}
