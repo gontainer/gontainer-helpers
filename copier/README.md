@@ -25,3 +25,55 @@ _ = copier.Copy(from, &to, true)
 fmt.Println(to)
 // Output: 5
 ```
+
+**More sophisticated examples**
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/gontainer/gontainer-helpers/v2/copier"
+)
+
+type Person struct {
+	Name string
+}
+
+func main() {
+	{
+		var (
+			from = []any{Person{Name: "Jane"}, Person{Name: "John"}}
+			to   []Person
+		)
+		_ = copier.Copy(from, &to, true)
+		fmt.Println(to)
+		// Output: [{Jane} {John}]
+	}
+
+	{
+		var (
+			from = []any{int(1), uint(2), float32(3), float64(4)}
+			to   []uint64
+		)
+		_ = copier.Copy(from, &to, true) // convert
+		fmt.Printf("%#v\n", to)
+		// Output: []uint64{0x1, 0x2, 0x3, 0x4}
+
+		err := copier.Copy(from, &to, false) // don't convert
+		fmt.Println(err)
+		// Output: value of type []interface {} is not assignable to type []uint64
+	}
+
+	{
+		var (
+			from = []any{1, "2", 3, 4}
+			to   []int
+		)
+		err := copier.Copy(from, &to, true)
+		fmt.Println(err)
+		// Output: cannot convert []interface {} to []int: #1: cannot convert string to int
+	}
+}
+```
