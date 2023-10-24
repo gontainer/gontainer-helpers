@@ -5,6 +5,58 @@ import (
 	"reflect"
 )
 
+type preChecker interface {
+	check(from reflect.Value, to reflect.Type) error
+}
+
+type preCheckFn func(from reflect.Value, to reflect.Type) error
+
+func (fn preCheckFn) check(from reflect.Value, to reflect.Type) error {
+	return fn(from, to)
+}
+
+type converter interface {
+	convert(from reflect.Value, to reflect.Type) (_ reflect.Value, supports bool, _ error)
+}
+
+type converterFn func(from reflect.Value, to reflect.Type) (_ reflect.Value, supports bool, _ error)
+
+func (fn converterFn) convert(from reflect.Value, to reflect.Type) (_ reflect.Value, supports bool, _ error) {
+	return fn(from, to)
+}
+
+var (
+	preCheckers []preChecker
+	converters  []converter
+)
+
+func init() {
+	preCheckers = []preChecker{
+		preCheckFn(func(from reflect.Value, to reflect.Type) error {
+			if to.Kind() == reflect.Array &&
+				from.Kind() == reflect.Slice &&
+				from.Len() > to.Len() {
+				return fmt.Errorf("cannot convert %T (length %d) to %s", from.Interface(), from.Len(), to.String())
+			}
+			return nil
+		}),
+	}
+
+	converters = []converter{
+		converterFn(convertBuiltIn),
+		converterFn(convertSlice),
+		converterFn(convertMap),
+	}
+}
+
+func convertBuiltIn(from reflect.Value, to reflect.Type) (_ reflect.Value, supports bool, _ error) {
+	if from.Type().ConvertibleTo(to) {
+		return from.Convert(to), true, nil
+	}
+
+	return reflect.Value{}, false, nil
+}
+
 // convert converts given value to given type whenever it is possible.
 // In opposition to built-in reflect package it allows to convert []any to []type and []type to []any.
 func convert(value any, to reflect.Type) (reflect.Value, error) {
@@ -13,75 +65,20 @@ func convert(value any, to reflect.Type) (reflect.Value, error) {
 		return zeroForNilable(value, to)
 	}
 
-	if to.Kind() == reflect.Array &&
-		from.Kind() == reflect.Slice &&
-		from.Len() > to.Len() {
-		return reflect.Value{}, fmt.Errorf("cannot convert %T (length %d) to %s", value, from.Len(), to.String())
-	}
-
-	if from.Type().ConvertibleTo(to) {
-		return from.Convert(to), nil
-	}
-
-	if !isConvertibleSliceOrArray(from.Type(), to) {
-		return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", from.Type().String(), to.String())
-	}
-
-	slice, err := convertSliceOrArray(from, to)
-	if err != nil {
-		return reflect.Value{}, fmt.Errorf("cannot convert %s to %s: %w", from.Type().String(), to.String(), err)
-	}
-
-	return slice, nil
-}
-
-func isConvertibleSliceOrArray(from reflect.Type, to reflect.Type) bool {
-	if (from.Kind() != reflect.Slice && from.Kind() != reflect.Array) ||
-		(to.Kind() != reflect.Slice && to.Kind() != reflect.Array) {
-		return false
-	}
-
-	if from.Kind() == reflect.Array && to.Kind() == reflect.Array && from.Len() > to.Len() {
-		return false
-	}
-
-	if from.Elem().Kind() == reflect.Interface || to.Elem().Kind() == reflect.Interface {
-		return true
-	}
-
-	if from.Elem().ConvertibleTo(to.Elem()) {
-		return true
-	}
-
-	if isConvertibleSliceOrArray(from.Elem(), to.Elem()) {
-		return true
-	}
-
-	return false
-}
-
-func convertSliceOrArray(from reflect.Value, to reflect.Type) (reflect.Value, error) {
-	var cp reflect.Value
-	if to.Kind() == reflect.Array {
-		cp = reflect.New(reflect.ArrayOf(to.Len(), to.Elem())).Elem()
-	} else {
-		cp = reflect.MakeSlice(to, from.Len(), from.Cap())
-	}
-
-	for i := 0; i < from.Len(); i++ {
-		item := from.Index(i)
-		for item.Kind() == reflect.Interface {
-			item = item.Elem()
+	for _, pc := range preCheckers {
+		if err := pc.check(from, to); err != nil {
+			return reflect.Value{}, err
 		}
-		var currVal any = nil
-		if item.IsValid() {
-			currVal = item.Interface()
-		}
-		curr, err := convert(currVal, to.Elem())
-		if err != nil {
-			return reflect.Value{}, fmt.Errorf("%d: %w", i, err)
-		}
-		cp.Index(i).Set(curr)
 	}
-	return cp, nil
+
+	for _, c := range converters {
+		if v, supports, err := c.convert(from, to); supports {
+			if err != nil {
+				err = fmt.Errorf("cannot convert %s to %s: %w", from.Type().String(), to.String(), err)
+			}
+			return v, err
+		}
+	}
+
+	return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", from.Type().String(), to.String())
 }

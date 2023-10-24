@@ -20,7 +20,7 @@ func TestConvert(t *testing.T) {
 			`[]any{[]int{1, 2, 3}} to [][2]int{}`: {
 				input:  []any{[]int{1, 2, 3}},
 				output: [][2]int{},
-				error:  "cannot convert []interface {} to [][2]int: 0: cannot convert []int (length 3) to [2]int",
+				error:  "cannot convert []interface {} to [][2]int: #0: cannot convert []int (length 3) to [2]int",
 			},
 			`[]any to [0]int`: {
 				input:  []any{},
@@ -62,7 +62,7 @@ func TestConvert(t *testing.T) {
 			`[][]any to [][]int (invalid)`: {
 				input:  [][]any{{1, false, 3}},
 				output: [][]int{{1, 2, 3}},
-				error:  "cannot convert [][]interface {} to [][]int: 0: cannot convert []interface {} to []int: 1: cannot convert bool to int",
+				error:  "cannot convert [][]interface {} to [][]int: #0: cannot convert []interface {} to []int: #1: cannot convert bool to int",
 			},
 			`[][]int to [][]any`: {
 				input:  [][]int{{1, 2, 3}},
@@ -79,12 +79,12 @@ func TestConvert(t *testing.T) {
 			`[]any to []int (invalid #1)`: {
 				input:  []any{1, 2, nil},
 				output: []int{},
-				error:  "cannot convert []interface {} to []int: 2: cannot convert <nil> to int",
+				error:  "cannot convert []interface {} to []int: #2: cannot convert <nil> to int",
 			},
 			`[]any to []int (invalid #2)`: {
 				input:  []any{1, 2, 3, struct{}{}},
 				output: []int{},
-				error:  "cannot convert []interface {} to []int: 3: cannot convert struct {} to int",
+				error:  "cannot convert []interface {} to []int: #3: cannot convert struct {} to int",
 			},
 			`[]any to []*int`: {
 				input:  []any{nil, nil},
