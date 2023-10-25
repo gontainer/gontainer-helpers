@@ -1,5 +1,5 @@
 /*
-Package exporter provides sets of function to export variables to a GO code.
+Package exporter provides a set of functions to export variables to a GO code.
 
 	s, _ := exporter.Export([3]any{nil, 1.5, "hello world"})
 	fmt.Println(s)
