@@ -23,21 +23,21 @@ func newMutableContainer(parent *Container) *mutableContainer {
 	return &mutableContainer{parent: parent, locker: &sync.Mutex{}}
 }
 
-func (m mutableContainer) OverrideService(serviceID string, s Service) {
+func (m *mutableContainer) OverrideService(serviceID string, s Service) {
 	m.locker.Lock()
 	defer m.locker.Unlock()
 
 	overrideService(m.parent, serviceID, s)
 }
 
-func (m mutableContainer) OverrideParam(paramID string, d Dependency) {
+func (m *mutableContainer) OverrideParam(paramID string, d Dependency) {
 	m.locker.Lock()
 	defer m.locker.Unlock()
 
 	overrideParam(m.parent, paramID, d)
 }
 
-func (m mutableContainer) InvalidateServicesCache(servicesIDs ...string) {
+func (m *mutableContainer) InvalidateServicesCache(servicesIDs ...string) {
 	m.locker.Lock()
 	defer m.locker.Unlock()
 
@@ -46,13 +46,13 @@ func (m mutableContainer) InvalidateServicesCache(servicesIDs ...string) {
 	}
 }
 
-func (m mutableContainer) InvalidateAllServicesCache() {
+func (m *mutableContainer) InvalidateAllServicesCache() {
 	for sID := range m.parent.services {
 		m.InvalidateServicesCache(sID)
 	}
 }
 
-func (m mutableContainer) InvalidateParamsCache(paramsIDs ...string) {
+func (m *mutableContainer) InvalidateParamsCache(paramsIDs ...string) {
 	m.locker.Lock()
 	defer m.locker.Unlock()
 
@@ -61,7 +61,7 @@ func (m mutableContainer) InvalidateParamsCache(paramsIDs ...string) {
 	}
 }
 
-func (m mutableContainer) InvalidateAllParamsCache() {
+func (m *mutableContainer) InvalidateAllParamsCache() {
 	for pID := range m.parent.params {
 		m.InvalidateParamsCache(pID)
 	}
