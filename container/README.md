@@ -734,5 +734,30 @@ func NewHTTPHandler(c *myContainer) http.Handler {
 ### Type conversion
 
 In GO assignments between different types requires explicit type conversion.
+Container automatically converts values for more developer-friendly experience.
+It supports even a bit more sophisticated conversions of maps and slices, see [copier](../copier/README.md).
 
-TODO
+<details>
+  <summary>See code</summary>
+
+```go
+type Superhero struct {
+	name string
+	age  uint
+}
+
+func buildContainer() *container.Container {
+	c := container.New()
+
+	ironMan := container.NewService()
+	ironMan.SetValue(Superhero{})
+	ironMan.SetField("name", container.NewDependencyValue("Tony Stark"))
+	// The following value "53" is of the type "int", although we need an "uint"
+	// See [Superhero.age]
+	// Container automatically converts values for more developer-friendly experience :)
+	ironMan.SetField("age", container.NewDependencyValue(53))
+
+	return c
+}
+```
+</details>
