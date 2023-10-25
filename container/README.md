@@ -1,6 +1,7 @@
 # Container
 
 This package provides a concurrently safe DI container. It supports scoped variables, and hot swapping.
+For bigger projects, it provides a tool for the code generation.
 
 ```bash
 go get -u github.com/gontainer/gontainer-helpers/v2/container@latest
@@ -20,6 +21,7 @@ go get -u github.com/gontainer/gontainer-helpers/v2/container@latest
    3. [Circular dependencies](#circular-dependencies)
    4. [Type conversion](#type-conversion)
    5. [Examples](#examples)
+5. [Code generation](#code-generation)
 
 ## Why?
 
@@ -824,3 +826,8 @@ func buildContainer() *container.Container {
 ### Examples
 
 See [examples](examples_test.go).
+
+## Code generation
+
+The entire code can be built using a YAML-configuration files.
+See [gontainer/gontainer](https://github.com/gontainer/gontainer).
