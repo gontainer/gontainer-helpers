@@ -44,20 +44,23 @@ func NewContainer() *Container {
 		container.NewDependencyValue("/"),
 		container.NewDependencyValue(newHandleHomePage(c)),
 	)
+	m.Tag("http-handler", 0)
 
-	h := container.NewService()
-	h.SetConstructor(
-		container.HTTPHandlerWithContainer,
-		container.NewDependencyService("serveMux"),
-		container.NewDependencyContainer(),
-	)
-
-	c.OverrideService("serveMux", m)
-	c.OverrideService("httpHandler", h)
+	c.OverrideService("httpHandler", m)
 	c.OverrideParam("a", container.NewDependencyValue(0))
 	c.OverrideParam("b", container.NewDependencyValue(0))
 
+	c.AddDecorator(
+		"http-handler",
+		decorateHandlerByContainer,
+		container.NewDependencyContainer(),
+	)
+
 	return c
+}
+
+func decorateHandlerByContainer(p container.DecoratorPayload, c *container.Container) http.Handler {
+	return container.HTTPHandlerWithContainer(p.Service.(http.Handler), c)
 }
 
 func newHandleHomePage(c *Container) http.Handler {
