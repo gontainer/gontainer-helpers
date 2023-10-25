@@ -673,6 +673,38 @@ Let's build our endpoint now.
   <summary>See code</summary>
 
 ```go
+type UserRepository struct {
+	tx *sql.Tx
+}
+
+type ImageRepository struct {
+	tx *sql.Tx
+}
+
+func (c *myContainer) GetTx(ctx context.Context) *sql.Tx {
+	tx, err := c.GetInContext(ctx, "userRepository")
+	if err != nil {
+		panic(err)
+	}
+	return tx.(*sql.Tx)
+}
+
+func (c *myContainer) GetUserRepository(ctx context.Context) *UserRepository {
+	u, err := c.GetInContext(ctx, "userRepository")
+	if err != nil {
+		panic(err)
+	}
+	return u.(*UserRepository)
+}
+
+func (c *myContainer) GetImageRepository(ctx context.Context) *ImageRepository {
+	i, err := c.GetInContext(ctx, "imageRepository")
+	if err != nil {
+		panic(err)
+	}
+	return i.(*ImageRepository)
+}
+
 func NewHTTPHandler(c *myContainer) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// `tx` refers to the same instance that has been injected to `userRepository` and `imageRepository`
