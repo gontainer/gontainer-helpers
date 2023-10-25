@@ -19,6 +19,7 @@ go get -u github.com/gontainer/gontainer-helpers/v2/container@latest
    2. [Contextual scope](#contextual-scope)
    3. [Circular dependencies](#circular-dependencies)
    4. [Type conversion](#type-conversion)
+   5. [Examples](#examples)
 
 ## Why?
 
@@ -814,3 +815,7 @@ func buildContainer() *container.Container {
 }
 ```
 </details>
+
+### Examples
+
+See [examples](examples_test.go).
