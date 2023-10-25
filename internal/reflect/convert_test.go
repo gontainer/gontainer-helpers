@@ -190,10 +190,25 @@ func TestConvert(t *testing.T) {
 				input:  nil,
 				output: (*interface{ Bar() })(nil),
 			},
+			`[3]int to [2]int`: {
+				input:  [3]int{1, 2, 3},
+				output: [2]int{1, 2},
+			},
+			`[]int (len == 3) to [2]int`: {
+				input:  []int{1, 2, 3},
+				output: [2]int{1, 2},
+			},
+			`[2]int to [3]int`: {
+				input:  [2]int{1, 2},
+				output: [3]int{1, 2, 0},
+			},
+			`[]int (len == 2) to [3]int`: {
+				input:  []int{1, 2},
+				output: [3]int{1, 2, 0},
+			},
 			`[]any{[]int{1, 2, 3}} to [][2]int{}`: {
 				input:  []any{[]int{1, 2, 3}},
-				output: [][2]int{},
-				error:  "cannot convert []interface {} to [][2]int: #0: cannot convert []int (length 3) to [2]int",
+				output: [][2]int{{1, 2}},
 			},
 			`[]any to [0]int`: {
 				input:  []any{},
@@ -204,9 +219,8 @@ func TestConvert(t *testing.T) {
 				output: []any{},
 			},
 			`[][3]int to [][2]int`: {
-				input:  [][3]int{},
-				output: [][2]int{},
-				error:  `cannot convert [][3]int to [][2]int: cannot convert [3]int to [2]int`,
+				input:  [][3]int{{3, 4, 5}},
+				output: [][2]int{{3, 4}},
 			},
 			`[][3]int to [][3]int`: {
 				input:  [][3]int{{5, 5, 5}, {6, 6, 6}},

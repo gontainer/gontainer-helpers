@@ -29,10 +29,6 @@ func isConvertibleSliceOrArray(from reflect.Value, to reflect.Type) bool {
 		return false
 	}
 
-	if to.Kind() == reflect.Array && to.Len() < from.Len() {
-		return false
-	}
-
 	return true
 }
 
@@ -52,14 +48,22 @@ func convertSliceOrArray(from reflect.Value, to reflect.Type) (reflect.Value, er
 		return reflect.Zero(to), nil
 	}
 
-	var cp reflect.Value
+	var (
+		cp    reflect.Value
+		toLen int
+	)
 	if to.Kind() == reflect.Array {
+		toLen = to.Len()
+		if from.Len() < toLen {
+			toLen = from.Len()
+		}
 		cp = reflect.New(reflect.ArrayOf(to.Len(), to.Elem())).Elem()
 	} else {
+		toLen = from.Len()
 		cp = reflect.MakeSlice(to, from.Len(), from.Cap())
 	}
 
-	for i := 0; i < from.Len(); i++ {
+	for i := 0; i < toLen; i++ {
 		item := from.Index(i)
 		for item.Kind() == reflect.Interface {
 			item = item.Elem()

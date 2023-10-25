@@ -5,16 +5,6 @@ import (
 	"reflect"
 )
 
-type preChecker interface {
-	check(from reflect.Value, to reflect.Type) error
-}
-
-type preCheckFn func(from reflect.Value, to reflect.Type) error
-
-func (fn preCheckFn) check(from reflect.Value, to reflect.Type) error {
-	return fn(from, to)
-}
-
 type converter interface {
 	convert(from reflect.Value, to reflect.Type) (_ reflect.Value, supports bool, _ error)
 }
@@ -26,22 +16,10 @@ func (fn converterFn) convert(from reflect.Value, to reflect.Type) (_ reflect.Va
 }
 
 var (
-	preCheckers []preChecker
-	converters  []converter
+	converters []converter
 )
 
 func init() {
-	preCheckers = []preChecker{
-		preCheckFn(func(from reflect.Value, to reflect.Type) error {
-			if to.Kind() == reflect.Array &&
-				from.Kind() == reflect.Slice &&
-				from.Len() > to.Len() {
-				return fmt.Errorf("cannot convert %T (length %d) to %s", from.Interface(), from.Len(), to.String())
-			}
-			return nil
-		}),
-	}
-
 	converters = []converter{
 		converterFn(convertBuiltIn),
 		converterFn(convertSlice),
@@ -55,12 +33,6 @@ func convert(value any, to reflect.Type) (reflect.Value, error) {
 	from := reflect.ValueOf(value)
 	if !from.IsValid() {
 		return zeroForNilable(value, to)
-	}
-
-	for _, pc := range preCheckers {
-		if err := pc.check(from, to); err != nil {
-			return reflect.Value{}, err
-		}
 	}
 
 	for _, c := range converters {

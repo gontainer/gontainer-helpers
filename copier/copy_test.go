@@ -158,8 +158,8 @@ func TestCopy(t *testing.T) {
 			)
 
 			err := copier.Copy(from, &to, true)
-			assert.EqualError(t, err, "cannot convert []int (length 3) to [2]int")
-			assert.Empty(t, to)
+			assert.NoError(t, err)
+			assert.Equal(t, [2]int{1, 2}, to)
 		})
 		t.Run("[N]int to [N-1]int", func(t *testing.T) {
 			var (
@@ -168,8 +168,8 @@ func TestCopy(t *testing.T) {
 			)
 
 			err := copier.Copy(from, &to, true)
-			assert.EqualError(t, err, "cannot convert [3]int to [2]int")
-			assert.Empty(t, to)
+			assert.NoError(t, err)
+			assert.Equal(t, [2]int{1, 2}, to)
 		})
 		t.Run("[N]int to [N+1]int", func(t *testing.T) {
 			var (
