@@ -36,21 +36,9 @@ func isConvertibleSliceOrArray(from reflect.Value, to reflect.Type) bool {
 	return true
 }
 
-func isAny(v reflect.Type) bool {
-	if v.Kind() != reflect.Interface {
-		return false
-	}
-
-	if v.NumMethod() > 0 {
-		return false
-	}
-
-	return true
-}
-
 func convertSliceOrArray(from reflect.Value, to reflect.Type) (reflect.Value, error) {
-	// check whether slice values are convertible for len = 0
-	if from.Len() == 0 && (!isAny(from.Type().Elem()) || isAny(to.Elem())) {
+	// check whether slice values are convertible for len == 0
+	if from.Len() == 0 && !isAny(from.Type().Elem()) && !isAny(to.Elem()) {
 		if _, err := convert(
 			reflect.Zero(from.Type().Elem()).Interface(),
 			to.Elem(),
@@ -60,7 +48,7 @@ func convertSliceOrArray(from reflect.Value, to reflect.Type) (reflect.Value, er
 	}
 
 	if from.Kind() == reflect.Slice && from.IsNil() {
-		// zero value for slice is nil
+		// zero value for slice == nil
 		return reflect.Zero(to), nil
 	}
 

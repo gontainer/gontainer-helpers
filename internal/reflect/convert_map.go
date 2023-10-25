@@ -11,11 +11,31 @@ func convertMap(from reflect.Value, to reflect.Type) (_ reflect.Value, supports 
 		return
 	}
 
-	// TODO check whether keys are convertible, if no
-	// supports = false; return
+	if from.Len() == 0 {
+		if !isAny(from.Type().Key()) || !isAny(to.Key()) {
+			if _, err := convert(
+				reflect.Zero(from.Type().Key()).Interface(),
+				to.Key(),
+			); err != nil {
+				return reflect.Value{}, true, fmt.Errorf("non convertible keys: %w", err)
+			}
+		}
+		if !isAny(from.Type().Elem()) || !isAny(to.Elem()) {
+			if _, err := convert(
+				reflect.Zero(from.Type().Elem()).Interface(),
+				to.Elem(),
+			); err != nil {
+				return reflect.Value{}, true, fmt.Errorf("non convertible values: %w", err)
+			}
+		}
+	}
+
+	if from.IsNil() {
+		return reflect.Zero(to), true, nil
+	}
 
 	mapType := reflect.MapOf(to.Key(), to.Elem())
-	result := reflect.MakeMap(mapType)
+	result := reflect.MakeMapWithSize(mapType, from.Len())
 
 	iter := from.MapRange()
 	for iter.Next() {

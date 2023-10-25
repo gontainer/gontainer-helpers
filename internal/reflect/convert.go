@@ -49,16 +49,8 @@ func init() {
 	}
 }
 
-func convertBuiltIn(from reflect.Value, to reflect.Type) (_ reflect.Value, supports bool, _ error) {
-	if from.Type().ConvertibleTo(to) {
-		return from.Convert(to), true, nil
-	}
-
-	return reflect.Value{}, false, nil
-}
-
 // convert converts given value to given type whenever it is possible.
-// In opposition to built-in reflect package it allows to convert []any to []type and []type to []any.
+// In opposition to built-in reflect package it can convert slices and maps.
 func convert(value any, to reflect.Type) (reflect.Value, error) {
 	from := reflect.ValueOf(value)
 	if !from.IsValid() {
