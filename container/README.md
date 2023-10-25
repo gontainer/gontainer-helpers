@@ -213,10 +213,12 @@ although `HotSwap` lets overriding them.
 
 1. **Shared** - once created service is cached forever.
 2. **Contextual** - service is cached and shared in the current context only.
+   The scope is determined by a single invocation of `Get` or `GetTaggedBy`, 
+   or by the context used in methods `GetInContext` and `GetTaggedByInContext`.
 3. **NonShared** - each invocation of a such service will create a new variable.
 4. **Default** - a runtime-determining scope.
-If the given service has at least one direct or indirect contextual dependency,
-its scope will be contextual, otherwise it will be shared.
+    If the given service has at least one direct or indirect contextual dependency, 
+    its scope will be contextual, otherwise it will be shared.
 
 ### Dependencies
 
