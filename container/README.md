@@ -586,4 +586,49 @@ func RefreshConfigEveryMinute(c *container.Container) {
 
 ### Contextual scope
 
+DB transactions are the best example to explain the benefits of that feature.
+When we have an HTTP server, transaction usually exists in a scope of the given request.
+Sometimes we have to inject a transaction into many different structures,
+and make sure we won't share it with other HTTP requests.
 
+One approach could be to use `SetTx` methods:
+
+```go
+func (r *MyRepository) SetTx(tx *sql.Tx) {
+	r.tx = tx
+}
+```
+
+That solution is error prone - you can accidentally inject the same instance `MyRepository` to into different requests.
+Moreover, when you have many repositories, sometimes even nested, injecting `*sql.Tx` manually can be difficult.
+
+Container can solve that problem, you need to instruct it only that the given dependency is contextual, and voila!
+
+```go
+// let's define the constructor for *sql.Tx
+func NewTx(db *sql.DB) (*sql.Tx, error) {
+	return db.Begin()
+}
+
+func buildContainer() *container.Container {
+	c := container.New()
+
+	tx := container.NewService()
+	tx.SetConstructor(
+		NewTx,
+		container.NewDependencyService("db"),
+	)
+	/*
+		Here we instruct the container that the scope of tx is contextual.
+		By default, the scope of all parent dependencies will be contextual as well.
+	 */
+	tx.SetScopeContextual()
+	c.OverrideService("tx", tx)
+
+	// TODO define other dependencies
+
+	return c
+}
+```
+
+TODO
