@@ -75,5 +75,16 @@ func main() {
 		fmt.Println(err)
 		// Output: cannot convert []interface {} to []int: #1: cannot convert string to int
 	}
+	
+	{
+		var (
+			from = map[int64]any{0: "Jane", 1: "John"}
+			to   map[int32]string // let's convert keys and values
+		)
+		_ = copier.Copy(from, &to, true)
+		fmt.Println(to)
+		// Output:
+		// map[0:Jane 1:John]
+    }
 }
 ```
