@@ -560,6 +560,7 @@ func RefreshConfigEveryMinute(c *container.Container) {
 		for {
 			<-time.After(time.Minute)
 			
+			// HotSwap guarantees atomicity
 			c.HotSwap(func(c container.MutableContainer) {
 				// override the value of a param
 				// the cache for that param is automatically invalidated
