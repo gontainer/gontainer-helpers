@@ -6,14 +6,15 @@ This package provides a concurrently safe DI container. It supports scoped varia
 go get -u github.com/gontainer/gontainer-helpers/v2/container@latest
 ```
 
-1. [Quick start](#quick-start)
-2. [Overview](#overview)
+1. [Why?](#why)
+2. [Quick start](#quick-start)
+3. [Overview](#overview)
    1. [Definitions](#definitions)
    2. [Scopes](#scopes)
    3. [Dependencies](#dependencies)
    4. [Services](#services)
    5. [Parameters](#parameters)
-3. [Usage](#usage)
+4. [Usage](#usage)
    1. [HotSwap](#hotswap)
    2. [Contextual scope](#contextual-scope)
 
@@ -621,11 +622,29 @@ func buildContainer() *container.Container {
 	/*
 		Here we instruct the container that the scope of tx is contextual.
 		By default, the scope of all parent dependencies will be contextual as well.
-	 */
+	*/
 	tx.SetScopeContextual()
 	c.OverrideService("tx", tx)
 
 	// TODO define other dependencies
+
+	/*
+		The following code will automatically wrap all http handlers registered to the container
+		by func `container.HTTPHandlerWithContainer`.
+
+		It is an equivalent of the following raw code:
+
+			var handler http.Handler
+			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				// your code here
+			})
+			handler = container.HTTPHandlerWithContainer(handler, c)
+	*/
+	c.AddDecorator(
+		"http-handler",
+		container.HTTPHandlerWithContainer,
+		container.NewDependencyContainer(),
+	)
 
 	return c
 }
