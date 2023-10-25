@@ -90,7 +90,7 @@ func NewTransferFundsHandler(p Provider) http.Handler {
 	})
 }
 ```
-</details
+</details>
 
 ## Quick start
 
