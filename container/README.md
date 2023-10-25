@@ -17,6 +17,81 @@ go get -u github.com/gontainer/gontainer-helpers/v2/container@latest
    1. [HotSwap](#hotswap)
    2. [Contextual scope](#contextual-scope)
 
+## Why?
+
+Automatically build and inject dependencies.
+
+<details>
+  <summary>See code</summary>
+
+```
+type TransactionHistory struct {
+	tx *sql.Tx
+}
+
+func (*TransactionHistory) Record(accountID int, amount int) error {
+	// TODO
+}
+
+type FundsTransferer struct {
+	tx *sql.Tx
+}
+
+func (*FundsTransferer) Transfer(fromID int, toID int, amount int) error {
+	// TODO
+}
+
+type Provider interface {
+	Tx(context.Context) *sql.Tx
+	TransactionHistory(context.Context) *TransactionHistory
+	FundsTransferer(context.Context) *FundsTransferer
+}
+
+func NewTransferFundsHandler(p Provider) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		/*
+			There is an *sql.Tx object here, and two other that rely on *sql.Tx.
+			Container creates a new instance of *sql.Tx and injects it to the scope of the current context only.
+			You do not need to create a new transaction manually and inject it in many dependencies.
+		*/
+		var (
+			tx         = p.Tx(ctx)
+			transferer = p.FundsTransferer(ctx)
+			history    = p.TransactionHistory(ctx)
+		)
+
+		var err error
+		defer func() {
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				_ = tx.Rollback()
+			}
+		}()
+
+		fromID := 1
+		toID := 2
+		amount := 100
+
+		err = transferer.Transfer(fromID, toID, amount)
+		if err != nil {
+			return
+		}
+		err = history.Record(fromID, -amount)
+		if err != nil {
+			return
+		}
+		err = history.Record(toID, amount)
+		if err != nil {
+			return
+		}
+		_ = tx.Commit()
+	})
+}
+```
+</details
+
 ## Quick start
 
 ```go
