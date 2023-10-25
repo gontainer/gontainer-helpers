@@ -681,7 +681,7 @@ type ImageRepository struct {
 	tx *sql.Tx
 }
 
-func (c *myContainer) GetTx(ctx context.Context) *sql.Tx {
+func (c *myContainer) Tx(ctx context.Context) *sql.Tx {
 	tx, err := c.GetInContext(ctx, "userRepository")
 	if err != nil {
 		panic(err)
@@ -689,7 +689,7 @@ func (c *myContainer) GetTx(ctx context.Context) *sql.Tx {
 	return tx.(*sql.Tx)
 }
 
-func (c *myContainer) GetUserRepository(ctx context.Context) *UserRepository {
+func (c *myContainer) UserRepository(ctx context.Context) *UserRepository {
 	u, err := c.GetInContext(ctx, "userRepository")
 	if err != nil {
 		panic(err)
@@ -697,7 +697,7 @@ func (c *myContainer) GetUserRepository(ctx context.Context) *UserRepository {
 	return u.(*UserRepository)
 }
 
-func (c *myContainer) GetImageRepository(ctx context.Context) *ImageRepository {
+func (c *myContainer) ImageRepository(ctx context.Context) *ImageRepository {
 	i, err := c.GetInContext(ctx, "imageRepository")
 	if err != nil {
 		panic(err)
@@ -709,9 +709,9 @@ func NewHTTPHandler(c *myContainer) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// `tx` refers to the same instance that has been injected to `userRepository` and `imageRepository`
 		var (
-			tx              = c.GetTx(r.Context())
-			userRepository  = c.GetUserRepository(r.Context())
-			imageRepository = c.GetImageRepository(r.Context())
+			tx              = c.Tx(r.Context())
+			userRepository  = c.UserRepository(r.Context())
+			imageRepository = c.ImageRepository(r.Context())
 		)
 
 		var err error
