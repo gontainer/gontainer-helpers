@@ -660,15 +660,19 @@ func buildContainer() *container.Container {
 			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				// your code here
 			})
-			handler = container.HTTPHandlerWithContainer(handler, c)
+			handler = decorateHTTPHandler(handler, c)
 	*/
 	c.AddDecorator(
 		"http-handler",
-		container.HTTPHandlerWithContainer,
+        decorateHTTPHandler,
 		container.NewDependencyContainer(),
 	)
 
 	return c
+}
+
+func decorateHTTPHandler(p container.DecoratorPayload, c *container.Container) http.Handler {
+	return container.HTTPHandlerWithContainer(p.Service.(http.Handler), c)
 }
 ```
 </details>
