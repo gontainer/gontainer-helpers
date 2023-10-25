@@ -17,6 +17,7 @@ go get -u github.com/gontainer/gontainer-helpers/v2/container@latest
 4. [Usage](#usage)
    1. [HotSwap](#hotswap)
    2. [Contextual scope](#contextual-scope)
+   3. [Type conversion](#type-conversion)
 
 ## Why?
 
@@ -398,27 +399,27 @@ Use `SetField`.
 package main
 
 import (
-   "fmt"
+	"fmt"
 
-   "github.com/gontainer/gontainer-helpers/v2/container"
+	"github.com/gontainer/gontainer-helpers/v2/container"
 )
 
 type Person struct {
-   Name string
+	name string // unexported fields are supported :)
 }
 
 func main() {
-   s := container.NewService()
-   s.SetValue(Person{})
-   s.SetField("Name", container.NewDependencyParam("name"))
+	s := container.NewService()
+	s.SetValue(Person{})
+	s.SetField("name", container.NewDependencyParam("name"))
 
-   c := container.New()
-   c.OverrideService("jane", s)
-   c.OverrideParam("name", container.NewDependencyValue("Jane"))
+	c := container.New()
+	c.OverrideService("jane", s)
+	c.OverrideParam("name", container.NewDependencyValue("Jane"))
 
-   jane, _ := c.Get("jane")
-   fmt.Printf("%+v\n", jane)
-   // Output: {Name:Jane}
+	jane, _ := c.Get("jane")
+	fmt.Printf("%+v\n", jane)
+	// Output: {name:Jane}
 }
 ```
 </details>
@@ -729,3 +730,9 @@ func NewHTTPHandler(c *myContainer) http.Handler {
 }
 ```
 </details>
+
+### Type conversion
+
+In GO assignments between different types requires explicit type conversion.
+
+TODO
