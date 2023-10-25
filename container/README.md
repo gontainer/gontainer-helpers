@@ -601,7 +601,7 @@ func (r *MyRepository) SetTx(tx *sql.Tx) {
 ```
 
 That solution is error-prone - you can accidentally inject the same instance `MyRepository` to into different requests.
-Moreover, when you have many repositories, sometimes even nested, injecting `*sql.Tx` manually can be difficult.
+Moreover, when you have many repositories, sometimes even nested ones, injecting `*sql.Tx` manually can be difficult.
 
 Container can solve that problem, you need to instruct it only that the given dependency is contextual, and voila!
 
