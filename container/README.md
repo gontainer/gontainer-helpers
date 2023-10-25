@@ -742,7 +742,7 @@ Do not need to worry about `fatal error: stack overflow` :)
 <details>
   <summary>See code</summary>
 
-```
+```go
 package main
 
 import (
