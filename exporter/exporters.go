@@ -229,10 +229,9 @@ func (i interfaceSliceExporter) supports(v any) bool {
 	if t == nil {
 		return false
 	}
-	return t.PkgPath() == "" && // TODO do we need it?
+	return t.PkgPath() == "" &&
 		(t.Kind() == reflect.Slice || t.Kind() == reflect.Array) &&
-		t.Elem().Kind() == reflect.Interface &&
-		t.Elem().NumMethod() == 0
+		t.Elem().Kind() == reflect.Interface && t.Elem().NumMethod() == 0
 }
 
 type primitiveTypeSliceExporter struct {
