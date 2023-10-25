@@ -24,7 +24,7 @@ Automatically build and inject scope-aware dependencies.
 <details>
   <summary>See code</summary>
 
-```
+```go
 type TransactionHistory struct {
 	tx *sql.Tx
 }
