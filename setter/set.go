@@ -53,11 +53,11 @@ func Set(strct any, field string, val any, convert bool) (err error) {
 	reflectVal := reflect.ValueOf(strct)
 	for {
 		switch {
-		case len(chain) >= 2 && chain[:2].equalTo(reflect.Ptr, reflect.Ptr):
+		case chain.prefixed(reflect.Ptr, reflect.Ptr):
 			reflectVal = reflectVal.Elem()
 			chain = chain[1:]
 			continue
-		case len(chain) >= 3 && chain[:3].equalTo(reflect.Ptr, reflect.Interface, reflect.Ptr):
+		case chain.prefixed(reflect.Ptr, reflect.Interface, reflect.Ptr):
 			reflectVal = reflectVal.Elem().Elem()
 			chain = chain[2:]
 			continue
@@ -126,6 +126,14 @@ func (c kindChain) equalTo(kinds ...reflect.Kind) bool {
 	}
 
 	return true
+}
+
+func (c kindChain) prefixed(kinds ...reflect.Kind) bool {
+	if len(c) < len(kinds) {
+		return false
+	}
+
+	return c[:len(kinds)].equalTo(kinds...)
 }
 
 func valueToKindChain(val any) (kindChain, error) {
