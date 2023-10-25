@@ -60,7 +60,7 @@ func convertSliceOrArray(from reflect.Value, to reflect.Type) (reflect.Value, er
 		cp = reflect.New(reflect.ArrayOf(to.Len(), to.Elem())).Elem()
 	} else {
 		toLen = from.Len()
-		cp = reflect.MakeSlice(to, from.Len(), from.Cap())
+		cp = reflect.MakeSlice(to, from.Len(), from.Len())
 	}
 
 	for i := 0; i < toLen; i++ {
