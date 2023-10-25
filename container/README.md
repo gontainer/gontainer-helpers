@@ -609,9 +609,10 @@ Container can solve that problem, you need to instruct it only that the given de
   <summary>See code</summary>
 
 ```go
-// let's define the constructor for *sql.Tx
-func NewTx(db *sql.DB) (*sql.Tx, error) {
-	return db.Begin()
+// let's wrap the original container by a custom struct.
+// it will let us adding custom getters later
+type myContainer struct {
+	*container.Container
 }
 
 func buildContainer() *container.Container {
@@ -628,6 +629,18 @@ func buildContainer() *container.Container {
 	*/
 	tx.SetScopeContextual()
 	c.OverrideService("tx", tx)
+
+	/*
+		We will define NewHTTPHandler in the next step,
+		now let's register it only in the container
+	*/
+	myHandler := container.NewService()
+	myHandler.SetConstructor(
+		NewHTTPHandler,
+		container.NewDependencyContainer(),
+	)
+	myHandler.Tag("http-handler", 0)
+	c.OverrideService("myHandler", myHandler)
 
 	// TODO define other dependencies
 
@@ -654,4 +667,33 @@ func buildContainer() *container.Container {
 ```
 </details>
 
-TODO
+Let's build our endpoint now.
+
+<details>
+  <summary>See code</summary>
+
+```go
+func NewHTTPHandler(c *myContainer) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// `tx` refers to the same instance that has been injected to `userRepository` and `imageRepository`
+		var (
+			tx              = c.GetTx(r.Context())
+			userRepository  = c.GetUserRepository(r.Context())
+			imageRepository = c.GetImageRepository(r.Context())
+		)
+
+		var err error
+		defer func() {
+			// do not forget about committing or rolling back the transaction
+			if err == nil {
+				tx.Commit()
+			} else {
+				tx.Rollback()
+			}
+		}()
+
+		// todo add your logic
+	})
+}
+```
+</details>
