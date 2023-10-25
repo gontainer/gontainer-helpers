@@ -12,19 +12,19 @@ func (c *Container) contextBag(ctx context.Context) keyValue {
 	return bag.(keyValue)
 }
 
-// Self has been designed for the struct embedding and compatibility with the func [ContextWithContainer].
+// Root has been designed for the struct embedding and compatibility with the func [ContextWithContainer].
 //
 // See [*Container.Self].
-type Self interface {
-	Self() *Container
+type Root interface {
+	Root() *Container
 }
 
 /*
-Self returns itself.
+Root returns itself.
 It is designed for the struct embedding and compatibility with the func [ContextWithContainer].
 
 	type MyContainer struct {
-		*container.Self
+		*container.Container
 	}
 
 	func (c *MyContainer) Server() *http.Server {
@@ -41,7 +41,7 @@ It is designed for the struct embedding and compatibility with the func [Context
 
 Deprecated: do not use it, it has been designed for the internal purposes only.
 */
-func (c *Container) Self() *Container {
+func (c *Container) Root() *Container {
 	return c
 }
 
@@ -71,7 +71,7 @@ See:
   - [*Container.Self]
   - [HTTPHandlerWithContainer]
 */
-func ContextWithContainer(parent context.Context, container Self) context.Context {
+func ContextWithContainer(parent context.Context, container Root) context.Context {
 	if parent == nil {
 		panic("nil context")
 	}
@@ -80,7 +80,7 @@ func ContextWithContainer(parent context.Context, container Self) context.Contex
 		panic("nil container")
 	}
 
-	c := container.Self()
+	c := container.Root()
 
 	c.contextLocker.RLock()
 	defer c.contextLocker.RUnlock()
