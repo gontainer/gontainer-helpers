@@ -19,6 +19,19 @@ func ExampleCopy_convertOK() {
 	// <nil>
 }
 
+func ExampleCopy_convertMap() {
+	var (
+		from = map[int64]any{0: "Jane", 1: "John"}
+		to   map[int32]string // let's convert keys and values
+	)
+	err := copier.Copy(from, &to, true)
+	fmt.Println(to)
+	fmt.Println(err)
+	// Output:
+	// map[0:Jane 1:John]
+	// <nil>
+}
+
 func ExampleCopy_ok() {
 	var (
 		from = 5 // the type of the variable `to` can be different from the type of the variable `from`
