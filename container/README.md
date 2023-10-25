@@ -605,6 +605,9 @@ Moreover, when you have many repositories, sometimes even nested, injecting `*sq
 
 Container can solve that problem, you need to instruct it only that the given dependency is contextual, and voila!
 
+<details>
+  <summary>See code</summary>
+
 ```go
 // let's define the constructor for *sql.Tx
 func NewTx(db *sql.DB) (*sql.Tx, error) {
@@ -649,5 +652,6 @@ func buildContainer() *container.Container {
 	return c
 }
 ```
+</details>
 
 TODO
