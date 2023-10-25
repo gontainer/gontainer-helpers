@@ -623,6 +623,11 @@ type myContainer struct {
 	*container.Container
 }
 
+// let's create the constructor for new transactions
+func NewTx(db *sql.DB) (*sql.Tx, error) {
+	return db.Begin()
+}
+
 func buildContainer() *container.Container {
 	c := container.New()
 
