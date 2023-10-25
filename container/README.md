@@ -671,7 +671,7 @@ func buildContainer() *container.Container {
 	*/
 	c.AddDecorator(
 		"http-handler",
-        decorateHTTPHandler,
+		decorateHTTPHandler,
 		container.NewDependencyContainer(),
 	)
 
