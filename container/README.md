@@ -30,6 +30,8 @@ Automatically build and inject scope-aware dependencies.
 Let's imagine we work on an endpoint that allows for transferring funds between different accounts.
 We have to operate on an SQL transaction, and we have to inject the same transaction into many different objects.
 
+Or maybe you need to reload the configuration without restarting the app? See [hotswap](#hotswap).
+
 <details>
   <summary>See code</summary>
 
