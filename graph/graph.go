@@ -93,7 +93,7 @@ func (f *graph) nodeByName(n string) simple.Node {
 }
 
 func (f *graph) nameByNode(node simple.Node) (string, bool) { // workaround to avoid panic("simple: adding self edge")
-	name, ok := f.nodesNames[simple.Node(node.ID())]
+	name, ok := f.nodesNames[node]
 	return name, ok
 }
 
