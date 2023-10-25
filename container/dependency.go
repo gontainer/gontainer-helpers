@@ -9,15 +9,17 @@ const (
 	dependencyService
 	dependencyParam
 	dependencyProvider
+	dependencyContainer
 )
 
 var dependencyNames = map[dependencyType]string{
-	dependencyMissing:  "dependencyMissing",
-	dependencyValue:    "dependencyValue",
-	dependencyTag:      "dependencyTag",
-	dependencyService:  "dependencyService",
-	dependencyParam:    "dependencyParam",
-	dependencyProvider: "dependencyProvider",
+	dependencyMissing:   "dependencyMissing",
+	dependencyValue:     "dependencyValue",
+	dependencyTag:       "dependencyTag",
+	dependencyService:   "dependencyService",
+	dependencyParam:     "dependencyParam",
+	dependencyProvider:  "dependencyProvider",
+	dependencyContainer: "dependencyContainer",
 }
 
 func (d dependencyType) String() string {
@@ -82,5 +84,12 @@ func NewDependencyProvider(provider any) Dependency {
 	return Dependency{
 		type_:    dependencyProvider,
 		provider: provider,
+	}
+}
+
+// NewDependencyContainer creates a [Dependency] to the [*Container].
+func NewDependencyContainer() Dependency {
+	return Dependency{
+		type_: dependencyContainer,
 	}
 }

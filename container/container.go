@@ -125,6 +125,8 @@ func (c *Container) resolveDep(contextualBag keyValue, d Dependency) (any, error
 		return c.getParam(d.paramID)
 	case dependencyProvider:
 		return caller.CallProvider(d.provider, nil, convertArgs)
+	case dependencyContainer:
+		return c, nil
 	}
 
 	return nil, errors.New("unknown dependency type")

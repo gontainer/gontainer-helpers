@@ -49,7 +49,7 @@ func NewContainer() *Container {
 	h.SetConstructor(
 		container.HTTPHandlerWithContainer,
 		container.NewDependencyService("serveMux"),
-		container.NewDependencyValue(c),
+		container.NewDependencyContainer(),
 	)
 
 	c.OverrideService("serveMux", m)
