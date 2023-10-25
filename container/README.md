@@ -17,7 +17,8 @@ go get -u github.com/gontainer/gontainer-helpers/v2/container@latest
 4. [Usage](#usage)
    1. [HotSwap](#hotswap)
    2. [Contextual scope](#contextual-scope)
-   3. [Type conversion](#type-conversion)
+   3. [Circular dependencies](#circular-dependencies)
+   4. [Type conversion](#type-conversion)
 
 ## Why?
 
@@ -729,6 +730,56 @@ func NewHTTPHandler(c *myContainer) http.Handler {
 
 		// todo add your logic
 	})
+}
+```
+</details>
+
+### Circular dependencies
+
+Container automatically detects circular dependencies, and returns a proper error.
+Do not need to worry about `fatal error: stack overflow` :)
+
+<details>
+  <summary>See code</summary>
+
+```
+package main
+
+import (
+	"fmt"
+
+	"github.com/gontainer/gontainer-helpers/v2/container"
+)
+
+type Spouse struct {
+	Name   string
+	Spouse *Spouse
+}
+
+func main() {
+
+	wife := container.NewService()
+	wife.SetConstructor(func() *Spouse {
+		return &Spouse{}
+	})
+	wife.SetField("Name", container.NewDependencyValue("Mary Jane"))
+	wife.SetField("Spouse", container.NewDependencyService("husband"))
+
+	husband := container.NewService()
+	husband.SetConstructor(func() *Spouse {
+		return &Spouse{}
+	})
+	husband.SetField("Name", container.NewDependencyValue("Peter Parker"))
+	husband.SetField("Spouse", container.NewDependencyService("wife"))
+
+	c := container.New()
+	c.OverrideService("wife", wife)
+	c.OverrideService("husband", husband)
+
+	_, err := c.Get("wife")
+	fmt.Println(err)
+
+	// Output: get("wife"): circular dependencies: @husband -> @wife -> @husband
 }
 ```
 </details>
