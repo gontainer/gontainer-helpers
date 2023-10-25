@@ -339,7 +339,7 @@ func main() {
 	s := container.NewService()
 	s.SetConstructor(func () *Person {
 		return &Person{} // it must be a pointer, because `SetName` requires a pointer receiver
-    })
+	})
 	s.AppendCall("SetName", container.NewDependencyValue("Jane"))
 
 	c := container.New()
