@@ -41,13 +41,13 @@ func (*FundsTransferer) Transfer(fromID int, toID int, amount int) error {
 	// TODO
 }
 
-type Provider interface {
+type Factory interface {
 	Tx(context.Context) *sql.Tx
 	TransactionHistory(context.Context) *TransactionHistory
 	FundsTransferer(context.Context) *FundsTransferer
 }
 
-func NewTransferFundsHandler(p Provider) http.Handler {
+func NewTransferFundsHandler(f Factory) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
@@ -57,9 +57,9 @@ func NewTransferFundsHandler(p Provider) http.Handler {
 			You do not need to create a new transaction manually and inject it in many dependencies.
 		*/
 		var (
-			tx         = p.Tx(ctx)
-			transferer = p.FundsTransferer(ctx)
-			history    = p.TransactionHistory(ctx)
+			tx         = f.Tx(ctx)
+			transferer = f.FundsTransferer(ctx)
+			history    = f.TransactionHistory(ctx)
 		)
 
 		var err error
