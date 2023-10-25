@@ -16,23 +16,23 @@ func (c *Container) GetParam(paramID string) (any, error) {
 }
 
 func (c *Container) getParam(id string) (result any, err error) {
-	c.paramsLockers[id].Lock()
-	defer c.paramsLockers[id].Unlock()
-
 	defer func() {
 		if err != nil {
 			err = grouperror.Prefix(fmt.Sprintf("getParam(%+q): ", id), err)
 		}
 	}()
 
-	err = c.graphBuilder.paramCircularDeps(id)
-	if err != nil {
-		return nil, grouperror.Prefix("circular dependencies: ", err)
-	}
-
 	param, ok := c.params[id]
 	if !ok {
 		return nil, errors.New("param does not exist")
+	}
+
+	c.paramsLockers[id].Lock()
+	defer c.paramsLockers[id].Unlock()
+
+	err = c.graphBuilder.paramCircularDeps(id)
+	if err != nil {
+		return nil, grouperror.Prefix("circular dependencies: ", err)
 	}
 
 	result, err = c.resolveDep(nil, param)

@@ -47,4 +47,12 @@ func TestContainer_GetParam(t *testing.T) {
 		assert.EqualError(t, err, `getParam("env"): cannot call provider func() (interface {}, error): could not read env variable`)
 		assert.Nil(t, v)
 	})
+
+	t.Run("Param does not exist", func(t *testing.T) {
+		c := container.New()
+
+		v, err := c.GetParam("myParam")
+		assert.EqualError(t, err, `getParam("myParam"): param does not exist`)
+		assert.Nil(t, v)
+	})
 }
