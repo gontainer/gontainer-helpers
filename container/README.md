@@ -19,7 +19,7 @@ go get -u github.com/gontainer/gontainer-helpers/v2/container@latest
 
 ## Why?
 
-Automatically build and inject dependencies.
+Automatically build and inject scope-aware dependencies.
 
 <details>
   <summary>See code</summary>
