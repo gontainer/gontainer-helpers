@@ -37,6 +37,7 @@ Use on of the following func to create a new one:
   - [NewDependencyService]
   - [NewDependencyParam]
   - [NewDependencyProvider]
+  - [NewDependencyContainer]
 */
 type Dependency struct {
 	type_     dependencyType

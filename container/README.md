@@ -265,6 +265,14 @@ container.NewDependencyProvider(func() string {
 })
 ```
 
+**Container**
+
+It refers to the container.
+
+```go
+container.NewDependencyContainer()
+```
+
 ### Services
 
 **Creating a new service**
