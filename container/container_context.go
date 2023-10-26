@@ -48,6 +48,7 @@ func (c *Container) Root() *Container {
 /*
 ContextWithContainer creates a new context, and attaches the given [Container] to it.
 The given context MUST be cancellable (ctx.Done() != nil).
+Till the given context is not cancelled, all invocations of HotSwap stuck.
 
 # Example
 
@@ -68,6 +69,7 @@ The given context MUST be cancellable (ctx.Done() != nil).
 	c = container.HTTPHandlerWithContainer(h, c)
 
 See:
+  - [*Container.HotSwap]
   - [*Container.Root]
   - [HTTPHandlerWithContainer]
 */
