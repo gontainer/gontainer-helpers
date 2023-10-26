@@ -21,11 +21,11 @@ func contextDone(ctx context.Context) bool {
 }
 
 // Get returns a service with the given ID.
-func (c *Container) Get(id string) (any, error) {
+func (c *Container) Get(serviceID string) (any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
-	return c.get(id, newSafeMap())
+	return c.get(serviceID, newSafeMap())
 }
 
 // GetInContext returns a service with the given ID.
@@ -74,11 +74,11 @@ func (c *Container) GetTaggedByInContext(ctx context.Context, tag string) ([]any
 }
 
 // IsTaggedBy returns true whenever the given service is tagged by the given tag.
-func (c *Container) IsTaggedBy(id string, tag string) bool {
+func (c *Container) IsTaggedBy(serviceID string, tag string) bool {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
-	s, exists := c.services[id]
+	s, exists := c.services[serviceID]
 	if !exists {
 		return false
 	}
