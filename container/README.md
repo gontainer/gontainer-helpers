@@ -995,25 +995,25 @@ You can extract them using `grouperror.Collection`, see [grouperror](../grouperr
   <summary>See code</summary>
 
 ```go
-	peterParker := container.NewService()
-	peterParker.SetValue(
-		struct {
-			name string
-		}{},
-	)
-	peterParker.SetField("firstname", container.NewDependencyValue("Peter"))
-	peterParker.SetField("lastname", container.NewDependencyValue("Parker"))
+peterParker := container.NewService()
+peterParker.SetValue(
+	struct {
+		name string
+	}{},
+)
+peterParker.SetField("firstname", container.NewDependencyValue("Peter"))
+peterParker.SetField("lastname", container.NewDependencyValue("Parker"))
 
-	c := container.New()
-	c.OverrideService("peterParker", peterParker)
+c := container.New()
+c.OverrideService("peterParker", peterParker)
 
-	_, err := c.Get("peterParker")
+_, err := c.Get("peterParker")
 
-	fmt.Println(err)
+fmt.Println(err)
 
-	// Output:
-	// get("peterParker"): set field "firstname": set (*interface {})."firstname": field "firstname" does not exist
-	// get("peterParker"): set field "lastname": set (*interface {})."lastname": field "lastname" does not exist
+// Output:
+// get("peterParker"): set field "firstname": set (*interface {})."firstname": field "firstname" does not exist
+// get("peterParker"): set field "lastname": set (*interface {})."lastname": field "lastname" does not exist
 ```
 </details>
 
