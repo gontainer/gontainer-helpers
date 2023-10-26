@@ -14,7 +14,7 @@ func (c *Container) contextBag(ctx context.Context) keyValue {
 
 // Root has been designed for the struct embedding and compatibility with the func [ContextWithContainer].
 //
-// See [*Container.Self].
+// See [*Container.Root].
 type Root interface {
 	Root() *Container
 }
@@ -68,7 +68,7 @@ The given context MUST be cancellable (ctx.Done() != nil).
 	c = container.HTTPHandlerWithContainer(h, c)
 
 See:
-  - [*Container.Self]
+  - [*Container.Root]
   - [HTTPHandlerWithContainer]
 */
 func ContextWithContainer(parent context.Context, container Root) context.Context {
