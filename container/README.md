@@ -219,6 +219,8 @@ func (p Person) WithName(n string) Person {
 ```
 </details>
 
+---
+
 ### Scopes
 
 Scopes are applicable to services only. Parameters are not scope-aware, once created parameter is cached forever,
@@ -232,6 +234,8 @@ although `HotSwap` lets overriding them.
 4. **Default** - a runtime-determining scope.
     If the given service has at least one direct or indirect contextual dependency, 
     its scope will be contextual, otherwise it will be shared.
+
+---
 
 ### Dependencies
 
@@ -287,6 +291,8 @@ It refers to the container.
 ```go
 container.NewDependencyContainer()
 ```
+
+---
 
 ### Services
 
@@ -466,6 +472,8 @@ s.SetScopeContextual()
 ```
 </details>
 
+---
+
 ### Parameters
 
 Parameters are being registered as dependencies. See [dependencies](#dependencies).
@@ -596,6 +604,8 @@ func RefreshConfigEveryMinute(c *container.Container) {
 }
 ```
 </details>
+
+---
 
 ### Contextual scope
 
@@ -754,6 +764,8 @@ func NewHTTPHandler(c *myContainer) http.Handler {
 ```
 </details>
 
+---
+
 ### Circular dependencies
 
 Container automatically detects circular dependencies, and returns a proper error.<br/>
@@ -804,6 +816,8 @@ func main() {
 ```
 </details>
 
+---
+
 ### Type conversion
 
 In GO assignments between different types requires explicit type conversion.
@@ -834,6 +848,8 @@ func buildContainer() *container.Container {
 }
 ```
 </details>
+
+---
 
 ### Transactions
 
@@ -964,6 +980,8 @@ func buildContainer() *myContainer {
 ```
 </details>
 
+---
+
 ### Errors
 
 This package aims to be as developer-friendly as possible.
@@ -999,9 +1017,13 @@ You can extract them using `grouperror.Collection`, see [grouperror](../grouperr
 ```
 </details>
 
+---
+
 ### Examples
 
 See [examples](examples_test.go).
+
+---
 
 ## Code generation
 
