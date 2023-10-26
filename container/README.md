@@ -857,7 +857,7 @@ As an exercise, let's build a small framework that wraps our endpoints and manag
 
 **ErrorAwareHTTPHandler**
 
-A new type for our endpoints that informs us whether error has occurred.
+A new type for our endpoints that informs us whether an error has occurred.
 
 <details>
   <summary>See code</summary>
@@ -877,7 +877,7 @@ func (e ErrorAwareHTTPHandlerFunc) Handle(w http.ResponseWriter, r *http.Request
 
 **WrapTransactionHandler**
 
-A small wrapper over newly created type that implements `http.Handler` interface,
+A small wrapper over the newly created type that implements `http.Handler` interface,
 and automatically handles transactions.
 
 <details>
