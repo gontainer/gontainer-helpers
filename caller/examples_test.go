@@ -24,14 +24,6 @@ func (p Person) WithName(n string) Person {
 }
 
 func ExampleCall_ok() {
-	// type Person struct {
-	//     name string
-	// }
-	//
-	// func (p *Person) SetName(n string) {
-	//     p.name = n
-	// }
-
 	p := &Person{}
 	_, _ = caller.Call(p.SetName, []any{"Mary"}, false)
 	fmt.Println(p.name)
@@ -71,28 +63,12 @@ func ExampleCall_error2() {
 }
 
 func ExampleCallProvider() {
-	// type Person struct {
-	//     Name string
-	// }
-	//
-	// func NewPerson(name string) *Person {
-	//     return &Person{Name: name}
-	// }
-
 	p, _ := caller.CallProvider(NewPerson, []any{"Mary"}, false)
 	fmt.Printf("%+v", p)
 	// Output: &{name:Mary}
 }
 
 func ExampleCallByName() {
-	// type Person struct {
-	//     name string
-	// }
-	//
-	// func (p *Person) SetName(n string) {
-	//     p.name = n
-	// }
-
 	p := &Person{}
 	_, _ = caller.CallByName(p, "SetName", []any{"Mary"}, false)
 	fmt.Println(p.name)
@@ -100,15 +76,6 @@ func ExampleCallByName() {
 }
 
 func ExampleCallWitherByName() {
-	// type Person struct {
-	//     name string
-	// }
-	//
-	// func (p Person) WithName(n string) Person {
-	//     p.name = n
-	//     return p
-	// }
-
 	p := Person{}
 	p2, _ := caller.CallWitherByName(p, "WithName", []any{"Mary"}, false)
 	fmt.Printf("%+v", p2)

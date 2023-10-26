@@ -347,31 +347,6 @@ func PoliteGreeterDecorator(payload container.DecoratorPayload) politeGreeter {
 }
 
 func ExampleContainer_AddDecorator() {
-	/*
-		type Greeter interface {
-			Greet() string
-		}
-
-		type greeter struct{}
-
-		func (g greeter) Greet() string {
-			return "How are you?"
-		}
-
-		type politeGreeter struct {
-			parent Greeter
-		}
-
-		func (p politeGreeter) Greet() string {
-			return fmt.Sprintf("Hello! %s", p.parent.Greet())
-		}
-
-		func PoliteGreeterDecorator(payload container.DecoratorPayload) politeGreeter {
-			return politeGreeter{
-				parent: payload.Service.(greeter),
-			}
-		}
-	*/
 	g := container.NewService()
 	g.SetValue(greeter{})
 	g.Tag("greeter-tag", 0)
