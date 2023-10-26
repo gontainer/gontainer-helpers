@@ -755,7 +755,7 @@ func NewHTTPHandler(c *myContainer) http.Handler {
 
 ### Circular dependencies
 
-Container automatically detects circular dependencies, and returns a proper error.
+Container automatically detects circular dependencies, and returns a proper error.<br/>
 Do not need to worry about `fatal error: stack overflow` :)
 
 <details>
