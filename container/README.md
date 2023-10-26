@@ -701,8 +701,11 @@ type ImageRepository struct {
 	tx *sql.Tx
 }
 
+// let's define custom getter, they are easier to use
 func (c *myContainer) Tx(ctx context.Context) *sql.Tx {
 	tx, err := c.GetInContext(ctx, "userRepository")
+	// we expect all services to be defined correctly,
+	// so we can panic here in case of an error
 	if err != nil {
 		panic(err)
 	}
