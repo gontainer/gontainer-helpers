@@ -14,7 +14,8 @@ func ExamplePrefix_stdlib() {
 	// //go:build go1.20
 	// // +build go1.20
 	//
-	// because errors.Join has been introduced in go 1.20
+	// because [errors.Join] has been introduced in go 1.20
+	// https://tip.golang.org/doc/go1.20#errors
 	err := errors.Join(
 		errors.New("invalid name"),
 		nil,

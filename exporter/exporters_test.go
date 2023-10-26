@@ -20,14 +20,14 @@ type mockExporter struct {
 	error  error
 }
 
-func (m mockExporter) export(interface{}) (string, error) {
+func (m mockExporter) export(any) (string, error) {
 	return m.result, m.error
 }
 
 func TestChainExporter_Export(t *testing.T) {
 	t.Run("Given scenarios", func(t *testing.T) {
 		scenarios := map[string]struct {
-			input  interface{}
+			input  any
 			output string
 			error  string
 		}{
@@ -57,15 +57,15 @@ func TestChainExporter_Export(t *testing.T) {
 			},
 			"struct {}": {
 				input: struct{}{},
-				error: "type `struct {}` is not supported",
+				error: "type struct {} is not supported",
 			},
 			"*testing.T": {
 				input: t,
-				error: "type `*testing.T` is not supported",
+				error: "type *testing.T is not supported",
 			},
 			`myString("foo")`: {
 				input: myString("foo"),
-				error: "type `exporter.myString` is not supported",
+				error: "type exporter.myString is not supported",
 			},
 			`aliasString("foo")`: {
 				input:  aliasString("foo"),
@@ -73,7 +73,7 @@ func TestChainExporter_Export(t *testing.T) {
 			},
 			`myInt(5)`: {
 				input: myInt(5),
-				error: "type `exporter.myInt` is not supported",
+				error: "type exporter.myInt is not supported",
 			},
 			`aliasInt(5)`: {
 				input:  aliasInt(5),
@@ -81,7 +81,7 @@ func TestChainExporter_Export(t *testing.T) {
 			},
 			`myBool(true)`: {
 				input: myBool(true),
-				error: "type `exporter.myBool` is not supported",
+				error: "type exporter.myBool is not supported",
 			},
 			`aliasBool(true)`: {
 				input:  aliasBool(true),
@@ -108,7 +108,7 @@ func TestChainExporter_Export(t *testing.T) {
 
 func TestExport(t *testing.T) {
 	scenarios := []struct {
-		input  interface{}
+		input  any
 		output string
 		error  string
 		panic  string
@@ -118,34 +118,34 @@ func TestExport(t *testing.T) {
 			output: "int(123)",
 		},
 		{
-			input:  []interface{}{1, "2", 3.14},
+			input:  []any{1, "2", 3.14},
 			output: `[]interface{}{int(1), "2", float64(3.14)}`,
 		},
 		{
-			input:  [3]interface{}{1, "2", 3.14},
+			input:  [3]any{1, "2", 3.14},
 			output: `[3]interface{}{int(1), "2", float64(3.14)}`,
 		},
 		{
-			input:  []interface{}{},
+			input:  []any{},
 			output: "make([]interface{}, 0)",
 		},
 		{
-			input:  [0]interface{}{},
+			input:  [0]any{},
 			output: "[0]interface{}{}",
 		},
 		{
-			input: []interface{}{struct{}{}},
-			error: "cannot export slice[0]: type `struct {}` is not supported",
-			panic: "cannot export `[]interface {}` to string: cannot export slice[0]: type `struct {}` is not supported",
+			input: []any{struct{}{}},
+			error: "cannot export slice[0]: type struct {} is not supported",
+			panic: "cannot export []interface {} to string: cannot export slice[0]: type struct {} is not supported",
 		},
 		{
-			input: [1]interface{}{struct{}{}},
-			error: "cannot export array[0]: type `struct {}` is not supported",
-			panic: "cannot export `[1]interface {}` to string: cannot export array[0]: type `struct {}` is not supported",
+			input: [1]any{struct{}{}},
+			error: "cannot export array[0]: type struct {} is not supported",
+			panic: "cannot export [1]interface {} to string: cannot export array[0]: type struct {} is not supported",
 		},
 		{
-			input:  []int{1, 2, 3},
-			output: "[]int{int(1), int(2), int(3)}",
+			input:  []int{1, 2, 3, -1000000},
+			output: "[]int{int(1), int(2), int(3), int(-1000000)}",
 		},
 		{
 			input:  [3]int{1, 2, 3},
@@ -165,25 +165,25 @@ func TestExport(t *testing.T) {
 		},
 		{
 			input: struct{}{},
-			error: "type `struct {}` is not supported",
-			panic: "cannot export `struct {}` to string: type `struct {}` is not supported",
+			error: "type struct {} is not supported",
+			panic: "cannot export struct {} to string: type struct {} is not supported",
 		},
 		{
 			input: []interface{ Do() }{nil, nil, nil},
-			error: "type `[]interface { Do() }` is not supported",
-			panic: "cannot export `[]interface { Do() }` to string: type `[]interface { Do() }` is not supported",
+			error: "type []interface { Do() } is not supported",
+			panic: "cannot export []interface { Do() } to string: type []interface { Do() } is not supported",
 		},
 		{
 			input: [3]interface{ Do() }{},
-			error: "type `[3]interface { Do() }` is not supported",
-			panic: "cannot export `[3]interface { Do() }` to string: type `[3]interface { Do() }` is not supported",
+			error: "type [3]interface { Do() } is not supported",
+			panic: "cannot export [3]interface { Do() } to string: type [3]interface { Do() } is not supported",
 		},
 		{
-			input:  []interface{}{nil, nil, nil},
+			input:  []any{nil, nil, nil},
 			output: "[]interface{}{nil, nil, nil}",
 		},
 		{
-			input:  [3]interface{}{},
+			input:  [3]any{},
 			output: "[3]interface{}{nil, nil, nil}",
 		},
 	}
@@ -232,7 +232,7 @@ func TestExport(t *testing.T) {
 
 func TestCastToString(t *testing.T) {
 	scenarios := []struct {
-		input  interface{}
+		input  any
 		output string
 		error  string
 	}{
@@ -246,7 +246,7 @@ func TestCastToString(t *testing.T) {
 		},
 		{
 			input: struct{}{},
-			error: "type `struct {}` is not supported",
+			error: "type struct {} is not supported",
 		},
 		{
 			input:  "Mary Jane",
@@ -266,11 +266,11 @@ func TestCastToString(t *testing.T) {
 		},
 		{
 			input:  float64(10000000000),
-			output: `1e+10`,
+			output: `10000000000`,
 		},
 		{
 			input:  float32(10000000000),
-			output: `1e+10`,
+			output: `10000000000`,
 		},
 	}
 
@@ -304,7 +304,7 @@ func TestCastToString(t *testing.T) {
 					assert.Equal(
 						t,
 						fmt.Sprintf(
-							"cannot cast `%T` to string: %s",
+							"cannot cast %T to string: %s",
 							s.input,
 							s.error,
 						),
@@ -320,7 +320,7 @@ func TestCastToString(t *testing.T) {
 
 func TestNumericExporter_Supports(t *testing.T) {
 	scenarios := []struct {
-		input    interface{}
+		input    any
 		expected bool
 	}{
 		{
@@ -352,7 +352,7 @@ func TestNumericExporter_Supports(t *testing.T) {
 
 func TestPrimitiveTypeSliceExporter_Supports(t *testing.T) {
 	scenarios := []struct {
-		input    interface{}
+		input    any
 		expected bool
 	}{
 		{
@@ -396,7 +396,7 @@ func TestPrimitiveTypeSliceExporter_Supports(t *testing.T) {
 
 func TestInterfaceSliceExporter_Supports(t *testing.T) {
 	scenarios := []struct {
-		input    interface{}
+		input    any
 		expected bool
 	}{
 		{
@@ -420,7 +420,7 @@ func TestInterfaceSliceExporter_Supports(t *testing.T) {
 			expected: false,
 		},
 		{
-			input:    []interface{}{},
+			input:    []any{},
 			expected: true,
 		},
 		{
@@ -453,7 +453,7 @@ func TestPrimitiveTypeSliceExporter_Export(t *testing.T) {
 		assert.EqualError(
 			t,
 			err,
-			"unexpected err slice[0]: type `uint` is not supported",
+			"unexpected err slice[0]: type uint is not supported",
 		)
 	})
 }

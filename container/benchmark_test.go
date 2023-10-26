@@ -4,21 +4,21 @@ import (
 	"context"
 	"testing"
 
-	"github.com/gontainer/gontainer-helpers/container"
+	"github.com/gontainer/gontainer-helpers/v2/container"
 )
 
 type Employee struct {
 	Name string
 }
 
-func BenchmarkNewContainer_container_scopeDefault(b *testing.B) {
-	c := container.NewContainer()
+func BenchmarkContainer_scopeDefault(b *testing.B) {
+	c := container.New()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
 		return Employee{}
 	})
 	e.SetField("Name", container.NewDependencyValue("Mary"))
-	e.ScopeDefault()
+	e.SetScopeDefault()
 	c.OverrideService("employee", e)
 	_, _ = c.Get("employee") // warm up
 	b.ResetTimer()
@@ -28,14 +28,14 @@ func BenchmarkNewContainer_container_scopeDefault(b *testing.B) {
 	}
 }
 
-func BenchmarkNewContainer_container_scopeShared(b *testing.B) {
-	c := container.NewContainer()
+func BenchmarkContainer_scopeShared(b *testing.B) {
+	c := container.New()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
 		return Employee{}
 	})
 	e.SetField("Name", container.NewDependencyValue("Mary"))
-	e.ScopeShared()
+	e.SetScopeShared()
 	c.OverrideService("employee", e)
 	_, _ = c.Get("employee") // warm up
 	b.ResetTimer()
@@ -45,14 +45,14 @@ func BenchmarkNewContainer_container_scopeShared(b *testing.B) {
 	}
 }
 
-func BenchmarkNewContainer_container_scopeContextual(b *testing.B) {
-	c := container.NewContainer()
+func BenchmarkContainer_scopeContextual(b *testing.B) {
+	c := container.New()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
 		return Employee{}
 	})
 	e.SetField("Name", container.NewDependencyValue("Mary"))
-	e.ScopeContextual()
+	e.SetScopeContextual()
 	c.OverrideService("employee", e)
 	_, _ = c.Get("employee") // warm up
 	b.ResetTimer()
@@ -62,16 +62,18 @@ func BenchmarkNewContainer_container_scopeContextual(b *testing.B) {
 	}
 }
 
-func BenchmarkNewContainer_container_scopeContextual_in_same_context(b *testing.B) {
-	c := container.NewContainer()
+func BenchmarkContainer_scopeContextual_in_same_context(b *testing.B) {
+	c := container.New()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
 		return Employee{}
 	})
 	e.SetField("Name", container.NewDependencyValue("Mary"))
-	e.ScopeContextual()
+	e.SetScopeContextual()
 	c.OverrideService("employee", e)
-	ctx := container.ContextWithContainer(context.Background(), c)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ctx = container.ContextWithContainer(ctx, c)
 	_, _ = c.GetInContext(ctx, "employee") // warm up
 	b.ResetTimer()
 
@@ -80,14 +82,14 @@ func BenchmarkNewContainer_container_scopeContextual_in_same_context(b *testing.
 	}
 }
 
-func BenchmarkNewContainer_container_scopeNonShared(b *testing.B) {
-	c := container.NewContainer()
+func BenchmarkContainer_scopeNonShared(b *testing.B) {
+	c := container.New()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
 		return Employee{}
 	})
 	e.SetField("Name", container.NewDependencyValue("Mary"))
-	e.ScopeNonShared()
+	e.SetScopeNonShared()
 	c.OverrideService("employee", e)
 	_, _ = c.Get("employee") // warm up
 	b.ResetTimer()
@@ -97,7 +99,7 @@ func BenchmarkNewContainer_container_scopeNonShared(b *testing.B) {
 	}
 }
 
-func BenchmarkNewContainer_map(b *testing.B) {
+func BenchmarkContainer_map(b *testing.B) {
 	m := make(map[string]interface{})
 	m["employee"] = Employee{
 		Name: "Mary",

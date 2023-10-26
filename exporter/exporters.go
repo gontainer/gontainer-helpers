@@ -3,6 +3,7 @@ package exporter
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -16,8 +17,8 @@ var (
 )
 
 func newDefaultExporter() exporter {
-	interfaceSliceExporter := &interfaceSliceExporter{}
-	primitiveTypeSliceExporter := &primitiveTypeSliceExporter{}
+	interfaceSliceExp := &interfaceSliceExporter{}
+	primitiveTypeSliceExp := &primitiveTypeSliceExporter{}
 
 	result := newChainExporter(
 		&boolExporter{},
@@ -25,43 +26,35 @@ func newDefaultExporter() exporter {
 		&numberExporter{explicitType: true},
 		&stringExporter{},
 		&bytesExporter{},
-		interfaceSliceExporter,
-		primitiveTypeSliceExporter,
+		interfaceSliceExp,
+		primitiveTypeSliceExp,
 	)
-	interfaceSliceExporter.exporter = result
-	primitiveTypeSliceExporter.exporter = result
+	interfaceSliceExp.exporter = result
+	primitiveTypeSliceExp.exporter = result
 
 	return result
 }
 
 // Export exports input value to a GO code.
-func Export(i interface{}) (string, error) {
+func Export(i any) (string, error) {
 	return defaultExporter.export(i)
 }
 
 // MustExport exports input value to a GO code.
-func MustExport(i interface{}) string {
+func MustExport(i any) string {
 	r, err := Export(i)
 	if err != nil {
-		panic(fmt.Sprintf("cannot export `%T` to string: %s", i, err.Error()))
+		panic(fmt.Sprintf("cannot export %T to string: %s", i, err.Error()))
 	}
 	return r
 }
-
-var (
-	// Deprecated: use CastToString
-	ToString = CastToString
-
-	// Deprecated: use MustCastToString
-	MustToString = MustCastToString
-)
 
 // CastToString casts input value to a string. This function supports booleans, strings, numeric values and nil-values:
 //   - any numeric input returns string that represents its value without a type
 //   - any boolean input returns accordingly a string "true" or "false"
 //   - any string input results in the output that equals the input
-//   - any nil input returns a "nil" string.
-func CastToString(i interface{}) (string, error) {
+//   - any nil input returns a "nil" string
+func CastToString(i any) (string, error) {
 	if r, ok := i.(string); ok {
 		return r, nil
 	}
@@ -71,35 +64,35 @@ func CastToString(i interface{}) (string, error) {
 
 // MustCastToString casts input value to a string.
 // See CastToString.
-func MustCastToString(i interface{}) string {
+func MustCastToString(i any) string {
 	r, err := CastToString(i)
 	if err != nil {
-		panic(fmt.Sprintf("cannot cast `%T` to string: %s", i, err.Error()))
+		panic(fmt.Sprintf("cannot cast %T to string: %s", i, err.Error()))
 	}
 	return r
 }
 
 type exporter interface {
-	export(interface{}) (string, error)
+	export(any) (string, error)
 }
 
 type subExporter interface {
 	exporter
-	supports(interface{}) bool
+	supports(any) bool
 }
 
 type chainExporter struct {
 	exporters []subExporter
 }
 
-func (c chainExporter) export(v interface{}) (string, error) {
+func (c chainExporter) export(v any) (string, error) {
 	for _, e := range c.exporters {
 		if e.supports(v) {
 			return e.export(v)
 		}
 	}
 
-	return "", fmt.Errorf("type `%T` is not supported", v)
+	return "", fmt.Errorf("type %T is not supported", v)
 }
 
 func newChainExporter(exporters ...subExporter) *chainExporter {
@@ -108,7 +101,7 @@ func newChainExporter(exporters ...subExporter) *chainExporter {
 
 type boolExporter struct{}
 
-func (boolExporter) export(v interface{}) (string, error) {
+func (boolExporter) export(v any) (string, error) {
 	if v == true {
 		return "true", nil
 	}
@@ -116,18 +109,18 @@ func (boolExporter) export(v interface{}) (string, error) {
 	return "false", nil
 }
 
-func (boolExporter) supports(v interface{}) bool {
+func (boolExporter) supports(v any) bool {
 	_, ok := v.(bool)
 	return ok
 }
 
 type nilExporter struct{}
 
-func (nilExporter) export(interface{}) (string, error) {
+func (nilExporter) export(any) (string, error) {
 	return "nil", nil
 }
 
-func (nilExporter) supports(v interface{}) bool {
+func (nilExporter) supports(v any) bool {
 	return v == nil
 }
 
@@ -135,22 +128,14 @@ type numberExporter struct {
 	explicitType bool
 }
 
-func (n numberExporter) export(v interface{}) (string, error) {
+func (n numberExporter) export(v any) (string, error) {
 	t := reflect.TypeOf(v)
 	var sv string
 	switch t.Kind() {
-	//case reflect.Float32:
-	//	sv = strconv.FormatFloat(float64(v.(float32)), 'f', -1, 32)
-	//case reflect.Float64:
-	//	sv = strconv.FormatFloat(v.(float64), 'f', -1, 64)
-
-	//TODO breaking change!
-	//it returns "1e+10" for float64(10000000000)
-	//replace it with the above solution in the new major version
-	case
-		reflect.Float32,
-		reflect.Float64:
-		sv = fmt.Sprintf("%#v", v)
+	case reflect.Float32:
+		sv = strconv.FormatFloat(float64(v.(float32)), 'f', -1, 32)
+	case reflect.Float64:
+		sv = strconv.FormatFloat(v.(float64), 'f', -1, 64)
 	default:
 		sv = fmt.Sprintf("%d", v)
 	}
@@ -160,7 +145,7 @@ func (n numberExporter) export(v interface{}) (string, error) {
 	return sv, nil
 }
 
-func (n numberExporter) supports(v interface{}) bool {
+func (n numberExporter) supports(v any) bool {
 	t := reflect.TypeOf(v)
 	if t == nil {
 		return false
@@ -192,23 +177,23 @@ func (n numberExporter) supports(v interface{}) bool {
 
 type stringExporter struct{}
 
-func (stringExporter) export(v interface{}) (string, error) {
+func (stringExporter) export(v any) (string, error) {
 	return fmt.Sprintf("%+q", v), nil
 }
 
-func (stringExporter) supports(v interface{}) bool {
+func (stringExporter) supports(v any) bool {
 	_, ok := v.(string)
 	return ok
 }
 
 type bytesExporter struct{}
 
-func (bytesExporter) export(v interface{}) (string, error) {
+func (bytesExporter) export(v any) (string, error) {
 	s, _ := stringExporter{}.export(v)
 	return fmt.Sprintf("[]byte(%s)", s), nil
 }
 
-func (bytesExporter) supports(v interface{}) bool {
+func (bytesExporter) supports(v any) bool {
 	_, ok := v.([]byte)
 	return ok
 }
@@ -217,7 +202,7 @@ type interfaceSliceExporter struct {
 	exporter exporter
 }
 
-func (i interfaceSliceExporter) export(v interface{}) (string, error) {
+func (i interfaceSliceExporter) export(v any) (string, error) {
 	val := reflect.ValueOf(v)
 	if val.Type().Kind() == reflect.Slice && val.Len() == 0 {
 		return "make([]interface{}, 0)", nil
@@ -239,22 +224,21 @@ func (i interfaceSliceExporter) export(v interface{}) (string, error) {
 	return prefix + "{" + strings.Join(parts, ", ") + "}", nil
 }
 
-func (i interfaceSliceExporter) supports(v interface{}) bool {
+func (i interfaceSliceExporter) supports(v any) bool {
 	t := reflect.TypeOf(v)
 	if t == nil {
 		return false
 	}
 	return t.PkgPath() == "" &&
 		(t.Kind() == reflect.Slice || t.Kind() == reflect.Array) &&
-		t.Elem().Kind() == reflect.Interface &&
-		t.Elem().NumMethod() == 0
+		t.Elem().Kind() == reflect.Interface && t.Elem().NumMethod() == 0
 }
 
 type primitiveTypeSliceExporter struct {
 	exporter exporter
 }
 
-func (p primitiveTypeSliceExporter) export(v interface{}) (string, error) {
+func (p primitiveTypeSliceExporter) export(v any) (string, error) {
 	val := reflect.ValueOf(v)
 	if val.Type().Kind() == reflect.Slice && val.Len() == 0 {
 		return fmt.Sprintf("make([]%s, 0)", val.Type().Elem().Kind().String()), nil
@@ -274,7 +258,7 @@ func (p primitiveTypeSliceExporter) export(v interface{}) (string, error) {
 	return prefix + val.Type().Elem().Kind().String() + "{" + strings.Join(parts, ", ") + "}", nil
 }
 
-func (p primitiveTypeSliceExporter) supports(v interface{}) bool {
+func (p primitiveTypeSliceExporter) supports(v any) bool {
 	val := reflect.ValueOf(v)
 	if val.Kind() == reflect.Invalid {
 		return false

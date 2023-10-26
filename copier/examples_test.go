@@ -3,15 +3,15 @@ package copier_test
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/copier"
+	"github.com/gontainer/gontainer-helpers/v2/copier"
 )
 
-func ExampleConvertAndCopy_ok() {
+func ExampleCopy_convertOK() {
 	var (
 		from = int(5) // uint is not assignable to int,
-		to   uint     // but ConvertAndCopy can convert the type
+		to   uint     // but [copier.Copy] can convert the type
 	)
-	err := copier.ConvertAndCopy(from, &to)
+	err := copier.Copy(from, &to, true)
 	fmt.Println(to)
 	fmt.Println(err)
 	// Output:
@@ -19,12 +19,25 @@ func ExampleConvertAndCopy_ok() {
 	// <nil>
 }
 
+func ExampleCopy_convertMap() {
+	var (
+		from = map[int64]any{0: "Jane", 1: "John"}
+		to   map[int32]string // let's convert keys and values
+	)
+	err := copier.Copy(from, &to, true)
+	fmt.Println(to)
+	fmt.Println(err)
+	// Output:
+	// map[0:Jane 1:John]
+	// <nil>
+}
+
 func ExampleCopy_ok() {
 	var (
-		from = 5         // the type of the variable `to` can be different from the type of the variable `from`
-		to   interface{} // as long as the value of the `from` is assignable to the `to`
+		from = 5 // the type of the variable `to` can be different from the type of the variable `from`
+		to   any // as long as the value of the `from` is assignable to the `to`
 	)
-	err := copier.Copy(from, &to)
+	err := copier.Copy(from, &to, false)
 	fmt.Println(to)
 	fmt.Println(err)
 	// Output:
@@ -37,12 +50,12 @@ func ExampleCopy_err1() {
 		from = int(5)
 		to   uint
 	)
-	err := copier.Copy(from, &to)
+	err := copier.Copy(from, &to, false)
 	fmt.Println(to)
 	fmt.Println(err)
 	// Output:
 	// 0
-	// reflect.Set: value of type int is not assignable to type uint
+	// value of type int is not assignable to type uint
 }
 
 func ExampleCopy_err2() {
@@ -50,12 +63,12 @@ func ExampleCopy_err2() {
 		from float32 = 5
 		to   uint    = 0
 	)
-	err := copier.Copy(from, &to)
+	err := copier.Copy(from, &to, false)
 	fmt.Println(to)
 	fmt.Println(err)
 	// Output:
 	// 0
-	// reflect.Set: value of type float32 is not assignable to type uint
+	// value of type float32 is not assignable to type uint
 }
 
 func ExampleCopy_err3() {
@@ -63,10 +76,10 @@ func ExampleCopy_err3() {
 		from *int
 		to   *uint
 	)
-	err := copier.Copy(from, &to)
+	err := copier.Copy(from, &to, false)
 	fmt.Println(to)
 	fmt.Println(err)
 	// Output:
 	// <nil>
-	// reflect.Set: value of type *int is not assignable to type *uint
+	// value of type *int is not assignable to type *uint
 }

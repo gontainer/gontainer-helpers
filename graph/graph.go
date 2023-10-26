@@ -93,7 +93,7 @@ func (f *graph) nodeByName(n string) simple.Node {
 }
 
 func (f *graph) nameByNode(node simple.Node) (string, bool) { // workaround to avoid panic("simple: adding self edge")
-	name, ok := f.nodesNames[simple.Node(node.ID())]
+	name, ok := f.nodesNames[node]
 	return name, ok
 }
 
@@ -114,7 +114,7 @@ func New() *graph {
 
 // sortCycle sorts the given cycles.
 //
-// Gonum uses maps internally, so the result of topo.DirectedCyclesIn is unpredictable.
+// Gonum uses maps internally, so the result of [topo.DirectedCyclesIn] is unpredictable.
 // To make results consistent with each execution, we need to sort them.
 func sortCycle(cycles [][]gonumGraph.Node) {
 	sort.SliceStable(cycles, func(i, j int) bool {

@@ -1,4 +1,4 @@
-// Package assert provides tool to test error groups:
+// Package assert provides a tool to test error groups:
 //
 //	func TestMyCode(t *testing.T) {
 //		err := errors.Group(fmt.Errorf("error 1"), fmt.Errorf("error 2"))

@@ -1,39 +1,226 @@
 package reflect
 
 import (
+	"fmt"
 	"math"
 	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
+type myMap map[string]any
+
+func (m myMap) Foo() {
+}
+
+type myMap2 map[string]interface{ Foo() }
+
 func TestConvert(t *testing.T) {
-	t.Run(`Convert parameters`, func(t *testing.T) {
+	t.Run("Empty maps & slices", func(t *testing.T) {
+		t.Run("Nil slice", func(t *testing.T) {
+			var (
+				from []int
+				to   []int
+			)
+
+			r, err := convert(from, reflect.TypeOf(to))
+			require.NoError(t, err)
+			assert.Nil(t, r.Interface())
+		})
+		t.Run("Non-nil slice", func(t *testing.T) {
+			var (
+				from = make([]int, 0)
+				to   []int
+			)
+
+			r, err := convert(from, reflect.TypeOf(to))
+			require.NoError(t, err)
+			assert.NotNil(t, r.Interface())
+			assert.Len(t, r.Interface(), 0)
+		})
+		t.Run("Nil map", func(t *testing.T) {
+			var (
+				from map[string]any
+				to   map[string]any
+			)
+
+			r, err := convert(from, reflect.TypeOf(to))
+			require.NoError(t, err)
+			assert.Nil(t, r.Interface())
+		})
+		t.Run("Non-nil map", func(t *testing.T) {
+			var (
+				from = make(map[string]any)
+				to   map[string]any
+			)
+
+			r, err := convert(from, reflect.TypeOf(to))
+			require.NoError(t, err)
+			assert.NotNil(t, r.Interface())
+		})
+	})
+
+	t.Run("Maps", func(t *testing.T) {
+		t.Run("OK", func(t *testing.T) {
+			t.Run("Convert keys and values", func(t *testing.T) {
+				type myStr string
+				from := map[myStr]int32{
+					"2^8":  256,
+					"2^9":  512,
+					"2^10": 1024,
+				}
+				var to map[string]int64
+				v, err := convert(from, reflect.TypeOf(to))
+				require.NoError(t, err)
+				assert.Equal(
+					t,
+					map[string]int64{
+						"2^8":  256,
+						"2^9":  512,
+						"2^10": 1024,
+					},
+					v.Interface(),
+				)
+			})
+		})
+		t.Run("Errors", func(t *testing.T) {
+			scenarios := []struct {
+				input any
+				to    reflect.Type
+				error string
+			}{
+				{
+					input: (map[struct{}]any)(nil),
+					to:    reflect.TypeOf((map[bool]any)(nil)),
+					error: "cannot convert map[struct {}]interface {} to map[bool]interface {}: non convertible keys: cannot convert struct {} to bool",
+				},
+				{
+					input: (map[string]int32)(nil),
+					to:    reflect.TypeOf((map[string]struct{})(nil)),
+					error: "cannot convert map[string]int32 to map[string]struct {}: non convertible values: cannot convert int32 to struct {}",
+				},
+				{
+					input: map[string]any{"pi": "3.14"},
+					to:    reflect.TypeOf((map[string]float64)(nil)),
+					error: "cannot convert map[string]interface {} to map[string]float64: map value: cannot convert string to float64",
+				},
+			}
+
+			for i, s := range scenarios {
+				s := s
+				t.Run(fmt.Sprintf("#%d", i), func(t *testing.T) {
+					_, err := convert(s.input, s.to)
+					assert.EqualError(t, err, s.error)
+				})
+			}
+		})
+	})
+	t.Run("Recursion", func(t *testing.T) {
+		t.Run("Slice refers to itself", func(t *testing.T) {
+			x := make([]any, 1)
+			x[0] = x
+			y, err := convert(x, reflect.TypeOf(x))
+			require.NoError(t, err)
+			assert.Equal(t, x, y.Interface())
+		})
+		t.Run("Map refers to itself", func(t *testing.T) {
+			t.Run("#1", func(t *testing.T) {
+				x := make(map[string]any)
+				x["self"] = x
+				y, err := convert(x, reflect.TypeOf(x))
+				require.NoError(t, err)
+				assert.Equal(t, x, y.Interface())
+			})
+			t.Run("#2", func(t *testing.T) {
+				x := make(map[string]any)
+				x["child"] = map[string]any{
+					"grandchild": map[string]any{
+						"grandgrandchild": map[string]any{
+							"x": x,
+						},
+					},
+				}
+				y, err := convert(x, reflect.TypeOf(x))
+				require.NoError(t, err)
+				assert.Equal(t, x, y.Interface())
+			})
+			t.Run("#3", func(t *testing.T) {
+				x := make(myMap)
+				x["self"] = x
+				y, err := convert(x, reflect.TypeOf((map[string]any)(nil)))
+				require.NoError(t, err)
+				assert.Equal(t, (map[string]any)(x), y.Interface())
+			})
+			t.Run("#4", func(t *testing.T) {
+				x := make(map[string]any)
+				x["self"] = x
+				y, err := convert(x, reflect.TypeOf((myMap)(nil)))
+				require.NoError(t, err)
+				assert.Equal(t, (myMap)(x), y.Interface())
+			})
+			t.Run("#5", func(t *testing.T) {
+				x := make(map[string]any)
+				x["self"] = x
+				_, err := convert(x, reflect.TypeOf((myMap2)(nil)))
+				assert.EqualError(t, err, "cannot convert map[string]interface {} to reflect.myMap2: map value: cannot convert map[string]interface {} to interface { Foo() }")
+			})
+			t.Run("#6", func(t *testing.T) {
+				x := make(map[float32]any)
+				x[0] = x
+				v, err := convert(x, reflect.TypeOf((map[float64]any)(nil)))
+				require.NoError(t, err)
+
+				val, ok := v.Interface().(map[float64]any)
+				require.True(t, ok)
+				assert.Equal(t, x, val[0])
+			})
+		})
+	})
+	t.Run("Convert parameters", func(t *testing.T) {
 		float64Val := float64(5)
 
 		scenarios := map[string]struct {
-			input  interface{}
-			output interface{}
+			input  any
+			output any
 			error  string
 		}{
-			`[]interface{}{[]int{1, 2, 3}} to [][2]int{}`: {
-				input:  []interface{}{[]int{1, 2, 3}},
-				output: [][2]int{},
-				error:  "cannot cast `[]interface {}` to `[][2]int`: 0: cannot cast `[]int` (length 3) to `[2]int`",
+			`nil to interface`: {
+				input:  nil,
+				output: (*interface{ Bar() })(nil),
 			},
-			`[]interface{} to [0]int`: {
-				input:  []interface{}{},
+			`[3]int to [2]int`: {
+				input:  [3]int{1, 2, 3},
+				output: [2]int{1, 2},
+			},
+			`[]int (len == 3) to [2]int`: {
+				input:  []int{1, 2, 3},
+				output: [2]int{1, 2},
+			},
+			`[2]int to [3]int`: {
+				input:  [2]int{1, 2},
+				output: [3]int{1, 2, 0},
+			},
+			`[]int (len == 2) to [3]int`: {
+				input:  []int{1, 2},
+				output: [3]int{1, 2, 0},
+			},
+			`[]any{[]int{1, 2, 3}} to [][2]int{}`: {
+				input:  []any{[]int{1, 2, 3}},
+				output: [][2]int{{1, 2}},
+			},
+			`[]any to [0]int`: {
+				input:  []any{},
 				output: [0]int{},
 			},
-			`[0]int to []interface{}`: {
+			`[0]int to []any`: {
 				input:  [0]int{},
-				output: []interface{}{},
+				output: []any{},
 			},
 			`[][3]int to [][2]int`: {
-				input:  [][3]int{},
-				output: [][2]int{},
-				error:  "cannot cast `[][3]int` to `[][2]int`",
+				input:  [][3]int{{3, 4, 5}},
+				output: [][2]int{{3, 4}},
 			},
 			`[][3]int to [][3]int`: {
 				input:  [][3]int{{5, 5, 5}, {6, 6, 6}},
@@ -43,60 +230,60 @@ func TestConvert(t *testing.T) {
 				input:  [][3]int{{1, 2, 3}},
 				output: [][3]uint{{1, 2, 3}},
 			},
-			`[][3]int to [][3]interface{}`: {
+			`[][3]int to [][3]any`: {
 				input:  [][3]int{{2, 2, 2}},
-				output: [][3]interface{}{{2, 2, 2}},
+				output: [][3]any{{2, 2, 2}},
 			},
-			`[][3]interface{} to [][3]int`: {
-				input:  [][3]interface{}{{3, 5, 7}},
+			`[][3]any to [][3]int`: {
+				input:  [][3]any{{3, 5, 7}},
 				output: [][3]int{{3, 5, 7}},
 			},
-			`[]interface{}{[2]int{}} to [][3]int error`: {
-				input:  []interface{}{[2]int{5, 5}},
+			`[]any{[2]int{}} to [][3]int`: {
+				input:  []any{[2]int{5, 5}},
 				output: [][3]int{{5, 5, 0}},
 			},
-			`[][]interface{} to [][]int`: {
-				input:  [][]interface{}{{1, 2, 3}},
+			`[][]any to [][]int`: {
+				input:  [][]any{{1, 2, 3}},
 				output: [][]int{{1, 2, 3}},
 			},
-			`[][]interface{} to [][]int (invalid)`: {
-				input:  [][]interface{}{{1, false, 3}},
+			`[][]any to [][]int (invalid)`: {
+				input:  [][]any{{1, false, 3}},
 				output: [][]int{{1, 2, 3}},
-				error:  "cannot cast `[][]interface {}` to `[][]int`: 0: cannot cast `[]interface {}` to `[]int`: 1: cannot cast `bool` to `int`",
+				error:  "cannot convert [][]interface {} to [][]int: #0: cannot convert []interface {} to []int: #1: cannot convert bool to int",
 			},
-			`[][]int to [][]interface{}`: {
+			`[][]int to [][]any`: {
 				input:  [][]int{{1, 2, 3}},
-				output: [][]interface{}{{1, 2, 3}},
+				output: [][]any{{1, 2, 3}},
 			},
 			`[][]uint to [][]int`: {
 				input:  [][]uint{{1, 2, 3}},
 				output: [][]int{{1, 2, 3}},
 			},
-			`[]interface{} to []int`: {
-				input:  []interface{}{1, 2, 3},
+			`[]any to []int`: {
+				input:  []any{1, 2, 3},
 				output: []int{1, 2, 3},
 			},
-			`[]interface{} to []int (invalid #1)`: {
-				input:  []interface{}{1, 2, nil},
+			`[]any to []int (invalid #1)`: {
+				input:  []any{1, 2, nil},
 				output: []int{},
-				error:  "cannot cast `[]interface {}` to `[]int`: 2: cannot cast `<nil>` to `int`",
+				error:  "cannot convert []interface {} to []int: #2: cannot convert <nil> to int",
 			},
-			`[]interface{} to []int (invalid #2)`: {
-				input:  []interface{}{1, 2, 3, struct{}{}},
+			`[]any to []int (invalid #2)`: {
+				input:  []any{1, 2, 3, struct{}{}},
 				output: []int{},
-				error:  "cannot cast `[]interface {}` to `[]int`: 3: cannot cast `struct {}` to `int`",
+				error:  "cannot convert []interface {} to []int: #3: cannot convert struct {} to int",
 			},
-			`[]interface{} to []*int`: {
-				input:  []interface{}{nil, nil},
+			`[]any to []*int`: {
+				input:  []any{nil, nil},
 				output: []*int{nil, nil},
 			},
-			`[]int to []interface{}`: {
+			`[]int to []any`: {
 				input:  []int{1, 2, 3},
-				output: []interface{}{1, 2, 3},
+				output: []any{1, 2, 3},
 			},
-			`[]interface{} to []interface{}`: {
-				input:  []interface{}{1, 2, 3},
-				output: []interface{}{1, 2, 3},
+			`[]any to []any`: {
+				input:  []any{1, 2, 3},
+				output: []any{1, 2, 3},
 			},
 			`[]int8 to []int`: {
 				input:  []int8{1, 2, 3},
@@ -109,7 +296,7 @@ func TestConvert(t *testing.T) {
 			`[]struct{}{} to []type`: {
 				input:  []struct{}{},
 				output: []int{},
-				error:  "cannot cast `[]struct {}` to `[]int`",
+				error:  `cannot convert []struct {} to []int: cannot convert struct {} to int`,
 			},
 			`float64 to int`: {
 				input:  float64(math.Pi),
@@ -118,7 +305,7 @@ func TestConvert(t *testing.T) {
 			`nil to int`: {
 				input:  nil,
 				output: 0,
-				error:  "cannot cast `<nil>` to `int`",
+				error:  "cannot convert <nil> to int",
 			},
 			`nil to *int`: {
 				input:  nil,
@@ -127,12 +314,12 @@ func TestConvert(t *testing.T) {
 			`*float64 to *int`: {
 				input:  &float64Val,
 				output: (*int)(nil),
-				error:  "cannot cast `*float64` to `*int`",
+				error:  "cannot convert *float64 to *int",
 			},
 			`*float64 to *float32`: {
 				input:  &float64Val,
 				output: (*float32)(nil),
-				error:  "cannot cast `*float64` to `*float32`",
+				error:  "cannot convert *float64 to *float32",
 			},
 			`*float64 to *float64`: {
 				input:  &float64Val,
@@ -153,15 +340,15 @@ func TestConvert(t *testing.T) {
 			`string to int`: { // cannot convert string to int
 				input:  `5`,
 				output: int(5),
-				error:  "cannot cast `string` to `int`",
+				error:  "cannot convert string to int",
 			},
 			`int to string`: { // but reverse conversion is possible, isn't worth to unify this behavior?
 				input:  5,
 				output: "\x05",
 			},
-			`nil to *interface{}`: {
+			`nil to *any`: {
 				input:  nil,
-				output: (*interface{})(nil),
+				output: (*any)(nil),
 			},
 		}
 
@@ -170,11 +357,11 @@ func TestConvert(t *testing.T) {
 			t.Run(n, func(t *testing.T) {
 				v, err := convert(s.input, reflect.TypeOf(s.output))
 				if s.error != "" {
-					assert.EqualError(t, err, s.error)
+					assert.EqualError(t, err, s.error, v)
 					return
 				}
 
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, s.output, v.Interface())
 			})
 		}

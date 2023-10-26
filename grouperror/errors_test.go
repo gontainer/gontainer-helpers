@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gontainer/gontainer-helpers/grouperror"
+	"github.com/gontainer/gontainer-helpers/v2/grouperror"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

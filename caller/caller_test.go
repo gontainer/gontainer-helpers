@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gontainer/gontainer-helpers/caller"
-	errAssert "github.com/gontainer/gontainer-helpers/grouperror/assert"
+	"github.com/gontainer/gontainer-helpers/v2/caller"
+	errAssert "github.com/gontainer/gontainer-helpers/v2/grouperror/assert"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,7 +15,7 @@ func TestCall(t *testing.T) {
 	t.Run("Given method", func(t *testing.T) {
 		p := person{}
 		assert.Equal(t, "", p.name)
-		_, err := caller.Call(p.setName, "Mary")
+		_, err := caller.Call(p.setName, []any{"Mary"}, false)
 		if !assert.NoError(t, err) {
 			return
 		}
@@ -24,19 +24,19 @@ func TestCall(t *testing.T) {
 
 	t.Run("Given invalid functions", func(t *testing.T) {
 		scenarios := []struct {
-			fn interface{}
+			fn any
 		}{
 			{fn: 5},
 			{fn: false},
 			{fn: (*error)(nil)},
 			{fn: struct{}{}},
 		}
-		const expectedRegexp = "\\Aexpected `func`, .* given\\z"
+		const expectedRegexp = "\\Acannot call .*: expected func, .* given\\z"
 		for i, tmp := range scenarios {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				_, err := caller.Call(s.fn)
+				_, err := caller.Call(s.fn, nil, false)
 				assert.Error(t, err)
 				assert.Regexp(t, expectedRegexp, err)
 			})
@@ -44,28 +44,28 @@ func TestCall(t *testing.T) {
 	})
 
 	t.Run("Given invalid argument", func(t *testing.T) {
-		const msg = "arg0: cannot cast `struct {}` to `[]int`"
+		const msg = "cannot call func([]int): arg0: cannot convert struct {} to []int"
 		callee := func([]int) {}
-		params := []interface{}{
+		params := []any{
 			struct{}{},
 		}
 
-		_, err := caller.Call(callee, params...)
+		_, err := caller.Call(callee, params, true)
 		assert.EqualError(t, err, msg)
 	})
 
 	t.Run("Given invalid arguments", func(t *testing.T) {
 		callee := func([]int, *int) {}
-		params := []interface{}{
+		params := []any{
 			struct{}{},
 			"*int",
 		}
 
-		_, err := caller.Call(callee, params...)
+		_, err := caller.Call(callee, params, true)
 
 		expected := []string{
-			"arg0: cannot cast `struct {}` to `[]int`",
-			"arg1: cannot cast `string` to `*int`",
+			"cannot call func([]int, *int): arg0: cannot convert struct {} to []int",
+			"cannot call func([]int, *int): arg1: cannot convert string to *int",
 		}
 		errAssert.EqualErrorGroup(t, err, expected)
 	})
@@ -73,72 +73,72 @@ func TestCall(t *testing.T) {
 	t.Run("Given too many arguments", func(t *testing.T) {
 		const msg = "too many input arguments"
 		scenarios := []struct {
-			fn   interface{}
-			args []interface{}
+			fn   any
+			args []any
 		}{
 			{
 				fn:   strings.Join,
-				args: []interface{}{"1", "2", "3"},
+				args: []any{"1", "2", "3"},
 			},
 			{
 				fn:   func() {},
-				args: []interface{}{1},
+				args: []any{1},
 			},
 		}
 		for i, tmp := range scenarios {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				_, err := caller.Call(s.fn, s.args...)
-				assert.EqualError(t, err, msg)
+				_, err := caller.Call(s.fn, s.args, true)
+				assert.ErrorContains(t, err, msg)
 			})
 		}
 	})
 
 	t.Run("Given too few arguments", func(t *testing.T) {
-		const msg = "too few input arguments"
+		const msg = "not enough input arguments"
 		scenarios := []struct {
-			fn   interface{}
-			args []interface{}
+			fn   any
+			args []any
 		}{
 			{
 				fn:   strings.Join,
-				args: []interface{}{},
+				args: []any{},
 			},
 			{
 				fn:   func(a int) {},
-				args: []interface{}{},
+				args: []any{},
 			},
 		}
 		for i, tmp := range scenarios {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				_, err := caller.Call(s.fn, s.args...)
-				assert.EqualError(t, err, msg)
+				_, err := caller.Call(s.fn, s.args, true)
+				assert.ErrorContains(t, err, msg)
 			})
 		}
 	})
 
 	t.Run("Given scenarios", func(t *testing.T) {
 		scenarios := []struct {
-			fn       interface{}
-			args     []interface{}
-			expected []interface{}
+			fn       any
+			args     []any
+			expected []any
 		}{
 			{
 				fn: func(a, b int) int {
 					return a + b
 				},
-				args:     []interface{}{uint(1), uint(2)},
-				expected: []interface{}{int(3)},
+				args:     []any{uint(1), uint(2)},
+				expected: []any{int(3)},
 			},
 			{
 				fn: func(a, b uint) uint {
 					return a + b
 				},
-				args:     []interface{}{int(7), int(3)},
-				expected: []interface{}{uint(10)},
+				args:     []any{int(7), int(3)},
+				expected: []any{uint(10)},
 			},
 			{
 				fn: func(vals ...uint) (result uint) {
@@ -147,15 +147,15 @@ func TestCall(t *testing.T) {
 					}
 					return
 				},
-				args:     []interface{}{int(1), int(2), int(3)},
-				expected: []interface{}{uint(6)},
+				args:     []any{int(1), int(2), int(3)},
+				expected: []any{uint(6)},
 			},
 		}
 		for i, tmp := range scenarios {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				r, err := caller.Call(s.fn, s.args...)
+				r, err := caller.Call(s.fn, s.args, true)
 				assert.NoError(t, err)
 				assert.Equal(t, s.expected, r)
 			})
@@ -164,29 +164,29 @@ func TestCall(t *testing.T) {
 
 	t.Run("Convert parameters", func(t *testing.T) {
 		scenarios := map[string]struct {
-			fn     interface{}
-			input  interface{}
-			output interface{}
+			fn     any
+			input  any
+			output any
 			error  string
 		}{
-			"[]interface{} to []type": {
+			"[]any to []type": {
 				fn: func(v []int) []int {
 					return v
 				},
-				input:  []interface{}{1, 2, 3},
+				input:  []any{1, 2, 3},
 				output: []int{1, 2, 3},
 			},
 			"[]struct{}{} to []type": {
 				fn:    func([]int) {},
 				input: []struct{}{},
-				error: "arg0: cannot cast `[]struct {}` to `[]int`",
+				error: `cannot call func([]int): arg0: cannot convert []struct {} to []int: cannot convert struct {} to int`,
 			},
-			"nil to interface{}": {
-				fn: func(v interface{}) interface{} {
+			"nil to any": {
+				fn: func(v any) any {
 					return v
 				},
 				input:  nil,
-				output: (interface{})(nil),
+				output: (any)(nil),
 			},
 		}
 
@@ -194,7 +194,7 @@ func TestCall(t *testing.T) {
 			s := tmp
 			t.Run(n, func(t *testing.T) {
 				t.Parallel()
-				r, err := caller.Call(s.fn, s.input)
+				r, err := caller.Call(s.fn, []any{s.input}, true)
 				if s.error != "" {
 					assert.EqualError(t, err, s.error)
 					assert.Nil(t, r)
@@ -211,12 +211,12 @@ func TestCall(t *testing.T) {
 func TestCallProvider(t *testing.T) {
 	t.Run("Given scenarios", func(t *testing.T) {
 		scenarios := []struct {
-			provider interface{}
-			params   []interface{}
-			expected interface{}
+			provider any
+			params   []any
+			expected any
 		}{
 			{
-				provider: func() interface{} {
+				provider: func() any {
 					return nil
 				},
 				expected: nil,
@@ -230,7 +230,7 @@ func TestCallProvider(t *testing.T) {
 
 					return result, nil
 				},
-				params:   []interface{}{10, 100, 200},
+				params:   []any{10, 100, 200},
 				expected: 310,
 			},
 		}
@@ -239,7 +239,7 @@ func TestCallProvider(t *testing.T) {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				r, err := caller.CallProvider(s.provider, s.params...)
+				r, err := caller.CallProvider(s.provider, s.params, false)
 				assert.NoError(t, err)
 				assert.Equal(t, s.expected, r)
 			})
@@ -248,38 +248,38 @@ func TestCallProvider(t *testing.T) {
 
 	t.Run("Given errors", func(t *testing.T) {
 		scenarios := []struct {
-			provider interface{}
-			params   []interface{}
+			provider any
+			params   []any
 			err      string
 		}{
 			{
 				provider: func() {},
-				err:      "provider must return 1 or 2 values, given function returns 0 values",
+				err:      "cannot call provider func(): provider must return 1 or 2 values, given function returns 0 values",
 			},
 			{
-				provider: func() (interface{}, interface{}, interface{}) {
+				provider: func() (any, any, any) {
 					return nil, nil, nil
 				},
-				err: "provider must return 1 or 2 values, given function returns 3 values",
+				err: "cannot call provider func() (interface {}, interface {}, interface {}): provider must return 1 or 2 values, given function returns 3 values",
 			},
 			{
-				provider: func() (interface{}, interface{}) {
+				provider: func() (any, any) {
 					return nil, nil
 				},
-				err: "second value returned by provider must implement error interface",
+				err: "cannot call provider func() (interface {}, interface {}): second value returned by provider must implement error interface",
 			},
 			{
-				provider: func() (interface{}, error) {
+				provider: func() (any, error) {
 					return nil, errors.New("test error")
 				},
-				err: "test error",
+				err: "cannot call provider func() (interface {}, error): test error", // todo maybe provider returned an error?
 			},
 			{
-				provider: func() interface{} {
+				provider: func() any {
 					return nil
 				},
-				params: []interface{}{1, 2, 3},
-				err:    "too many input arguments",
+				params: []any{1, 2, 3},
+				err:    "cannot call provider func() interface {}: too many input arguments",
 			},
 		}
 
@@ -287,7 +287,7 @@ func TestCallProvider(t *testing.T) {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				r, err := caller.CallProvider(s.provider, s.params...)
+				r, err := caller.CallProvider(s.provider, s.params, false)
 				assert.Nil(t, r)
 				assert.EqualError(t, err, s.err)
 			})
@@ -295,57 +295,63 @@ func TestCallProvider(t *testing.T) {
 	})
 
 	t.Run("Given invalid provider", func(t *testing.T) {
-		_, err := caller.CallProvider(5)
-		assert.EqualError(t, err, "provider must be kind of `func`, `int` given")
+		_, err := caller.CallProvider(5, nil, false)
+		assert.EqualError(t, err, "cannot call provider int: expected func, int given")
 	})
 
 	t.Run("Given provider panics", func(t *testing.T) {
-		_, err := caller.CallProvider(func() interface{} {
-			panic("panic!")
-		})
+		defer func() {
+			assert.Equal(t, "panic!", recover())
+		}()
 
-		assert.EqualError(t, err, "panic!")
+		_, _ = caller.CallProvider(
+			func() any {
+				panic("panic!")
+			},
+			nil,
+			false,
+		)
 	})
 }
 
 func TestCallWitherByName(t *testing.T) {
 	t.Run("Given scenarios", func(t *testing.T) {
-		var emptyPerson interface{} = person{}
+		var emptyPerson any = person{}
 
 		scenarios := []struct {
-			object interface{}
+			object any
 			wither string
-			params []interface{}
-			output interface{}
+			params []any
+			output any
 		}{
 			{
 				object: make(ints, 0),
 				wither: "Append",
-				params: []interface{}{5},
+				params: []any{5},
 				output: ints{5},
 			},
 			{
 				object: person{name: "Mary"},
 				wither: "WithName",
-				params: []interface{}{"Jane"},
+				params: []any{"Jane"},
 				output: person{name: "Jane"},
 			},
 			{
 				object: &person{name: "Mary"},
 				wither: "WithName",
-				params: []interface{}{"Jane"},
+				params: []any{"Jane"},
 				output: person{name: "Jane"},
 			},
 			{
 				object: emptyPerson,
 				wither: "WithName",
-				params: []interface{}{"Kaladin"},
+				params: []any{"Kaladin"},
 				output: person{name: "Kaladin"},
 			},
 			{
 				object: &emptyPerson,
 				wither: "WithName",
-				params: []interface{}{"Shallan"},
+				params: []any{"Shallan"},
 				output: person{name: "Shallan"},
 			},
 		}
@@ -354,7 +360,7 @@ func TestCallWitherByName(t *testing.T) {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				result, err := caller.CallWitherByName(s.object, s.wither, s.params...)
+				result, err := caller.CallWitherByName(s.object, s.wither, s.params, false)
 				assert.NoError(t, err)
 				assert.Equal(t, s.output, result)
 			})
@@ -363,28 +369,28 @@ func TestCallWitherByName(t *testing.T) {
 
 	t.Run("Given errors", func(t *testing.T) {
 		scenarios := []struct {
-			object interface{}
+			object any
 			wither string
-			params []interface{}
+			params []any
 			error  string
 		}{
 			{
 				object: person{},
 				wither: "withName",
 				params: nil,
-				error:  "invalid wither `caller_test.person`.\"withName\"",
+				error:  `cannot call wither (caller_test.person)."withName": invalid func (caller_test.person)."withName"`,
 			},
 			{
 				object: person{},
 				wither: "Clone",
 				params: nil,
-				error:  "wither must return 1 value, given function returns 2 values",
+				error:  `cannot call wither (caller_test.person)."Clone": wither must return 1 value, given function returns 2 values`,
 			},
 			{
 				object: person{},
 				wither: "WithName",
 				params: nil,
-				error:  "`caller_test.person`.\"WithName\": too few input arguments",
+				error:  `cannot call wither (caller_test.person)."WithName": not enough input arguments`,
 			},
 		}
 
@@ -392,7 +398,7 @@ func TestCallWitherByName(t *testing.T) {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				o, err := caller.CallWitherByName(s.object, s.wither, s.params...)
+				o, err := caller.CallWitherByName(s.object, s.wither, s.params, false)
 				assert.Nil(t, o)
 				assert.EqualError(t, err, s.error)
 			})

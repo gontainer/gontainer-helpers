@@ -3,7 +3,7 @@ package exporter_test
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/exporter"
+	"github.com/gontainer/gontainer-helpers/v2/exporter"
 )
 
 func ExampleCastToString_string() {
@@ -33,7 +33,7 @@ func ExampleCastToString_nil() {
 func ExampleCastToString_notSupported() {
 	_, err := exporter.CastToString(struct{}{})
 	fmt.Println(err)
-	// Output: type `struct {}` is not supported
+	// Output: type struct {} is not supported
 }
 
 func ExampleExport_int() {
@@ -61,20 +61,20 @@ func ExampleExport_slice() {
 }
 
 func ExampleExport_slice2() {
-	s, _ := exporter.Export([]interface{}{int32(1), int64(2), float32(3.14), "hello world"})
+	s, _ := exporter.Export([]any{int32(1), int64(2), float32(3.14), "hello world"})
 	fmt.Println(s)
 	// Output: []interface{}{int32(1), int64(2), float32(3.14), "hello world"}
 }
 
 func ExampleExport_emptySlice() {
-	var v interface{} = make([]interface{}, 0)
+	var v any = make([]any, 0)
 	s, _ := exporter.Export(v)
 	fmt.Println(s)
 	// Output: make([]interface{}, 0)
 }
 
 func ExampleExport_emptySlice2() {
-	var v []interface{} = nil
+	var v []any = nil
 	s, _ := exporter.Export(v)
 	fmt.Println(s)
 	// Output: make([]interface{}, 0)
@@ -87,7 +87,7 @@ func ExampleExport_array() {
 }
 
 func ExampleExport_array2() {
-	s, _ := exporter.Export([3]interface{}{nil, 1.5, "hello world"})
+	s, _ := exporter.Export([3]any{nil, 1.5, "hello world"})
 	fmt.Println(s)
 	// Output: [3]interface{}{nil, float64(1.5), "hello world"}
 }
@@ -99,7 +99,7 @@ func ExampleExport_emptyArray() {
 }
 
 func ExampleExport_emptyArray2() {
-	s, _ := exporter.Export([0]interface{}{})
+	s, _ := exporter.Export([0]any{})
 	fmt.Println(s)
 	// Output: [0]interface{}{}
 }
@@ -107,5 +107,5 @@ func ExampleExport_emptyArray2() {
 func ExampleExport_err() {
 	_, err := exporter.Export(struct{}{})
 	fmt.Println(err)
-	// Output: type `struct {}` is not supported
+	// Output: type struct {} is not supported
 }
