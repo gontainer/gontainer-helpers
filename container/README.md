@@ -20,8 +20,9 @@ go get -u github.com/gontainer/gontainer-helpers/v2/container@latest
    2. [Contextual scope](#contextual-scope)
    3. [Circular dependencies](#circular-dependencies)
    4. [Type conversion](#type-conversion)
-   5. [Errors](#errors)
-   6. [Examples](#examples)
+   5. [Transactions](#transactions)
+   6. [Errors](#errors)
+   7. [Examples](#examples)
 5. [Code generation](#code-generation)
 
 ## Why?
@@ -829,6 +830,135 @@ func buildContainer() *container.Container {
 	// Container automatically converts values for more developer-friendly experience :)
 	ironMan.SetField("age", container.NewDependencyValue(53))
 
+	return c
+}
+```
+</details>
+
+### Transactions
+
+As an exercise, let's build a small framework that wraps our endpoints and manages transactions automatically.
+
+**ErrorAwareHTTPHandler**
+
+A new type for our endpoints that informs us whether error has occurred.
+
+<details>
+  <summary>See code</summary>
+
+```go
+type ErrorAwareHTTPHandler interface {
+	Handle(http.ResponseWriter, *http.Request) error
+}
+
+type ErrorAwareHTTPHandlerFunc func(http.ResponseWriter, *http.Request) error
+
+func (e ErrorAwareHTTPHandlerFunc) Handle(w http.ResponseWriter, r *http.Request) error {
+	return e(w, r)
+}
+```
+</details>
+
+**WrapTransactionHandler**
+
+A small wrapper over newly created type that implements `http.Handler` interface,
+and automatically handles transactions.
+
+<details>
+  <summary>See code</summary>
+
+```go
+func WrapTransactionHandler(h ErrorAwareHTTPHandler, c *myContainer) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// create a copy of the current request, and inject a container aware context
+		ctx := container.ContextWithContainer(r.Context(), c)
+		r = r.Clone(ctx)
+
+		tx := c.Tx()
+
+		// do not forget about rolling back when your code panics
+		defer func() {
+			rec := recover()
+			if rec != nil {
+				_ = tx.Rollback()
+				panic(rec)
+			}
+		}()
+
+		err := h.Handle(w, r)
+		if err != nil {
+			_ = tx.Rollback()
+		} else {
+			_ = tx.Commit()
+		}
+	})
+}
+```
+</details>
+
+**Our first endpoint**
+
+<details>
+  <summary>See code</summary>
+
+```go
+func myHTTPHandler(h http.ResponseWriter, r *http.Request) error {
+	// todo some logic
+	return errors.New("unexpected error")
+}
+```
+</details>
+
+**The final container**
+
+Let's connect all the dots.
+
+<details>
+  <summary>See code</summary>
+
+```go
+type myContainer struct {
+	*container.Container
+}
+
+func (m *myContainer) Tx() *sql.Tx {
+	tx, err := m.Get("tx")
+	if err != nil {
+		panic(err)
+	}
+	return tx.(*sql.Tx)
+}
+
+func buildContainer() *myContainer {
+	c := &myContainer{container.New()}
+
+	// decorate all services tagged by "http-errors"
+	c.AddDecorator(
+		"http-errors",
+		func(p container.DecoratorPayload) http.Handler {
+			return WrapTransactionHandler(
+				p.Service.(ErrorAwareHTTPHandler),
+				c,
+			)
+		},
+	)
+
+	// define your error aware http handler
+	myHandler := container.NewService()
+	myHandler.SetValue(ErrorAwareHTTPHandlerFunc(myHTTPHandler))
+	myHandler.Tag("http-errors", 0)
+	c.OverrideService("myHandler", myHandler)
+
+	// I assume we may need more endpoints later,
+	// let's use the built-in multiplexer [http.ServeMux]
+	m := container.NewService()
+	m.SetConstructor(http.NewServeMux)
+	m.AppendCall(
+		"Handle",
+		container.NewDependencyValue("/my-error-aware-endpoint"),
+		container.NewDependencyService("myHandler"),
+	)
+	
 	return c
 }
 ```
