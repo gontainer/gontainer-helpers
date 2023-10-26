@@ -20,7 +20,8 @@ go get -u github.com/gontainer/gontainer-helpers/v2/container@latest
    2. [Contextual scope](#contextual-scope)
    3. [Circular dependencies](#circular-dependencies)
    4. [Type conversion](#type-conversion)
-   5. [Examples](#examples)
+   5. [Errors](#errors)
+   6. [Examples](#examples)
 5. [Code generation](#code-generation)
 
 ## Why?
@@ -827,6 +828,41 @@ func buildContainer() *container.Container {
 
 	return c
 }
+```
+</details>
+
+### Errors
+
+This package aims to be as developer-friendly as possible.
+To make ease the debugging process all errors are as descriptive as possible.
+Sometimes you may have more than a single reason why something does not work,
+so whenever it is possible you get a multiline error.
+Multiline error is a collection of few independent errors.
+You can extract them using `grouperror.Collection`, see [grouperror](../grouperror).
+
+<details>
+  <summary>See code</summary>
+
+```go
+	peterParker := container.NewService()
+	peterParker.SetValue(
+		struct {
+			name string
+		}{},
+	)
+	peterParker.SetField("firstname", container.NewDependencyValue("Peter"))
+	peterParker.SetField("lastname", container.NewDependencyValue("Parker"))
+
+	c := container.New()
+	c.OverrideService("peterParker", peterParker)
+
+	_, err := c.Get("peterParker")
+
+	fmt.Println(err)
+
+	// Output:
+	// get("peterParker"): set field "firstname": set (*interface {})."firstname": field "firstname" does not exist
+	// get("peterParker"): set field "lastname": set (*interface {})."lastname": field "lastname" does not exist
 ```
 </details>
 
