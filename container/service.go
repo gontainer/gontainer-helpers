@@ -138,6 +138,17 @@ func (s *Service) SetField(field string, dep Dependency) *Service {
 
 /*
 SetFields instructs the container to set many fields to the given struct.
+
+	s := container.NewService()
+	s.SetValue(struct {
+		Name string
+		Age  int
+	}{})
+	s.SetFields(map[string]container.Dependency{
+		"Name": container.NewDependencyValue("Jane"),
+		"Age":  container.NewDependencyValue(30),
+	})
+
 See [*Service.SetField].
 */
 func (s *Service) SetFields(fields map[string]Dependency) *Service {
