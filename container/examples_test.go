@@ -250,12 +250,18 @@ func ExampleContainer_Get_circularDepsServices() {
 
 func ExampleContainer_Get_circularDepsParams() {
 	c := container.New()
+
+	person := container.NewService()
+	person.SetValue(Person{})
+	person.SetField("name", container.NewDependencyParam("name"))
+
+	c.OverrideService("person", person)
 	c.OverrideParam("name", container.NewDependencyParam("name"))
 
-	_, err := c.GetParam("name")
+	_, err := c.Get("person")
 	fmt.Println(err)
 
-	// Output: getParam("name"): circular dependencies: %name% -> %name%
+	// Output: get("person"): field value "name": getParam("name"): circular dependencies: %name% -> %name%
 }
 
 func ExampleContainer_CircularDeps() {
