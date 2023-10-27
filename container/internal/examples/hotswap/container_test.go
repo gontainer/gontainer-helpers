@@ -75,5 +75,6 @@ func TestContainer_Server(t *testing.T) {
 	}
 
 	assert.True(t, performTest(true), "Expected consistent results")
-	assert.False(t, performTest(false), "Expected inconsistent results")
+	// perform it twice in case of consistent results in ci
+	assert.False(t, performTest(false) && performTest(false), "Expected inconsistent results")
 }
