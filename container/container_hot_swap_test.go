@@ -16,6 +16,46 @@ import (
 )
 
 func TestContainer_HotSwap(t *testing.T) {
+	t.Run("Invalidate cache", func(t *testing.T) {
+		serviceCounter := 0
+		paramCounter := 0
+
+		s := container.NewService()
+		s.SetConstructor(func() any {
+			serviceCounter++
+			return nil
+		})
+
+		c := container.New()
+		c.OverrideService("service", s)
+		c.OverrideParam("param", container.NewDependencyProvider(func() any {
+			paramCounter++
+			return nil
+		}))
+
+		for i := 0; i < 10; i++ {
+			_, _ = c.Get("service")
+			_, _ = c.GetParam("param")
+		}
+
+		// values are cached, so providers should be invoked once only
+		assert.Equal(t, 1, serviceCounter)
+		assert.Equal(t, 1, paramCounter)
+
+		c.HotSwap(func(c container.MutableContainer) {
+			c.InvalidateAllServicesCache()
+			c.InvalidateAllParamsCache()
+		})
+
+		for i := 0; i < 10; i++ {
+			_, _ = c.Get("service")
+			_, _ = c.GetParam("param")
+		}
+
+		// the cache has been invalidated, so providers should be invoked again
+		assert.Equal(t, 2, serviceCounter)
+		assert.Equal(t, 2, paramCounter)
+	})
 	t.Run("Wait for <-ctx.Done()", func(t *testing.T) {
 		c := container.New()
 		s := time.Now()
