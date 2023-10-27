@@ -275,6 +275,24 @@ func TestContainer_Get_cache(t *testing.T) {
 	assert.Equal(t, uint64(1), atomic.LoadUint64(counterShared))
 }
 
+func TestContainer_Get_errorInDecorator(t *testing.T) {
+	s := container.NewService()
+	s.SetValue(nil)
+	s.Tag("my-tag", 0)
+
+	c := container.New()
+	c.OverrideService("service", s)
+	c.AddDecorator(
+		"my-tag",
+		func(p container.DecoratorPayload) (any, error) {
+			return nil, errors.New("my error")
+		},
+	)
+
+	_, err := c.Get("service")
+	assert.EqualError(t, err, `get("service"): decorator #0: cannot call provider func(container.DecoratorPayload) (interface {}, error): my error`)
+}
+
 type Server struct {
 	Host string
 	Port int
