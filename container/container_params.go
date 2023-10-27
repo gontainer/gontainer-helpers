@@ -30,6 +30,10 @@ func (c *Container) getParam(id string) (result any, err error) {
 	c.paramsLockers[id].Lock()
 	defer c.paramsLockers[id].Unlock()
 
+	if p, cached := c.cacheParams.get(id); cached {
+		return p, nil
+	}
+
 	err = c.graphBuilder.paramCircularDeps(id)
 	if err != nil {
 		return nil, grouperror.Prefix("circular dependencies: ", err)
