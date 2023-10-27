@@ -543,6 +543,12 @@ func ExampleContainer_IsTaggedBy() {
 	// three is tagged by int: true
 }
 
+func ExampleContainer_IsTaggedBy_serviceDoesNotExist() {
+	c := container.New()
+	fmt.Println(c.IsTaggedBy("service", "tag"))
+	// Output: false
+}
+
 func ExampleNewDependencyProvider() {
 	c := container.New()
 	c.OverrideParam("pi", container.NewDependencyProvider(func() float64 {
