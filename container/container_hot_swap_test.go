@@ -56,6 +56,34 @@ func TestContainer_HotSwap(t *testing.T) {
 		assert.Equal(t, 2, serviceCounter)
 		assert.Equal(t, 2, paramCounter)
 	})
+	t.Run("Override", func(t *testing.T) {
+		s := container.NewService()
+		s.SetValue("old service")
+
+		c := container.New()
+		c.OverrideService("service", s)
+		c.OverrideParam("param", container.NewDependencyValue("old param"))
+
+		svc, _ := c.Get("service")
+		param, _ := c.GetParam("param")
+
+		assert.Equal(t, "old service", svc)
+		assert.Equal(t, "old param", param)
+
+		c.HotSwap(func(c container.MutableContainer) {
+			s := container.NewService()
+			s.SetValue("new service")
+
+			c.OverrideService("service", s)
+			c.OverrideParam("param", container.NewDependencyValue("new param"))
+		})
+
+		svc, _ = c.Get("service")
+		param, _ = c.GetParam("param")
+
+		assert.Equal(t, "new service", svc)
+		assert.Equal(t, "new param", param)
+	})
 	t.Run("Wait for <-ctx.Done()", func(t *testing.T) {
 		c := container.New()
 		s := time.Now()
