@@ -121,6 +121,32 @@ func (s *Service) SetField(field string, dep Dependency) *Service {
 		name: field,
 		dep:  dep,
 	})
+
+	// check if we have a duplicate, if yes, remove it
+	for i := 0; i < len(s.fields)-1; i++ {
+		if s.fields[i].name == field {
+			s.fields = append(s.fields[:i], s.fields[i+1:]...)
+			break
+		}
+	}
+	return s
+}
+
+/*
+SetFields instructs the container to set many fields to the given struct.
+See [*Service.SetField].
+*/
+func (s *Service) SetFields(fields map[string]Dependency) *Service {
+	// sort names to have the same order of errors always
+	names := make([]string, 0, len(fields))
+	for n := range fields {
+		names = append(names, n)
+	}
+	sort.Strings(names)
+
+	for _, n := range names {
+		s.SetField(n, fields[n])
+	}
 	return s
 }
 

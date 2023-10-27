@@ -406,7 +406,7 @@ func main() {
 
 **Field injection**
 
-Use `SetField`.
+Use `SetField` or `SetFields`.
 
 <details>
   <summary>See code</summary>
@@ -415,27 +415,32 @@ Use `SetField`.
 package main
 
 import (
-	"fmt"
+   "fmt"
 
-	"github.com/gontainer/gontainer-helpers/v2/container"
+   "github.com/gontainer/gontainer-helpers/v2/container"
 )
 
 type Person struct {
-	name string // unexported fields are supported :)
+   name string // unexported fields are supported :)
 }
 
 func main() {
-	s := container.NewService()
-	s.SetValue(Person{})
-	s.SetField("name", container.NewDependencyParam("name"))
+   s := container.NewService()
+   s.SetValue(Person{})
+   s.SetField("name", container.NewDependencyParam("name"))
 
-	c := container.New()
-	c.OverrideService("jane", s)
-	c.OverrideParam("name", container.NewDependencyValue("Jane"))
+   // alternatively:
+   // s.SetFields(map[string]container.Dependency{
+   // 	"name": container.NewDependencyValue("name"),
+   // })
 
-	jane, _ := c.Get("jane")
-	fmt.Printf("%+v\n", jane)
-	// Output: {name:Jane}
+   c := container.New()
+   c.OverrideService("jane", s)
+   c.OverrideParam("name", container.NewDependencyValue("Jane"))
+
+   jane, _ := c.Get("jane")
+   fmt.Printf("%+v\n", jane)
+   // Output: {name:Jane}
 }
 ```
 </details>
