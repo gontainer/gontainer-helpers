@@ -18,13 +18,5 @@ func convertBuiltIn(from reflect.Value, to reflect.Type) (_ reflect.Value, suppo
 }
 
 func isAny(v reflect.Type) bool {
-	if v.Kind() != reflect.Interface {
-		return false
-	}
-
-	if v.NumMethod() > 0 {
-		return false
-	}
-
-	return true
+	return v.Kind() == reflect.Interface && v.NumMethod() == 0
 }
