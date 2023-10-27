@@ -22,3 +22,31 @@ func TestService_SetField(t *testing.T) {
 		assert.Equal(t, "eyeColor", s.fields[2].name)
 	})
 }
+
+func TestService_SetFields(t *testing.T) {
+	s := NewService()
+	s.SetFields(map[string]Dependency{
+		"lastname":  NewDependencyValue("Stark"),
+		"firstname": NewDependencyValue("Tony"),
+	})
+	assert.Equal(
+		t,
+		[]serviceField{
+			{
+				name: "firstname",
+				dep: Dependency{
+					type_: dependencyValue,
+					value: "Tony",
+				},
+			},
+			{
+				name: "lastname",
+				dep: Dependency{
+					type_: dependencyValue,
+					value: "Stark",
+				},
+			},
+		},
+		s.fields,
+	)
+}
