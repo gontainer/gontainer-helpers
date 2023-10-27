@@ -5,7 +5,7 @@ import (
 	"sort"
 	"sync"
 
-	containerGraph "github.com/gontainer/gontainer-helpers/v2/container/graph"
+	containerGraph "github.com/gontainer/gontainer-helpers/v2/container/internal/graph"
 )
 
 type graphBuilder struct {
@@ -15,7 +15,7 @@ type graphBuilder struct {
 	servicesCycles       map[string][]int
 	paramsCycles         map[string][]int
 	scopes               map[string]scope
-	computedCircularDeps [][]containerGraph.Dependency //nolint:staticcheck
+	computedCircularDeps [][]containerGraph.Dependency
 }
 
 func newGraphBuilder(c *Container) *graphBuilder {
@@ -60,7 +60,7 @@ func (g *graphBuilder) warmUpCircularDeps() {
 
 func (g *graphBuilder) warmUpScopes(
 	graph interface {
-		Deps(serviceID string) []containerGraph.Dependency //nolint:staticcheck
+		Deps(serviceID string) []containerGraph.Dependency
 	},
 ) {
 	g.scopes = make(map[string]scope)
@@ -99,7 +99,7 @@ func (g *graphBuilder) warmUp() {
 		g.valid = true
 	}()
 
-	graph := containerGraph.New() //nolint:staticcheck
+	graph := containerGraph.New()
 
 	// iterate over `g.Container.services` in the same order always,
 	// otherwise we would add elements to the tree in different order
@@ -183,7 +183,7 @@ func (g *graphBuilder) circularDeps() error {
 	g.locker.RLock()
 	defer g.locker.RUnlock()
 
-	return containerGraph.CircularDepsToError(g.computedCircularDeps) //nolint:staticcheck
+	return containerGraph.CircularDepsToError(g.computedCircularDeps)
 }
 
 func (g *graphBuilder) serviceCircularDeps(serviceID string) error {
@@ -192,13 +192,12 @@ func (g *graphBuilder) serviceCircularDeps(serviceID string) error {
 	g.locker.RLock()
 	defer g.locker.RUnlock()
 
-	//nolint:staticcheck
 	circularDeps := make([][]containerGraph.Dependency, 0, len(g.servicesCycles[serviceID]))
 	for _, cycleID := range g.servicesCycles[serviceID] {
 		circularDeps = append(circularDeps, g.computedCircularDeps[cycleID])
 	}
 
-	return containerGraph.CircularDepsToError(circularDeps) //nolint:staticcheck
+	return containerGraph.CircularDepsToError(circularDeps)
 }
 
 func (g *graphBuilder) paramCircularDeps(paramID string) error {
@@ -207,13 +206,12 @@ func (g *graphBuilder) paramCircularDeps(paramID string) error {
 	g.locker.RLock()
 	defer g.locker.RUnlock()
 
-	//nolint:staticcheck
 	circularDeps := make([][]containerGraph.Dependency, 0, len(g.paramsCycles[paramID]))
 	for _, cycleID := range g.paramsCycles[paramID] {
 		circularDeps = append(circularDeps, g.computedCircularDeps[cycleID])
 	}
 
-	return containerGraph.CircularDepsToError(circularDeps) //nolint:staticcheck
+	return containerGraph.CircularDepsToError(circularDeps)
 }
 
 func depsToRawServicesTags(deps ...Dependency) (services, params, tags []string) {

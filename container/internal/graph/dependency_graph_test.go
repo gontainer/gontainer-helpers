@@ -3,7 +3,7 @@ package graph_test
 import (
 	"testing"
 
-	"github.com/gontainer/gontainer-helpers/v2/container/graph/internal/graph"
+	"github.com/gontainer/gontainer-helpers/v2/container/internal/graph"
 	errAssert "github.com/gontainer/gontainer-helpers/v2/grouperror/assert"
 )
 
