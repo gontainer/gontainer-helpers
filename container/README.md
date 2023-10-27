@@ -990,7 +990,7 @@ func buildContainer() *myContainer {
 ### Errors
 
 This package aims to be as developer-friendly as possible.
-To make ease the debugging process all errors are as descriptive as possible.
+To ease the debugging process all errors are as descriptive as possible.
 Sometimes you may have more than a single reason why something does not work,
 so whenever it is possible you get a multiline error.
 Multiline error is a collection of few independent errors.
