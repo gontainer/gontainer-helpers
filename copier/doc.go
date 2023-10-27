@@ -1,5 +1,5 @@
 /*
-Package copier allows for copying a value to a variable with an unknown type.
+Package copier allows for copying a value to a variable with an unknown type. It can also convert a value to another type.
 
 	var (
 		from = 5 // the type of the variable `to` can be different from the type of the variable `from`
