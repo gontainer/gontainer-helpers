@@ -38,7 +38,7 @@ func (c *Container) GetInContext(ctx context.Context, id string) (any, error) {
 	// so it must be executed before checking whether the context is done
 	bag := c.contextBag(ctx)
 	if contextDone(ctx) {
-		return nil, fmt.Errorf("GetInContext(%+q): %w", id, ctx.Err())
+		return nil, fmt.Errorf("GetInContext(%+q): ctx.Done() closed: %w", id, ctx.Err())
 	}
 
 	return c.get(id, bag)
@@ -67,7 +67,7 @@ func (c *Container) GetTaggedByInContext(ctx context.Context, tag string) ([]any
 	// so it must be executed before checking whether the context is done
 	bag := c.contextBag(ctx)
 	if contextDone(ctx) {
-		return nil, fmt.Errorf("GetTaggedByInContext(%+q): %w", tag, ctx.Err())
+		return nil, fmt.Errorf("GetTaggedByInContext(%+q): ctx.Done() closed: %w", tag, ctx.Err())
 	}
 
 	return c.getTaggedBy(tag, bag)

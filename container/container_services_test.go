@@ -17,6 +17,32 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestContainer_GetInContext(t *testing.T) {
+	t.Run("Context is done", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+
+		c := container.New()
+		ctx = container.ContextWithContainer(ctx, c)
+
+		_, err := c.GetInContext(ctx, "service")
+		assert.EqualError(t, err, `GetInContext("service"): ctx.Done() closed: context canceled`)
+	})
+}
+
+func TestContainer_GetTaggedByInContext(t *testing.T) {
+	t.Run("Context is done", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+
+		c := container.New()
+		ctx = container.ContextWithContainer(ctx, c)
+
+		_, err := c.GetTaggedByInContext(ctx, "tag")
+		assert.EqualError(t, err, `GetTaggedByInContext("tag"): ctx.Done() closed: context canceled`)
+	})
+}
+
 func TestContainer_executeServiceCalls(t *testing.T) {
 	t.Run("Errors", func(t *testing.T) {
 		s := container.NewService()
