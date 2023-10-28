@@ -252,7 +252,7 @@ container.NewDependencyValue("https://go.dev/")
 **Tag**
 
 Search in the container for all services with the given tag.
-Sort them by priority first, then by name, and return a slice of them.
+Sort them by priority first (descending), then by name (alphabetically), and return a slice of them.
 
 ```go
 container.NewDependencyTag("employee")
