@@ -461,7 +461,7 @@ s.Tag("handler", 0)
 
 **Scope**
 
-To define the scope of the given service, use on of the following methods:
+To define the scope of the given service, use one of the following methods:
 
 1. `SetScopeDefault`
 2. `SetScopeShared`
