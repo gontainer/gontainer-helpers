@@ -19,6 +19,19 @@ func (m myMap) Foo() {
 type myMap2 map[string]interface{ Foo() }
 
 func TestValueOf(t *testing.T) {
+	t.Run("Do not convert", func(t *testing.T) {
+		t.Run("OK", func(t *testing.T) {
+			var x int = 5
+			v, err := intReflect.ValueOf(x, reflect.TypeOf(x), false)
+			require.NoError(t, err)
+			assert.Equal(t, x, v.Interface())
+		})
+		t.Run("Error", func(t *testing.T) {
+			var x int = 5
+			_, err := intReflect.ValueOf(x, reflect.TypeOf(uint(0)), false)
+			assert.EqualError(t, err, "value of type int is not assignable to type uint")
+		})
+	})
 	t.Run("Empty maps & slices", func(t *testing.T) {
 		t.Run("Nil slice", func(t *testing.T) {
 			var (
