@@ -1,4 +1,4 @@
-package reflect
+package reflect_test
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"testing"
 
+	intReflect "github.com/gontainer/gontainer-helpers/v2/internal/reflect"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -17,7 +18,7 @@ func (m myMap) Foo() {
 
 type myMap2 map[string]interface{ Foo() }
 
-func TestConvert(t *testing.T) {
+func TestValueOf(t *testing.T) {
 	t.Run("Empty maps & slices", func(t *testing.T) {
 		t.Run("Nil slice", func(t *testing.T) {
 			var (
@@ -25,7 +26,7 @@ func TestConvert(t *testing.T) {
 				to   []int
 			)
 
-			r, err := convert(from, reflect.TypeOf(to))
+			r, err := intReflect.ValueOf(from, reflect.TypeOf(to), true)
 			require.NoError(t, err)
 			assert.Nil(t, r.Interface())
 		})
@@ -35,7 +36,7 @@ func TestConvert(t *testing.T) {
 				to   []int
 			)
 
-			r, err := convert(from, reflect.TypeOf(to))
+			r, err := intReflect.ValueOf(from, reflect.TypeOf(to), true)
 			require.NoError(t, err)
 			assert.NotNil(t, r.Interface())
 			assert.Len(t, r.Interface(), 0)
@@ -46,7 +47,7 @@ func TestConvert(t *testing.T) {
 				to   map[string]any
 			)
 
-			r, err := convert(from, reflect.TypeOf(to))
+			r, err := intReflect.ValueOf(from, reflect.TypeOf(to), true)
 			require.NoError(t, err)
 			assert.Nil(t, r.Interface())
 		})
@@ -56,7 +57,7 @@ func TestConvert(t *testing.T) {
 				to   map[string]any
 			)
 
-			r, err := convert(from, reflect.TypeOf(to))
+			r, err := intReflect.ValueOf(from, reflect.TypeOf(to), true)
 			require.NoError(t, err)
 			assert.NotNil(t, r.Interface())
 		})
@@ -72,7 +73,7 @@ func TestConvert(t *testing.T) {
 					"2^10": 1024,
 				}
 				var to map[string]int64
-				v, err := convert(from, reflect.TypeOf(to))
+				v, err := intReflect.ValueOf(from, reflect.TypeOf(to), true)
 				require.NoError(t, err)
 				assert.Equal(
 					t,
@@ -111,7 +112,7 @@ func TestConvert(t *testing.T) {
 			for i, s := range scenarios {
 				s := s
 				t.Run(fmt.Sprintf("#%d", i), func(t *testing.T) {
-					_, err := convert(s.input, s.to)
+					_, err := intReflect.ValueOf(s.input, s.to, true)
 					assert.EqualError(t, err, s.error)
 				})
 			}
@@ -121,7 +122,7 @@ func TestConvert(t *testing.T) {
 		t.Run("Slice refers to itself", func(t *testing.T) {
 			x := make([]any, 1)
 			x[0] = x
-			y, err := convert(x, reflect.TypeOf(x))
+			y, err := intReflect.ValueOf(x, reflect.TypeOf(x), true)
 			require.NoError(t, err)
 			assert.Equal(t, x, y.Interface())
 		})
@@ -129,7 +130,7 @@ func TestConvert(t *testing.T) {
 			t.Run("#1", func(t *testing.T) {
 				x := make(map[string]any)
 				x["self"] = x
-				y, err := convert(x, reflect.TypeOf(x))
+				y, err := intReflect.ValueOf(x, reflect.TypeOf(x), true)
 				require.NoError(t, err)
 				assert.Equal(t, x, y.Interface())
 			})
@@ -142,34 +143,34 @@ func TestConvert(t *testing.T) {
 						},
 					},
 				}
-				y, err := convert(x, reflect.TypeOf(x))
+				y, err := intReflect.ValueOf(x, reflect.TypeOf(x), true)
 				require.NoError(t, err)
 				assert.Equal(t, x, y.Interface())
 			})
 			t.Run("#3", func(t *testing.T) {
 				x := make(myMap)
 				x["self"] = x
-				y, err := convert(x, reflect.TypeOf((map[string]any)(nil)))
+				y, err := intReflect.ValueOf(x, reflect.TypeOf((map[string]any)(nil)), true)
 				require.NoError(t, err)
 				assert.Equal(t, (map[string]any)(x), y.Interface())
 			})
 			t.Run("#4", func(t *testing.T) {
 				x := make(map[string]any)
 				x["self"] = x
-				y, err := convert(x, reflect.TypeOf((myMap)(nil)))
+				y, err := intReflect.ValueOf(x, reflect.TypeOf((myMap)(nil)), true)
 				require.NoError(t, err)
 				assert.Equal(t, (myMap)(x), y.Interface())
 			})
 			t.Run("#5", func(t *testing.T) {
 				x := make(map[string]any)
 				x["self"] = x
-				_, err := convert(x, reflect.TypeOf((myMap2)(nil)))
-				assert.EqualError(t, err, "cannot convert map[string]interface {} to reflect.myMap2: map value: cannot convert map[string]interface {} to interface { Foo() }")
+				_, err := intReflect.ValueOf(x, reflect.TypeOf((myMap2)(nil)), true)
+				assert.EqualError(t, err, "cannot convert map[string]interface {} to reflect_test.myMap2: map value: cannot convert map[string]interface {} to interface { Foo() }")
 			})
 			t.Run("#6", func(t *testing.T) {
 				x := make(map[float32]any)
 				x[0] = x
-				v, err := convert(x, reflect.TypeOf((map[float64]any)(nil)))
+				v, err := intReflect.ValueOf(x, reflect.TypeOf((map[float64]any)(nil)), true)
 				require.NoError(t, err)
 
 				val, ok := v.Interface().(map[float64]any)
@@ -355,7 +356,7 @@ func TestConvert(t *testing.T) {
 		for n, tmp := range scenarios {
 			s := tmp
 			t.Run(n, func(t *testing.T) {
-				v, err := convert(s.input, reflect.TypeOf(s.output))
+				v, err := intReflect.ValueOf(s.input, reflect.TypeOf(s.output), true)
 				if s.error != "" {
 					assert.EqualError(t, err, s.error, v)
 					return
