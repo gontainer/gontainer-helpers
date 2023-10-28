@@ -100,6 +100,13 @@ func TestValueOf(t *testing.T) {
 		})
 	})
 
+	t.Run("Nil", func(t *testing.T) {
+		var to map[string]string
+		r, err := intReflect.ValueOf(nil, reflect.TypeOf(to), false)
+		require.NoError(t, err)
+		assert.IsType(t, to, r.Interface())
+	})
+
 	t.Run("Maps", func(t *testing.T) {
 		t.Run("OK", func(t *testing.T) {
 			t.Run("Convert keys and values", func(t *testing.T) {

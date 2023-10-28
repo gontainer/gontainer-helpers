@@ -14,7 +14,7 @@ ValueOf for the `i == nil` and a nil-able [reflect.Kind] of `to` returns a zero 
 If the third argument equals true, it converts the type whenever it is possible,
 If `result.Type()` is not assignable to `to` it returns an error.
 */
-func ValueOf(i any, to reflect.Type, convertVal bool) (result reflect.Value, err error) {
+func ValueOf(i any, to reflect.Type, convertVal bool) (reflect.Value, error) {
 	if convertVal {
 		return convert(i, to)
 	}
