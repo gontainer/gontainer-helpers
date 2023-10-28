@@ -34,14 +34,26 @@ func TestValueOf(t *testing.T) {
 	})
 	t.Run("Empty maps & slices", func(t *testing.T) {
 		t.Run("Nil slice", func(t *testing.T) {
-			var (
-				from []int
-				to   []int
-			)
+			t.Run("Do not convert", func(t *testing.T) {
+				var (
+					from []int
+					to   []int
+				)
 
-			r, err := intReflect.ValueOf(from, reflect.TypeOf(to), true)
-			require.NoError(t, err)
-			assert.Nil(t, r.Interface())
+				r, err := intReflect.ValueOf(from, reflect.TypeOf(to), false)
+				require.NoError(t, err)
+				assert.Nil(t, r.Interface())
+			})
+			t.Run("Convert", func(t *testing.T) {
+				var (
+					from []int
+					to   []uint
+				)
+
+				r, err := intReflect.ValueOf(from, reflect.TypeOf(to), true)
+				require.NoError(t, err)
+				assert.Nil(t, r.Interface())
+			})
 		})
 		t.Run("Non-nil slice", func(t *testing.T) {
 			var (
@@ -55,14 +67,26 @@ func TestValueOf(t *testing.T) {
 			assert.Len(t, r.Interface(), 0)
 		})
 		t.Run("Nil map", func(t *testing.T) {
-			var (
-				from map[string]any
-				to   map[string]any
-			)
+			t.Run("Do not convert", func(t *testing.T) {
+				var (
+					from map[string]any
+					to   map[string]any
+				)
 
-			r, err := intReflect.ValueOf(from, reflect.TypeOf(to), true)
-			require.NoError(t, err)
-			assert.Nil(t, r.Interface())
+				r, err := intReflect.ValueOf(from, reflect.TypeOf(to), false)
+				require.NoError(t, err)
+				assert.Nil(t, r.Interface())
+			})
+			t.Run("Convert", func(t *testing.T) {
+				var (
+					from map[int]any
+					to   map[uint]any
+				)
+
+				r, err := intReflect.ValueOf(from, reflect.TypeOf(to), true)
+				require.NoError(t, err)
+				assert.Nil(t, r.Interface())
+			})
 		})
 		t.Run("Non-nil map", func(t *testing.T) {
 			var (
@@ -119,6 +143,11 @@ func TestValueOf(t *testing.T) {
 					input: map[string]any{"pi": "3.14"},
 					to:    reflect.TypeOf((map[string]float64)(nil)),
 					error: "cannot convert map[string]interface {} to map[string]float64: map value: cannot convert string to float64",
+				},
+				{
+					input: map[any]any{true: "true"},
+					to:    reflect.TypeOf((map[uint]any)(nil)),
+					error: "cannot convert map[interface {}]interface {} to map[uint]interface {}: map key: cannot convert bool to uint",
 				},
 			}
 
