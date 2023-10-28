@@ -129,6 +129,26 @@ func TestContainer_Get(t *testing.T) {
 			}()
 		})
 	})
+
+	t.Run("Could not resolve decorator args", func(t *testing.T) {
+		c := container.New()
+
+		s := container.NewService()
+		s.SetValue(nil)
+		s.Tag("my-tag", 0)
+
+		c.AddDecorator(
+			"my-tag",
+			func(p container.DecoratorPayload) (any, error) {
+				return nil, nil
+			},
+			container.NewDependencyService("logger"),
+		)
+		c.OverrideService("myService", s)
+
+		_, err := c.Get("myService")
+		assert.EqualError(t, err, `get("myService"): resolve decorator args #0: arg #0: get("logger"): service does not exist`)
+	})
 }
 
 func TestContainer_CircularDeps(t *testing.T) {
