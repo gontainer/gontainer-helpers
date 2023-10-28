@@ -304,22 +304,42 @@ Use either `SetConstructor` or `SetValue`. Constructor MUST be a provider (see [
   <summary>See code</summary>
 
 ```go
-type Person struct {
-	Name string
-}
+package main
 
-svc1 := container.NewService()
-svc1.SetValue(Person{}) // create the service using a value
+import (
+   "fmt"
 
-svc2 := container.NewService()
-svc2.SetConstructor(
-    func (n string) Person { // use a constructor to create a new service
-        return Person{
-            Name: n
-        }       
-    },
-    container.NewDependencyParam("name"), // inject parameter "name" to the constructor
+   "github.com/gontainer/gontainer-helpers/v2/container"
 )
+
+func main() {
+   type Person struct {
+      Name string
+   }
+
+   tonySvc := container.NewService()
+   tonySvc.SetValue(Person{Name: "Tony"}) // create the service using a value
+
+   peterSvc := container.NewService()
+   peterSvc.SetConstructor(
+      func(n string) Person { // use a constructor to create a new service
+         return Person{
+            Name: n,
+         }
+      },
+      container.NewDependencyValue("Peter"), // inject parameter "name" to the constructor
+   )
+
+   c := container.New()
+   c.OverrideService("tony", tonySvc)
+   c.OverrideService("peter", peterSvc)
+
+   tony, _ := c.Get("tony")
+   peter, _ := c.Get("peter")
+   fmt.Println(tony, peter)
+
+   // Output: {Tony} {Peter}
+}
 ```
 </details>
 
@@ -454,8 +474,45 @@ used for sorting services, whenever the given tag is requested.
   <summary>See code</summary>
 
 ```go
-s := container.NewService()
-s.Tag("handler", 0)
+package main
+
+import (
+   "fmt"
+
+   "github.com/gontainer/gontainer-helpers/v2/container"
+)
+
+func main() {
+   type Superhero struct {
+      Name string
+   }
+
+   type Team struct {
+      Superheroes []Superhero
+   }
+
+   ironMan := container.NewService()
+   ironMan.SetValue(Superhero{Name: "Iron Man"})
+   ironMan.Tag("avengers", 0) // tag
+
+   thor := container.NewService()
+   thor.SetValue(Superhero{Name: "Thor"})
+   thor.Tag("avengers", 0) // tag
+
+   team := container.NewService()
+   team.SetValue(Team{})
+   team.SetField("Superheroes", container.NewDependencyTag("avengers")) // inject tagged services
+
+   c := container.New()
+   c.OverrideService("ironMan", ironMan)
+   c.OverrideService("thor", thor)
+   c.OverrideService("avengers", team)
+
+   avengers, _ := c.Get("avengers")
+   fmt.Println(avengers)
+
+   // Output: {[{Iron Man} {Thor}]}
+}
 ```
 </details>
 
