@@ -30,6 +30,22 @@ func TestContainer_GetInContext(t *testing.T) {
 	})
 }
 
+func TestContainer_GetTaggedBy(t *testing.T) {
+	t.Run("Error", func(t *testing.T) {
+		p := container.NewService()
+		p.SetValue(struct {
+			Name string
+		}{})
+		p.SetField("Name", container.NewDependencyParam("name"))
+		p.Tag("person", 0)
+
+		c := container.New()
+		c.OverrideService("jane", p)
+		_, err := c.GetTaggedBy("person")
+		assert.EqualError(t, err, `getTaggedBy("person"): get("jane"): field value "Name": getParam("name"): param does not exist`)
+	})
+}
+
 func TestContainer_GetTaggedByInContext(t *testing.T) {
 	t.Run("Context is done", func(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
