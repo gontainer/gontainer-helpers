@@ -570,7 +570,8 @@ func main() {
 
 HotSwap lets us gracefully change anything in the container in real time.
 It waits till all contexts attached to the container are done,
-then blocks attaching other contexts, and modifies the container.
+then blocks attaching other contexts, and other operations on the container,
+and modifies the container.
 
 Let's create an HTTP handler that will use the container:
 
