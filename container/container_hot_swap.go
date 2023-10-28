@@ -68,8 +68,8 @@ func (m *mutableContainer) InvalidateAllParamsCache() {
 }
 
 /*
-HotSwap lets safely modify the given [Container] in a concurrent environment.
-It waits for all `<-ctx.Done()`, then locks the container till the passed function is executed.
+HotSwap lets safely modify the given [*Container] in a concurrent environment.
+It waits till all contexts are done, then locks the container till the passed function is executed.
 
 	c.HotSwap(func (c container.MutableContainer) {
 		c.OverrideParam("db.password", container.NewDependencyValue("new-password"))
