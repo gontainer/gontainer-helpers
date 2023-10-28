@@ -327,7 +327,7 @@ func main() {
             Name: n,
          }
       },
-      container.NewDependencyValue("Peter"), // inject parameter "name" to the constructor
+      container.NewDependencyValue("Peter"), // inject the value "Peter" to the constructor
    )
 
    c := container.New()
