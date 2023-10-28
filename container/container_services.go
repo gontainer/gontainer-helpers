@@ -93,11 +93,6 @@ func (c *Container) get(id string, contextualBag keyValue) (result any, err erro
 		}
 	}()
 
-	err = c.graphBuilder.serviceCircularDeps(id)
-	if err != nil {
-		return nil, grouperror.Prefix("circular dependencies: ", err)
-	}
-
 	svc, ok := c.services[id]
 	if !ok {
 		return nil, errors.New("service does not exist")
@@ -132,6 +127,11 @@ func (c *Container) get(id string, contextualBag keyValue) (result any, err erro
 				cache.set(id, result)
 			}
 		}()
+	}
+
+	err = c.graphBuilder.serviceCircularDeps(id)
+	if err != nil {
+		return nil, grouperror.Prefix("circular dependencies: ", err)
 	}
 
 	// constructor
