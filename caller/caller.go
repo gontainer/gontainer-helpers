@@ -51,7 +51,7 @@ func CallProvider(provider any, args []any, convertArgs bool) (_ any, err error)
 		}
 	}()
 
-	fn, err := caller.FuncProvider(provider)
+	fn, err := caller.Provider(provider)
 	if err != nil {
 		return nil, err
 	}

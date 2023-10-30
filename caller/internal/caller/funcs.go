@@ -21,7 +21,7 @@ func Func(fn any) (reflect.Value, error) {
 	return v, nil
 }
 
-func FuncProvider(fn any) (reflect.Value, error) {
+func Provider(fn any) (reflect.Value, error) {
 	v, err := Func(fn)
 	if err != nil {
 		return reflect.Value{}, err

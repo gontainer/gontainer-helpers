@@ -6,7 +6,7 @@ import (
 	"reflect"
 
 	"github.com/gontainer/gontainer-helpers/v2/grouperror"
-	helpersReflect "github.com/gontainer/gontainer-helpers/v2/internal/reflect"
+	intReflect "github.com/gontainer/gontainer-helpers/v2/internal/reflect"
 )
 
 type reflectType struct {
@@ -50,7 +50,7 @@ func CallFunc(fn reflect.Value, args []any, convertArgs bool) (res []any, err er
 	for i, p := range args {
 		convertTo := fnType.In(i)
 		var err error
-		argsVals[i], err = helpersReflect.ValueOf(p, convertTo, convertArgs)
+		argsVals[i], err = intReflect.ValueOf(p, convertTo, convertArgs)
 		if err != nil {
 			errs = append(errs, grouperror.Prefix(fmt.Sprintf("arg%d: ", i), err))
 		}
