@@ -71,7 +71,24 @@ func CallProvider(provider any, args []any, convertArgs bool) (_ any, err error)
 	return r, e
 }
 
-// CallByName works similar to [Call] with the difference it calls the method by the name over the given receiver.
+/*
+CallByName works similar to [Call] with the difference it calls the method by the name over the given receiver.
+
+	type Person struct {
+		Name string
+	}
+
+	func (p *Person) SetName(n string) {
+		p.Name = n
+	}
+
+	func main() {
+		p := &Person{}
+		_, _ = caller.CallByName(p, "SetName", []any{"Mary"}, false)
+		fmt.Println(p.name)
+		// Output: Mary
+	}
+*/
 func CallByName(object any, method string, args []any, convertArgs bool) (_ []any, err error) {
 	defer func() {
 		if err != nil {
