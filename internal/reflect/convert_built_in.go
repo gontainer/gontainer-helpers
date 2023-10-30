@@ -17,6 +17,12 @@ func convertBuiltIn(from reflect.Value, to reflect.Type) (_ reflect.Value, suppo
 	return reflect.Value{}, false, nil
 }
 
+/*
+isAny returns true for any interface with zero methods:
+
+	type any1 interface{}
+	type any2 = interface{}
+*/
 func isAny(v reflect.Type) bool {
 	return v.Kind() == reflect.Interface && v.NumMethod() == 0
 }
