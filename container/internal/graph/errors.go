@@ -8,14 +8,14 @@ import (
 )
 
 func CircularDepsToError(circularDeps [][]Dependency) error {
-	var errs []error
+	errs := make([]error, len(circularDeps))
 
-	for _, cycle := range circularDeps {
-		ids := make([]string, 0, len(cycle))
-		for _, node := range cycle {
-			ids = append(ids, node.Pretty)
+	for i, cycle := range circularDeps {
+		ids := make([]string, len(cycle))
+		for j, node := range cycle {
+			ids[j] = node.Pretty
 		}
-		errs = append(errs, fmt.Errorf("%s", strings.Join(ids, " -> ")))
+		errs[i] = fmt.Errorf("%s", strings.Join(ids, " -> "))
 	}
 
 	return grouperror.Join(errs...)
