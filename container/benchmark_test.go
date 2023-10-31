@@ -24,7 +24,6 @@ func BenchmarkContainer_scopeDefault(b *testing.B) {
 	c.OverrideParam("name", container.NewDependencyValue("Mary"))
 	emp, _ := c.Get("employee") // warm up
 	require.Equal(b, Employee{Name: "Mary"}, emp)
-	b.ReportAllocs()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
@@ -44,7 +43,6 @@ func BenchmarkContainer_scopeShared(b *testing.B) {
 	c.OverrideParam("name", container.NewDependencyValue("Mary"))
 	emp, _ := c.Get("employee") // warm up
 	require.Equal(b, Employee{Name: "Mary"}, emp)
-	b.ReportAllocs()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
@@ -64,7 +62,6 @@ func BenchmarkContainer_scopeContextual(b *testing.B) {
 	c.OverrideParam("name", container.NewDependencyValue("Mary"))
 	emp, _ := c.Get("employee") // warm up
 	require.Equal(b, Employee{Name: "Mary"}, emp)
-	b.ReportAllocs()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
@@ -87,7 +84,6 @@ func BenchmarkContainer_scopeContextual_in_same_context(b *testing.B) {
 	ctx = container.ContextWithContainer(ctx, c)
 	emp, _ := c.GetInContext(ctx, "employee") // warm up
 	require.Equal(b, Employee{Name: "Mary"}, emp)
-	b.ReportAllocs()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
@@ -107,7 +103,6 @@ func BenchmarkContainer_scopeNonShared(b *testing.B) {
 	c.OverrideParam("name", container.NewDependencyValue("Mary"))
 	emp, _ := c.Get("employee") // warm up
 	require.Equal(b, Employee{Name: "Mary"}, emp)
-	b.ReportAllocs()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
@@ -120,7 +115,6 @@ func BenchmarkContainer_map(b *testing.B) {
 	m["employee"] = Employee{
 		Name: "Mary",
 	}
-	b.ReportAllocs()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
