@@ -852,19 +852,18 @@ type Spouse struct {
 }
 
 func main() {
-
 	wife := container.NewService()
 	wife.SetConstructor(func() *Spouse {
 		return &Spouse{}
 	})
-	wife.SetField("Name", container.NewDependencyValue("Mary Jane"))
+	wife.SetField("Name", container.NewDependencyValue("Hera"))
 	wife.SetField("Spouse", container.NewDependencyService("husband"))
 
 	husband := container.NewService()
 	husband.SetConstructor(func() *Spouse {
 		return &Spouse{}
 	})
-	husband.SetField("Name", container.NewDependencyValue("Peter Parker"))
+	husband.SetField("Name", container.NewDependencyValue("Zeus"))
 	husband.SetField("Spouse", container.NewDependencyService("wife"))
 
 	c := container.New()
@@ -1058,25 +1057,35 @@ You can extract them using `grouperror.Collection`, see [grouperror](../grouperr
   <summary>See code</summary>
 
 ```go
-peterParker := container.NewService()
-peterParker.SetValue(
-	struct {
-		name string
-	}{},
+package main
+
+import (
+	"fmt"
+
+	"github.com/gontainer/gontainer-helpers/v2/container"
 )
-peterParker.SetField("firstname", container.NewDependencyValue("Peter"))
-peterParker.SetField("lastname", container.NewDependencyValue("Parker"))
 
-c := container.New()
-c.OverrideService("peterParker", peterParker)
+func main() {
+	janeDoe := container.NewService()
+	janeDoe.SetValue(
+		struct {
+			name string
+		}{},
+	)
+	janeDoe.SetField("firstname", container.NewDependencyValue("Jane"))
+	janeDoe.SetField("lastname", container.NewDependencyValue("Doe"))
 
-_, err := c.Get("peterParker")
+	c := container.New()
+	c.OverrideService("janeDoe", janeDoe)
 
-fmt.Println(err)
+	_, err := c.Get("janeDoe")
 
-// Output:
-// get("peterParker"): set field "firstname": set (*interface {})."firstname": field "firstname" does not exist
-// get("peterParker"): set field "lastname": set (*interface {})."lastname": field "lastname" does not exist
+	fmt.Println(err)
+
+	// Output:
+	// get("janeDoe"): set field "firstname": set (*interface {})."firstname": field "firstname" does not exist
+	// get("janeDoe"): set field "lastname": set (*interface {})."lastname": field "lastname" does not exist
+}
 ```
 </details>
 
