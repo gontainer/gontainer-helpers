@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/gontainer/gontainer-helpers/v2/container"
+	"github.com/stretchr/testify/require"
 )
 
 type Employee struct {
@@ -21,7 +22,8 @@ func BenchmarkContainer_scopeDefault(b *testing.B) {
 	e.SetScopeDefault()
 	c.OverrideService("employee", e)
 	c.OverrideParam("name", container.NewDependencyValue("Mary"))
-	_, _ = c.Get("employee") // warm up
+	emp, _ := c.Get("employee") // warm up
+	require.Equal(b, Employee{Name: "Mary"}, emp)
 	b.ReportAllocs()
 	b.ResetTimer()
 
@@ -40,7 +42,8 @@ func BenchmarkContainer_scopeShared(b *testing.B) {
 	e.SetScopeShared()
 	c.OverrideService("employee", e)
 	c.OverrideParam("name", container.NewDependencyValue("Mary"))
-	_, _ = c.Get("employee") // warm up
+	emp, _ := c.Get("employee") // warm up
+	require.Equal(b, Employee{Name: "Mary"}, emp)
 	b.ReportAllocs()
 	b.ResetTimer()
 
@@ -59,7 +62,8 @@ func BenchmarkContainer_scopeContextual(b *testing.B) {
 	e.SetScopeContextual()
 	c.OverrideService("employee", e)
 	c.OverrideParam("name", container.NewDependencyValue("Mary"))
-	_, _ = c.Get("employee") // warm up
+	emp, _ := c.Get("employee") // warm up
+	require.Equal(b, Employee{Name: "Mary"}, emp)
 	b.ReportAllocs()
 	b.ResetTimer()
 
@@ -81,7 +85,8 @@ func BenchmarkContainer_scopeContextual_in_same_context(b *testing.B) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	ctx = container.ContextWithContainer(ctx, c)
-	_, _ = c.GetInContext(ctx, "employee") // warm up
+	emp, _ := c.GetInContext(ctx, "employee") // warm up
+	require.Equal(b, Employee{Name: "Mary"}, emp)
 	b.ReportAllocs()
 	b.ResetTimer()
 
@@ -100,7 +105,8 @@ func BenchmarkContainer_scopeNonShared(b *testing.B) {
 	e.SetScopeNonShared()
 	c.OverrideService("employee", e)
 	c.OverrideParam("name", container.NewDependencyValue("Mary"))
-	_, _ = c.Get("employee") // warm up
+	emp, _ := c.Get("employee") // warm up
+	require.Equal(b, Employee{Name: "Mary"}, emp)
 	b.ReportAllocs()
 	b.ResetTimer()
 
