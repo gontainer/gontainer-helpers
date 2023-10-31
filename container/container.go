@@ -35,6 +35,7 @@ type Container struct {
 		Wait()
 	}
 	contextLocker rwlocker
+	onceWarmUp    *sync.Once
 	id            ctxKey
 }
 
@@ -86,6 +87,7 @@ func New() *Container {
 		globalLocker:        &sync.RWMutex{},
 		groupContext:        groupcontext.New(),
 		contextLocker:       &sync.RWMutex{},
+		onceWarmUp:          &sync.Once{},
 		id:                  ctxKey(atomic.AddUint64(currentContainerID, 1)),
 	}
 	c.graphBuilder = newGraphBuilder(c)
@@ -96,6 +98,8 @@ func New() *Container {
 func (c *Container) CircularDeps() error {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
+
+	c.warmUpGraph()
 
 	return grouperror.Prefix("CircularDeps(): ", c.graphBuilder.circularDeps())
 }
@@ -130,4 +134,15 @@ func (c *Container) resolveDep(contextualBag keyValue, d Dependency) (any, error
 	}
 
 	return nil, errors.New("unknown dependency type")
+}
+
+func (c *Container) invalidateGraph() {
+	c.onceWarmUp = &sync.Once{}
+	c.graphBuilder.invalidate()
+}
+
+func (c *Container) warmUpGraph() {
+	c.onceWarmUp.Do(func() {
+		c.graphBuilder.warmUp()
+	})
 }

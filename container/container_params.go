@@ -12,6 +12,8 @@ func (c *Container) GetParam(paramID string) (any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
+	c.warmUpGraph()
+
 	return c.getParam(paramID)
 }
 

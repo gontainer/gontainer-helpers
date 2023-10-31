@@ -25,6 +25,8 @@ func (c *Container) Get(serviceID string) (any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
+	c.warmUpGraph()
+
 	return c.get(serviceID, newSafeMap())
 }
 
@@ -33,6 +35,8 @@ func (c *Container) Get(serviceID string) (any, error) {
 func (c *Container) GetInContext(ctx context.Context, id string) (any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
+
+	c.warmUpGraph()
 
 	// contextBag checks whether the context is valid,
 	// so it must be executed before checking whether the context is done
@@ -52,6 +56,8 @@ func (c *Container) GetTaggedBy(tag string) ([]any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
+	c.warmUpGraph()
+
 	return c.getTaggedBy(tag, newSafeMap())
 }
 
@@ -62,6 +68,8 @@ func (c *Container) GetTaggedBy(tag string) ([]any, error) {
 func (c *Container) GetTaggedByInContext(ctx context.Context, tag string) ([]any, error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
+
+	c.warmUpGraph()
 
 	// contextBag checks whether the context is valid,
 	// so it must be executed before checking whether the context is done
