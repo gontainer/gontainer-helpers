@@ -74,14 +74,14 @@ var (
 /*
 New creates a concurrent-safe DI Container.
 
-	type God struct {
+	type Person struct {
 		Name string
 	}
 
 	s := container.NewService()
 	s.SetConstructor(
-		func(n string) God {
-			return God{
+		func(n string) Person {
+			return Person{
 				Name: n,
 			}
 		},
