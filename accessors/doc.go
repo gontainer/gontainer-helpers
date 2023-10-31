@@ -18,6 +18,5 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package setter_test
-
-type any = interface{}
+// Package accessors allows for read and write operations on fields of any struct.
+package accessors

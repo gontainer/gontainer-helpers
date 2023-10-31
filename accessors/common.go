@@ -18,5 +18,55 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// Package setter allows for manipulation of a value of a field of any struct.
-package setter
+package accessors
+
+import (
+	"errors"
+	"reflect"
+)
+
+type kindChain []reflect.Kind
+
+func (c kindChain) equalTo(kinds ...reflect.Kind) bool {
+	if len(c) != len(kinds) {
+		return false
+	}
+
+	for i := 0; i < len(c); i++ {
+		if c[i] != kinds[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (c kindChain) prefixed(kinds ...reflect.Kind) bool {
+	if len(c) < len(kinds) {
+		return false
+	}
+
+	return c[:len(kinds)].equalTo(kinds...)
+}
+
+func valueToKindChain(val any) (kindChain, error) {
+	var r kindChain
+	v := reflect.ValueOf(val)
+	ptrs := make(map[uintptr]struct{})
+	for {
+		if v.Kind() == reflect.Ptr && !v.IsNil() {
+			ptr := v.Elem().UnsafeAddr()
+			if _, ok := ptrs[ptr]; ok {
+				return nil, errors.New("unexpected pointer loop")
+			}
+			ptrs[ptr] = struct{}{}
+		}
+		r = append(r, v.Kind())
+		if v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {
+			v = v.Elem()
+			continue
+		}
+		break
+	}
+	return r, nil
+}

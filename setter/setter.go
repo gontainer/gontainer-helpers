@@ -20,4 +20,11 @@
 
 package setter
 
-type any = interface{}
+import (
+	"github.com/gontainer/gontainer-helpers/v2/accessors"
+)
+
+var (
+	// Deprecated: use [accessors.Set].
+	Set = accessors.Set
+)
