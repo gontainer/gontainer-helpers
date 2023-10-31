@@ -1,7 +1,7 @@
 # Caller
 
 This package provides functions that allow calling other functions with unknown arguments.
-The third argument instructs the setter whether you allow for converting the type.
+The `convertArgs` argument instructs the setter whether you allow for converting the type.
 
 ```go
 sum := func(a, b int) int {
