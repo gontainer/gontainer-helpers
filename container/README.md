@@ -107,7 +107,7 @@ func NewTransferFundsHandler(f Factory) http.Handler {
 
 ## Quick start
 
-```
+```go
 package main
 
 import (
