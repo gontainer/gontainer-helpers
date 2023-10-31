@@ -3,6 +3,7 @@ package container_test
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/gontainer/gontainer-helpers/v2/container"
 	"github.com/stretchr/testify/require"
@@ -27,6 +28,7 @@ func BenchmarkContainer_scopeDefault(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
+		time.Sleep(time.Millisecond)
 		_, _ = c.Get("employee")
 	}
 }
