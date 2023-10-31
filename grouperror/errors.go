@@ -12,7 +12,7 @@ func Join(errs ...error) error {
 	return Prefix("", errs...)
 }
 
-// Prefix joins error the same way as Join, and adds a prefix to the group.
+// Prefix joins error the same way as [Join], and adds a prefix to the group.
 func Prefix(prefix string, errs ...error) error {
 	n := 0
 	for _, err := range errs {
