@@ -46,8 +46,8 @@ func TestService_SetField(t *testing.T) {
 func TestService_SetFields(t *testing.T) {
 	s := NewService()
 	s.SetFields(map[string]Dependency{
-		"lastname":  NewDependencyValue("Stark"),
-		"firstname": NewDependencyValue("Tony"),
+		"lastname":  NewDependencyValue("Rejewski"),
+		"firstname": NewDependencyValue("Marian"),
 	})
 	assert.Equal(
 		t,
@@ -56,14 +56,14 @@ func TestService_SetFields(t *testing.T) {
 				name: "firstname",
 				dep: Dependency{
 					type_: dependencyValue,
-					value: "Tony",
+					value: "Marian",
 				},
 			},
 			{
 				name: "lastname",
 				dep: Dependency{
 					type_: dependencyValue,
-					value: "Stark",
+					value: "Rejewski",
 				},
 			},
 		},
