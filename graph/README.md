@@ -1,6 +1,6 @@
 # Graph
 
-This package provides a tool to detect circular dependencies and find all dependant nodes in graphs.
+This package provides a tool to detect circular dependencies and find all dependant nodes in directed graphs.
 
 ```go
 g := graph.New()
