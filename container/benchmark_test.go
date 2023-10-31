@@ -17,9 +17,10 @@ func BenchmarkContainer_scopeDefault(b *testing.B) {
 	e.SetConstructor(func() interface{} {
 		return Employee{}
 	})
-	e.SetField("Name", container.NewDependencyValue("Mary"))
+	e.SetField("Name", container.NewDependencyParam("name"))
 	e.SetScopeDefault()
 	c.OverrideService("employee", e)
+	c.OverrideParam("name", container.NewDependencyValue("Mary"))
 	_, _ = c.Get("employee") // warm up
 	b.ResetTimer()
 
@@ -34,9 +35,10 @@ func BenchmarkContainer_scopeShared(b *testing.B) {
 	e.SetConstructor(func() interface{} {
 		return Employee{}
 	})
-	e.SetField("Name", container.NewDependencyValue("Mary"))
+	e.SetField("Name", container.NewDependencyParam("name"))
 	e.SetScopeShared()
 	c.OverrideService("employee", e)
+	c.OverrideParam("name", container.NewDependencyValue("Mary"))
 	_, _ = c.Get("employee") // warm up
 	b.ResetTimer()
 
@@ -51,9 +53,10 @@ func BenchmarkContainer_scopeContextual(b *testing.B) {
 	e.SetConstructor(func() interface{} {
 		return Employee{}
 	})
-	e.SetField("Name", container.NewDependencyValue("Mary"))
+	e.SetField("Name", container.NewDependencyParam("name"))
 	e.SetScopeContextual()
 	c.OverrideService("employee", e)
+	c.OverrideParam("name", container.NewDependencyValue("Mary"))
 	_, _ = c.Get("employee") // warm up
 	b.ResetTimer()
 
@@ -68,9 +71,10 @@ func BenchmarkContainer_scopeContextual_in_same_context(b *testing.B) {
 	e.SetConstructor(func() interface{} {
 		return Employee{}
 	})
-	e.SetField("Name", container.NewDependencyValue("Mary"))
+	e.SetField("Name", container.NewDependencyParam("name"))
 	e.SetScopeContextual()
 	c.OverrideService("employee", e)
+	c.OverrideParam("name", container.NewDependencyValue("Mary"))
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	ctx = container.ContextWithContainer(ctx, c)
@@ -88,9 +92,10 @@ func BenchmarkContainer_scopeNonShared(b *testing.B) {
 	e.SetConstructor(func() interface{} {
 		return Employee{}
 	})
-	e.SetField("Name", container.NewDependencyValue("Mary"))
+	e.SetField("Name", container.NewDependencyParam("name"))
 	e.SetScopeNonShared()
 	c.OverrideService("employee", e)
+	c.OverrideParam("name", container.NewDependencyValue("Mary"))
 	_, _ = c.Get("employee") // warm up
 	b.ResetTimer()
 
