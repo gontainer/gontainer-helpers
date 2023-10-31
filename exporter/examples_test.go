@@ -26,6 +26,12 @@ import (
 	"github.com/gontainer/gontainer-helpers/v2/exporter"
 )
 
+func Example() {
+	s, _ := exporter.Export([3]any{nil, 1.5, "hello world"})
+	fmt.Println(s)
+	// Output: [3]interface{}{nil, float64(1.5), "hello world"}
+}
+
 func ExampleCastToString_string() {
 	s, _ := exporter.CastToString("hello world")
 	fmt.Println(s)

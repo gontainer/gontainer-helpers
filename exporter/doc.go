@@ -18,11 +18,5 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-/*
-Package exporter provides a set of functions to export variables to a GO code.
-
-	s, _ := exporter.Export([3]any{nil, 1.5, "hello world"})
-	fmt.Println(s)
-	// Output: [3]interface{}{nil, float64(1.5), "hello world"}
-*/
+// Package exporter provides a set of functions to export variables to a GO code.
 package exporter
