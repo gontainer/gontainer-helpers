@@ -26,6 +26,15 @@ import (
 	"github.com/gontainer/gontainer-helpers/v2/setter"
 )
 
+func Example() {
+	person := struct {
+		name string
+	}{}
+	_ = setter.Set(&person, "name", "Mary", false)
+	fmt.Println(person.name)
+	// Output: Mary
+}
+
 func ExampleSet_ok() {
 	person := struct {
 		name string
