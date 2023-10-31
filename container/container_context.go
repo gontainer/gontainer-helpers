@@ -46,9 +46,11 @@ func (c *Container) Root() *Container {
 }
 
 /*
-ContextWithContainer creates a new context, and attaches the given [Container] to it.
+ContextWithContainer creates a new context, and attaches the given container to it.
 The given context MUST be cancellable (ctx.Done() != nil).
 Till the given context is not cancelled, all invocations of HotSwap stuck.
+
+If the `parent` context is already attached to the given container, it returns the original `parent` context.
 
 # Example
 
@@ -86,6 +88,10 @@ func ContextWithContainer(parent context.Context, container Root) context.Contex
 
 	c.contextLocker.RLock()
 	defer c.contextLocker.RUnlock()
+
+	if parent.Value(c.id) != nil {
+		return parent
+	}
 
 	ctx := context.WithValue(parent, c.id, newSafeMap())
 	c.groupContext.Add(ctx)
