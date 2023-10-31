@@ -63,7 +63,7 @@ func TestGet(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, "Mary", n)
 		})
-		t.Run("#5", func(t *testing.T) {
+		t.Run("#6", func(t *testing.T) {
 			p := &Person{name: "Mary"}
 			var p2 any = &p
 			n, err := accessors.Get(&p2, "name")
