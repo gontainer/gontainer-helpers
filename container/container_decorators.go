@@ -17,7 +17,7 @@ func (c *Container) AddDecorator(tag string, decorator any, deps ...Dependency) 
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()
 
-	c.graphBuilder.invalidate()
+	c.invalidateGraph()
 
 	c.decorators = append(c.decorators, serviceDecorator{
 		tag:  tag,

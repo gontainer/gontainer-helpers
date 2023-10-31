@@ -28,7 +28,7 @@ func (c *Container) OverrideService(serviceID string, s Service) {
 }
 
 func overrideService(c *Container, serviceID string, s Service) {
-	c.graphBuilder.invalidate()
+	c.invalidateGraph()
 
 	switch s.scope {
 	case
@@ -60,7 +60,7 @@ func overrideService(c *Container, serviceID string, s Service) {
 }
 
 func overrideParam(c *Container, paramID string, d Dependency) {
-	c.graphBuilder.invalidate()
+	c.invalidateGraph()
 
 	switch d.type_ {
 	case
