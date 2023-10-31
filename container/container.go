@@ -35,7 +35,7 @@ type Container struct {
 		Wait()
 	}
 	contextLocker rwlocker
-	onceWarmUp    *sync.Once
+	onceWarmUp    interface{ Do(func()) }
 	id            ctxKey
 }
 
