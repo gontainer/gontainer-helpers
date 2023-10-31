@@ -50,7 +50,7 @@ func Set(strct any, field string, val any, convert bool) (err error) {
 	}()
 
 	if field == "_" {
-		return fmt.Errorf(`"_" is not supported`)
+		return errors.New(`"_" is not supported`)
 	}
 
 	chain, err := valueToKindChain(strct)
