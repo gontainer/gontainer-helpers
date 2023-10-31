@@ -269,8 +269,8 @@ func TestCastToString(t *testing.T) {
 			error: "type struct {} is not supported",
 		},
 		{
-			input:  "Mary Jane",
-			output: "Mary Jane",
+			input:  "Bernhard Riemann",
+			output: "Bernhard Riemann",
 		},
 		{
 			input:  int(5),

@@ -46,59 +46,59 @@ type People struct {
 	People []Person
 }
 
-type Superhero struct {
+type God struct {
 	Name string
 }
 
-func NewSuperhero(name string) Superhero {
-	return Superhero{Name: name}
+func NewGod(name string) God {
+	return God{Name: name}
 }
 
 type Team struct {
-	Superheroes []Superhero
+	Gods []God
 }
 
 func buildContainer() *container.Container {
-	// describe Iron Man
-	ironMan := container.NewService()
-	ironMan.SetValue(Superhero{})
-	ironMan.SetField("Name", container.NewDependencyValue("Iron Man"))
-	ironMan.Tag("avengers", 0)
+	// describe Poseidon
+	poseidon := container.NewService()
+	poseidon.SetValue(God{})
+	poseidon.SetField("Name", container.NewDependencyValue("Poseidon")) // field injection
+	poseidon.Tag("olympians", 0)
 
-	// describe Thor
-	thor := container.NewService()
-	thor.SetValue(Superhero{
-		Name: "Thor",
+	// describe Athena
+	athena := container.NewService()
+	athena.SetValue(God{
+		Name: "Athena",
 	})
-	thor.Tag("avengers", 1) // Thor has a higher priority
+	athena.Tag("olympians", 0)
 
-	// describe Hulk
-	hulk := container.NewService()
-	hulk.SetConstructor(
-		NewSuperhero,
-		container.NewDependencyValue("Hulk"),
+	// describe Zeus
+	zeus := container.NewService()
+	zeus.SetConstructor(
+		NewGod,
+		container.NewDependencyValue("Zeus"), // constructor injection
 	)
-	hulk.Tag("avengers", 0)
+	zeus.Tag("olympians", 1) // Zeus has a higher priority
 
-	// describe Avengers
-	avengers := container.NewService()
-	avengers.SetValue(Team{})
-	avengers.SetField("Superheroes", container.NewDependencyTag("avengers"))
+	// describe Olympians
+	olympians := container.NewService()
+	olympians.SetValue(Team{})
+	olympians.SetField("Gods", container.NewDependencyTag("olympians"))
 
 	c := container.New()
-	c.OverrideService("ironMan", ironMan)
-	c.OverrideService("thor", thor)
-	c.OverrideService("hulk", hulk)
-	c.OverrideService("avengers", avengers)
+	c.OverrideService("poseidon", poseidon)
+	c.OverrideService("athena", athena)
+	c.OverrideService("zeus", zeus)
+	c.OverrideService("olympians", olympians)
 
 	return c
 }
 
 func Example() {
 	c := buildContainer()
-	avengers, _ := c.Get("avengers")
-	fmt.Printf("%+v\n", avengers)
-	// Output: {Superheroes:[{Name:Thor} {Name:Hulk} {Name:Iron Man}]}
+	olympians, _ := c.Get("olympians")
+	fmt.Printf("%+v\n", olympians)
+	// Output: {Gods:[{Name:Zeus} {Name:Athena} {Name:Poseidon}]}
 }
 
 func ExampleContainer_GetInContext_wrongContext() {
@@ -206,48 +206,48 @@ func ExampleContainer_GetInContext_oneContextManyContainers() {
 }
 
 func ExampleContainer_Get() {
-	type Person struct {
+	type God struct {
 		Name string
 	}
 
-	type People struct {
-		People []Person
+	type Gods struct {
+		Gods []God
 	}
 
-	// create Mary Jane
-	mary := container.NewService()
-	mary.SetConstructor(func() Person {
-		return Person{}
+	// describe Hera
+	hera := container.NewService()
+	hera.SetConstructor(func() God {
+		return God{}
 	})
-	mary.SetField("Name", container.NewDependencyValue("Mary Jane"))
-	mary.Tag("person", 1) // priority = 1, ladies first :)
+	hera.SetField("Name", container.NewDependencyValue("Hera"))
+	hera.Tag("god", 1) // priority = 1, ladies first :)
 
-	// create Peter Parker
-	peter := container.NewService()
-	peter.SetConstructor(func() Person {
-		return Person{}
+	// describe Zeus
+	zeus := container.NewService()
+	zeus.SetConstructor(func() God {
+		return God{}
 	})
-	peter.SetField("Name", container.NewDependencyProvider(func() string {
-		return "Peter Parker"
+	zeus.SetField("Name", container.NewDependencyProvider(func() string {
+		return "Zeus"
 	}))
-	peter.Tag("person", 0)
+	zeus.Tag("god", 0)
 
-	// create "people"
-	people := container.NewService()
-	people.SetValue(People{})                                       // instead of providing a constructor, we can provide a value directly
-	people.SetField("People", container.NewDependencyTag("person")) // fetch all objects tagged as "person", and assign them to the field "people"
+	// describe "gods"
+	gods := container.NewService()
+	gods.SetValue(Gods{})                                    // instead of providing a constructor, we can provide a value directly
+	gods.SetField("Gods", container.NewDependencyTag("god")) // fetch all objects tagged as "god", and assign them to the field "Gods"
 
 	// create a Container, and append all services there
 	c := container.New()
-	c.OverrideService("mary", mary)
-	c.OverrideService("peter", peter)
-	c.OverrideService("people", people)
+	c.OverrideService("hera", hera)
+	c.OverrideService("zeus", zeus)
+	c.OverrideService("gods", gods)
 
-	peopleObject, _ := c.Get("people")
+	godsObject, _ := c.Get("gods")
 
-	fmt.Printf("%+v\n", peopleObject)
+	fmt.Printf("%+v\n", godsObject)
 
-	// Output: {People:[{Name:Mary Jane} {Name:Peter Parker}]}
+	// Output: {Gods:[{Name:Hera} {Name:Zeus}]}
 }
 
 func ExampleContainer_Get_errorServiceDoesNotExist() {
@@ -255,20 +255,20 @@ func ExampleContainer_Get_errorServiceDoesNotExist() {
 		Name string
 	}
 
-	mary := container.NewService()
-	mary.SetConstructor(func() Person {
+	riemann := container.NewService()
+	riemann.SetConstructor(func() Person {
 		return Person{}
 	})
-	mary.SetField("Name", container.NewDependencyValue("Mary Jane"))
+	riemann.SetField("Name", container.NewDependencyValue("Bernhard Riemann"))
 
 	c := container.New()
-	// oops... we forgot to add the variable `mary` to the Container
-	// c.OverrideService("mary", mary)
+	// oops... we forgot to add the variable `riemann` to the Container
+	// c.OverrideService("riemann", riemann)
 
-	_, err := c.Get("mary")
+	_, err := c.Get("riemann")
 	fmt.Println(err)
 
-	// Output: get("mary"): service does not exist
+	// Output: get("riemann"): service does not exist
 }
 
 func ExampleContainer_Get_errorFieldDoesNotExist() {
@@ -276,21 +276,21 @@ func ExampleContainer_Get_errorFieldDoesNotExist() {
 		Name string
 	}
 
-	mary := container.NewService()
-	mary.SetConstructor(func() Person {
+	riemann := container.NewService()
+	riemann.SetConstructor(func() Person {
 		return Person{}
 	})
 	// it's an invalid field name, it cannot work!
-	mary.SetField("FullName", container.NewDependencyValue("Mary Jane"))
+	riemann.SetField("FullName", container.NewDependencyValue("Bernhard Riemann"))
 
 	c := container.New()
-	c.OverrideService("mary", mary)
+	c.OverrideService("riemann", riemann)
 
-	_, err := c.Get("mary")
+	_, err := c.Get("riemann")
 	fmt.Println(err)
 
 	// Output:
-	// get("mary"): set field "FullName": set (*interface {})."FullName": field "FullName" does not exist
+	// get("riemann"): set field "FullName": set (*interface {})."FullName": field "FullName" does not exist
 }
 
 func ExampleContainer_Get_circularDepsServices() {
@@ -303,14 +303,14 @@ func ExampleContainer_Get_circularDepsServices() {
 	wife.SetConstructor(func() *Spouse {
 		return &Spouse{}
 	})
-	wife.SetField("Name", container.NewDependencyValue("Mary Jane"))
+	wife.SetField("Name", container.NewDependencyValue("Hera"))
 	wife.SetField("Spouse", container.NewDependencyService("husband"))
 
 	husband := container.NewService()
 	husband.SetConstructor(func() *Spouse {
 		return &Spouse{}
 	})
-	husband.SetField("Name", container.NewDependencyValue("Peter Parker"))
+	husband.SetField("Name", container.NewDependencyValue("Zeus"))
 	husband.SetField("Spouse", container.NewDependencyService("wife"))
 
 	c := container.New()
@@ -349,14 +349,14 @@ func ExampleContainer_CircularDeps() {
 	wife.SetConstructor(func() *Spouse {
 		return &Spouse{}
 	})
-	wife.SetField("Name", container.NewDependencyValue("Mary Jane"))
+	wife.SetField("Name", container.NewDependencyValue("Hera"))
 	wife.SetField("Spouse", container.NewDependencyService("husband"))
 
 	husband := container.NewService()
 	husband.SetConstructor(func() *Spouse {
 		return &Spouse{}
 	})
-	husband.SetField("Name", container.NewDependencyValue("Peter Parker"))
+	husband.SetField("Name", container.NewDependencyValue("Zeus"))
 	husband.SetField("Spouse", container.NewDependencyService("wife"))
 
 	c := container.New()
@@ -372,35 +372,35 @@ func ExampleContainer_CircularDeps() {
 }
 
 func ExampleContainer_Get_setter() {
-	mary := container.NewService()
-	mary.SetConstructor(func() *Person { // we have to use a pointer, because we use a setter
+	riemann := container.NewService()
+	riemann.SetConstructor(func() *Person { // we have to use a pointer, because we use a setter
 		return &Person{}
 	})
-	mary.AppendCall("SetName", container.NewDependencyValue("Mary Jane"))
+	riemann.AppendCall("SetName", container.NewDependencyValue("Bernhard Riemann"))
 
 	c := container.New()
-	c.OverrideService("mary", mary)
+	c.OverrideService("riemann", riemann)
 
-	maryObject, _ := c.Get("mary")
+	maryObject, _ := c.Get("riemann")
 	fmt.Println(maryObject)
 
-	// Output: &{Mary Jane}
+	// Output: &{Bernhard Riemann}
 }
 
 func ExampleContainer_Get_wither() {
-	mary := container.NewService()
-	mary.SetConstructor(func() Person {
+	riemann := container.NewService()
+	riemann.SetConstructor(func() Person {
 		return Person{}
 	})
-	mary.AppendWither("WithName", container.NewDependencyValue("Mary Jane"))
+	riemann.AppendWither("WithName", container.NewDependencyValue("Bernhard Riemann"))
 
 	c := container.New()
-	c.OverrideService("mary", mary)
+	c.OverrideService("riemann", riemann)
 
-	maryObject, _ := c.Get("mary")
+	maryObject, _ := c.Get("riemann")
 	fmt.Println(maryObject)
 
-	// Output: {Mary Jane}
+	// Output: {Bernhard Riemann}
 }
 
 type Greeter interface {
@@ -489,49 +489,10 @@ func ExampleContainer_Get_scopeNonShared() {
 }
 
 func ExampleContainer_Get_taggedServices() {
-	type Superhero struct {
-		Name string
-	}
-
-	type Team struct {
-		Superheroes []Superhero
-	}
-
-	// describe Iron Man
-	ironMan := container.NewService()
-	ironMan.SetValue(Superhero{
-		Name: "Iron Man",
-	})
-	ironMan.Tag("avengers", 0)
-
-	// describe Thor
-	thor := container.NewService()
-	thor.SetValue(Superhero{
-		Name: "Thor",
-	})
-	thor.Tag("avengers", 1) // Thor has a higher priority
-
-	// describe Hulk
-	hulk := container.NewService()
-	hulk.SetValue(Superhero{
-		Name: "Hulk",
-	})
-	hulk.Tag("avengers", 0)
-
-	// describe Avengers
-	team := container.NewService()
-	team.SetValue(Team{})
-	team.SetField("Superheroes", container.NewDependencyTag("avengers"))
-
-	c := container.New()
-	c.OverrideService("ironMan", ironMan)
-	c.OverrideService("thor", thor)
-	c.OverrideService("hulk", hulk)
-	c.OverrideService("avengers", team)
-
-	avengers, _ := c.Get("avengers")
-	fmt.Printf("%+v\n", avengers)
-	// Output: {Superheroes:[{Name:Thor} {Name:Hulk} {Name:Iron Man}]}
+	c := buildContainer()
+	olympians, _ := c.Get("olympians")
+	fmt.Printf("%+v\n", olympians)
+	// Output: {Gods:[{Name:Zeus} {Name:Athena} {Name:Poseidon}]}
 }
 
 func ExampleContainer_GetTaggedBy() {

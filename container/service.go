@@ -94,12 +94,12 @@ func (s *Service) SetConstructor(fn any, deps ...Dependency) *Service {
 AppendCall instructs the container to execute a method over that object.
 
 	s := container.NewService()
-	s.SetConstructor(func() *Person {
-		return &Person{}
+	s.SetConstructor(func() *God {
+		return &God{}
 	})
 	s.AppendMethod("SetName", container.NewDependencyValue("Jane"))
 
-	// p := &Person{}
+	// p := &God{}
 	// p.SetName("Jane")
 */
 func (s *Service) AppendCall(method string, deps ...Dependency) *Service {
@@ -115,10 +115,10 @@ func (s *Service) AppendCall(method string, deps ...Dependency) *Service {
 AppendWither instructs the container to execute a wither-method over that object.
 
 	s := container.NewService()
-	s.SetValue(Person{})
+	s.SetValue(God{})
 	s.AppendWither("WithName", container.NewDependencyValue("Jane"))
 
-	// p := Person{}
+	// p := God{}
 	// p = p.WithName("Jane")
 */
 func (s *Service) AppendWither(method string, deps ...Dependency) *Service {
@@ -134,10 +134,10 @@ func (s *Service) AppendWither(method string, deps ...Dependency) *Service {
 SetField instructs the container to set a value of the given field.
 
 	s := container.NewService()
-	s.SetValue(Person{})
+	s.SetValue(God{})
 	s.SetField("Name", container.NewDependencyValue("Jane"))
 
-	// p := Person{}
+	// p := God{}
 	// p.Name = "Jane"
 */
 func (s *Service) SetField(field string, dep Dependency) *Service {

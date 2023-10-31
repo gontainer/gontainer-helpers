@@ -107,7 +107,7 @@ func NewTransferFundsHandler(f Factory) http.Handler {
 
 ## Quick start
 
-```go
+```
 package main
 
 import (
@@ -116,59 +116,59 @@ import (
 	"github.com/gontainer/gontainer-helpers/v2/container"
 )
 
-type Superhero struct {
+type God struct {
 	Name string
 }
 
-func NewSuperhero(name string) Superhero {
-	return Superhero{Name: name}
+func NewGod(name string) God {
+	return God{Name: name}
 }
 
 type Team struct {
-	Superheroes []Superhero
+	Gods []God
 }
 
 func buildContainer() *container.Container {
-	// describe Iron Man
-	ironMan := container.NewService()
-	ironMan.SetValue(Superhero{})
-	ironMan.SetField("Name", container.NewDependencyValue("Iron Man"))
-	ironMan.Tag("avengers", 0)
+	// describe Poseidon
+	poseidon := container.NewService()
+	poseidon.SetValue(God{})
+	poseidon.SetField("Name", container.NewDependencyValue("Poseidon")) // field injection
+	poseidon.Tag("olympians", 0)
 
-	// describe Thor
-	thor := container.NewService()
-	thor.SetValue(Superhero{
-		Name: "Thor",
+	// describe Athena
+	athena := container.NewService()
+	athena.SetValue(God{
+		Name: "Athena",
 	})
-	thor.Tag("avengers", 1) // Thor has a higher priority
+	athena.Tag("olympians", 0)
 
-	// describe Hulk
-	hulk := container.NewService()
-	hulk.SetConstructor(
-		NewSuperhero,
-		container.NewDependencyValue("Hulk"),
+	// describe Zeus
+	zeus := container.NewService()
+	zeus.SetConstructor(
+		NewGod,
+		container.NewDependencyValue("Zeus"), // constructor injection
 	)
-	hulk.Tag("avengers", 0)
+	zeus.Tag("olympians", 1) // Zeus has a higher priority
 
-	// describe Avengers
-	avengers := container.NewService()
-	avengers.SetValue(Team{})
-	avengers.SetField("Superheroes", container.NewDependencyTag("avengers"))
+	// describe Olympians
+	olympians := container.NewService()
+	olympians.SetValue(Team{})
+	olympians.SetField("Gods", container.NewDependencyTag("olympians"))
 
 	c := container.New()
-	c.OverrideService("ironMan", ironMan)
-	c.OverrideService("thor", thor)
-	c.OverrideService("hulk", hulk)
-	c.OverrideService("avengers", avengers)
+	c.OverrideService("poseidon", poseidon)
+	c.OverrideService("athena", athena)
+	c.OverrideService("zeus", zeus)
+	c.OverrideService("olympians", olympians)
 
 	return c
 }
 
 func main() {
 	c := buildContainer()
-	avengers, _ := c.Get("avengers")
-	fmt.Printf("%+v\n", avengers)
-	// Output: {Superheroes:[{Name:Thor} {Name:Hulk} {Name:Iron Man}]}
+	olympians, _ := c.Get("olympians")
+	fmt.Printf("%+v\n", olympians)
+	// Output: {Gods:[{Name:Zeus} {Name:Athena} {Name:Poseidon}]}
 }
 ```
 
@@ -477,41 +477,41 @@ used for sorting services, whenever the given tag is requested.
 package main
 
 import (
-   "fmt"
+	"fmt"
 
-   "github.com/gontainer/gontainer-helpers/v2/container"
+	"github.com/gontainer/gontainer-helpers/v2/container"
 )
 
 func main() {
-   type Superhero struct {
-      Name string
-   }
+	type God struct {
+		Name string
+	}
 
-   type Team struct {
-      Superheroes []Superhero
-   }
+	type Gods struct {
+		Gods []God
+	}
 
-   ironMan := container.NewService()
-   ironMan.SetValue(Superhero{Name: "Iron Man"})
-   ironMan.Tag("avengers", 0) // tag
+	loki := container.NewService()
+	loki.SetValue(God{Name: "Loki"})
+	loki.Tag("norse-god", 0) // tag
 
-   thor := container.NewService()
-   thor.SetValue(Superhero{Name: "Thor"})
-   thor.Tag("avengers", 0) // tag
+	thor := container.NewService()
+	thor.SetValue(God{Name: "Thor"})
+	thor.Tag("norse-god", 0) // tag
 
-   team := container.NewService()
-   team.SetValue(Team{})
-   team.SetField("Superheroes", container.NewDependencyTag("avengers")) // inject tagged services
+	team := container.NewService()
+	team.SetValue(Gods{})
+	team.SetField("Gods", container.NewDependencyTag("norse-god")) // inject tagged services
 
-   c := container.New()
-   c.OverrideService("ironMan", ironMan)
-   c.OverrideService("thor", thor)
-   c.OverrideService("avengers", team)
+	c := container.New()
+	c.OverrideService("loki", loki)
+	c.OverrideService("thor", thor)
+	c.OverrideService("norseGods", team)
 
-   avengers, _ := c.Get("avengers")
-   fmt.Println(avengers)
+	norseGods, _ := c.Get("norseGods")
+	fmt.Println(norseGods)
 
-   // Output: {[{Iron Man} {Thor}]}
+	// Output: {[{Loki} {Thor}]}
 }
 ```
 </details>
@@ -891,7 +891,7 @@ It supports even a bit more sophisticated conversions of maps and slices, see [c
   <summary>See code</summary>
 
 ```go
-type Superhero struct {
+type Employee struct {
 	name string
 	age  uint
 }
@@ -899,13 +899,13 @@ type Superhero struct {
 func buildContainer() *container.Container {
 	c := container.New()
 
-	ironMan := container.NewService()
-	ironMan.SetValue(Superhero{})
-	ironMan.SetField("name", container.NewDependencyValue("Tony Stark"))
+	jane := container.NewService()
+	jane.SetValue(Employee{})
+	jane.SetField("name", container.NewDependencyValue("Jane Doe"))
 	// The following value "53" is of the type "int", although we need an "uint"
-	// See [Superhero.age]
+	// See [Employee.age]
 	// Container automatically converts values for more developer-friendly experience :)
-	ironMan.SetField("age", container.NewDependencyValue(53))
+	jane.SetField("age", container.NewDependencyValue(53))
 
 	return c
 }

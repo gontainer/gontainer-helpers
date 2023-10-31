@@ -120,9 +120,9 @@ func TestSet(t *testing.T) {
 	})
 	t.Run("var a any = &struct{}", func(t *testing.T) {
 		var p any = &person{}
-		assert.NoError(t, setter.Set(&p, "Name", "Mary Jane", false))
+		assert.NoError(t, setter.Set(&p, "Name", "Bernhard Riemann", false))
 		assert.NoError(t, setter.Set(&p, "age", 45, true))
-		assert.Equal(t, &person{Name: "Mary Jane", age: 45}, p)
+		assert.Equal(t, &person{Name: "Bernhard Riemann", age: 45}, p)
 	})
 	t.Run("var a any = struct{}", func(t *testing.T) {
 		var p any = person{}
