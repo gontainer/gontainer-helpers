@@ -18,10 +18,5 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-/*
-Package grouperror provides a toolset to join and split errors.
-
-	err := grouperror.Prefix("my group: ", fmt.Errorf("error1"), nil, fmt.Errorf("error2"))
-	errs := grouperror.Collection(err) // []errors{error("my group: error1"), error("my group: error2")}
-*/
+// Package grouperror provides a toolset to join and split errors.
 package grouperror

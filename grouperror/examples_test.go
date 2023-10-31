@@ -27,6 +27,16 @@ import (
 	"github.com/gontainer/gontainer-helpers/v2/grouperror"
 )
 
+func Example() {
+	err := grouperror.Prefix("my group: ", fmt.Errorf("error1"), nil, fmt.Errorf("error2"))
+	for _, x := range grouperror.Collection(err) {
+		fmt.Println(x)
+	}
+	// Output:
+	// my group: error1
+	// my group: error2
+}
+
 func ExamplePrefix() {
 	err := grouperror.Prefix(
 		"validation: ",
