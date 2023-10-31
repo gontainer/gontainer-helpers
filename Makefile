@@ -15,3 +15,9 @@ deprecations:
 
 benchmark:
 	go test container/benchmark_test.go -bench=Container -benchmem
+
+addlicense:
+	addlicense -f LICENSE -ignore=vendor/\*\* -ignore=.github/\*\* .
+
+addlicense-check:
+	addlicense -f LICENSE -ignore=vendor/\*\* -ignore=.github/\*\* -check .
