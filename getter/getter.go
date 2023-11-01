@@ -25,7 +25,7 @@ import (
 )
 
 /*
-Get returns the value of `field` of the `struct`.
+Get returns the value of `field` of the `struct`. Unexported fields are supported.
 
 	person := struct {
 		name string
