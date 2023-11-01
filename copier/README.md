@@ -1,7 +1,7 @@
 # Copier
 
 Package copier allows for copying a value to a variable with an unknown type.
-The third argument instructs the setter whether you allow for converting the type.
+The third argument instructs the copier whether you allow for converting the type.
 
 **Copy value**
 
