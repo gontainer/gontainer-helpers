@@ -49,6 +49,14 @@ func fieldNotSupportedError(field string) error {
 	return nil
 }
 
+func fieldByName(strct reflect.Value, field string) (f reflect.Value, err error) {
+	f = strct.FieldByName(field)
+	if !f.IsValid() {
+		err = fmt.Errorf("field %+q does not exist", field)
+	}
+	return
+}
+
 func Get(strct any, field string) (_ any, err error) {
 	defer func() {
 		if err != nil {
@@ -81,9 +89,9 @@ func Get(strct any, field string) (_ any, err error) {
 		return nil, fmt.Errorf("expected struct, %T given", strct)
 	}
 
-	f := reflectVal.FieldByName(field)
-	if !f.IsValid() {
-		return nil, fmt.Errorf("field %+q does not exist", field)
+	f, err := fieldByName(reflectVal, field)
+	if err != nil {
+		return nil, err
 	}
 
 	if !f.CanSet() { // handle unexported fields
@@ -174,9 +182,9 @@ func Set(strct any, field string, val any, convert bool) (err error) {
 }
 
 func setOnValue(strct reflect.Value, field string, val any, convert bool) error {
-	f := strct.FieldByName(field)
-	if !f.IsValid() {
-		return fmt.Errorf("field %+q does not exist", field)
+	f, err := fieldByName(strct, field)
+	if err != nil {
+		return err
 	}
 
 	v, err := ValueOf(val, f.Type(), convert)
