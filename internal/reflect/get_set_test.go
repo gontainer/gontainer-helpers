@@ -312,6 +312,22 @@ func TestSet(t *testing.T) {
 		err := reflect.Set(&a, "Name", "Jane", true)
 		assert.EqualError(t, err, `set (**struct { Name string })."Name": pointer to nil struct given`)
 	})
+	t.Run("Invalid struct #3", func(t *testing.T) {
+		var a *struct {
+			Name string
+		}
+		var b any = a
+		err := reflect.Set(&b, "Name", "Jane", true)
+		assert.EqualError(t, err, `set (*interface {})."Name": expected pointer to struct, *interface {} given`)
+	})
+	t.Run("Invalid struct #4", func(t *testing.T) {
+		var a *struct {
+			Name string
+		}
+		var b any = a
+		err := reflect.Set(b, "Name", "Jane", true)
+		assert.EqualError(t, err, `set (*struct { Name string })."Name": pointer to nil struct given`)
+	})
 }
 
 type person struct {
