@@ -30,12 +30,12 @@ import (
 )
 
 func ptrToNilStructError(v any) error {
-	reflectType := reflect.TypeOf(v)
-	if reflectType != nil {
-		for reflectType.Kind() == reflect.Ptr {
-			reflectType = reflectType.Elem()
+	t := reflect.TypeOf(v)
+	if t != nil {
+		for t.Kind() == reflect.Ptr {
+			t = t.Elem()
 		}
-		if reflectType.Kind() == reflect.Struct {
+		if t.Kind() == reflect.Struct {
 			return errors.New("pointer to nil struct given")
 		}
 	}
@@ -79,13 +79,12 @@ func Get(strct any, field string) (_ any, err error) {
 		reflectVal = reflectVal.Elem()
 	}
 
-	if !reflectVal.IsValid() {
-		if err := ptrToNilStructError(strct); err != nil {
-			return nil, err
-		}
-	}
-
 	if reflectVal.Kind() != reflect.Struct {
+		if !reflectVal.IsValid() {
+			if err := ptrToNilStructError(strct); err != nil {
+				return nil, err
+			}
+		}
 		return nil, fmt.Errorf("expected struct, %T given", strct)
 	}
 
