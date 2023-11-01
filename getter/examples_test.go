@@ -18,24 +18,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package setter
+package getter_test
 
 import (
-	"github.com/gontainer/gontainer-helpers/v2/internal/reflect"
+	"fmt"
+
+	"github.com/gontainer/gontainer-helpers/v2/getter"
 )
 
-/*
-Set assigns the value `val` to the field `field` on the struct `strct`.
-If the third argument equals true, it converts the type whenever it is possible.
-Unexported fields are supported.
-
-	type Person struct {
-		Name string
+func ExampleGet_ok() {
+	person := struct {
+		name string
+	}{
+		name: "Mary",
 	}
-	p := Person{}
-	_ = setter.Set(&p, "Name", "Jane", false)
-	fmt.Println(p) // {Jane}
-*/
-func Set(strct any, field string, val any, convert bool) error {
-	return reflect.Set(strct, field, val, convert)
+	v, _ := getter.Get(person, "name")
+	fmt.Println(v)
+	// Output: Mary
+}
+
+func ExampleGet_error() {
+	_, err := getter.Get(nil, "name")
+	fmt.Println(err)
+	// Output: get (<nil>)."name": expected struct, <nil> given
 }

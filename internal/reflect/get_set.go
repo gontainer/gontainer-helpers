@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package accessors
+package reflect
 
 import (
 	"errors"
@@ -27,21 +27,77 @@ import (
 	"unsafe"
 
 	"github.com/gontainer/gontainer-helpers/v2/grouperror"
-	intReflect "github.com/gontainer/gontainer-helpers/v2/internal/reflect"
 )
 
-/*
-Set assigns the value `val` to the field `field` on the struct `strct`.
-If the third argument equals true, it converts the type whenever it is possible.
-Unexported fields are supported.
-
-	type Person struct {
-		Name string
+func ptrToNilStructError(v any) error {
+	reflectType := reflect.TypeOf(v)
+	if reflectType != nil {
+		for reflectType.Kind() == reflect.Ptr {
+			reflectType = reflectType.Elem()
+		}
+		if reflectType.Kind() == reflect.Struct {
+			return errors.New("pointer to nil struct given")
+		}
 	}
-	p := Person{}
-	_ = setter.Set(&p, "Name", "Jane", false)
-	fmt.Println(p) // {Jane}
-*/
+	return nil
+}
+
+func fieldNotSupportedError(field string) error {
+	if field == "_" {
+		return errors.New(`"_" is not supported`)
+	}
+	return nil
+}
+
+func Get(strct any, field string) (_ any, err error) {
+	defer func() {
+		if err != nil {
+			err = grouperror.Prefix(fmt.Sprintf("get (%T).%+q: ", strct, field), err)
+		}
+	}()
+
+	if err := fieldNotSupportedError(field); err != nil {
+		return nil, err
+	}
+
+	reflectVal := reflect.ValueOf(strct)
+	chain, err := valueToKindChain(reflectVal)
+	if err != nil {
+		return nil, err
+	}
+
+	for len(chain) > 1 {
+		chain = chain[1:]
+		reflectVal = reflectVal.Elem()
+	}
+
+	if !reflectVal.IsValid() {
+		if err := ptrToNilStructError(strct); err != nil {
+			return nil, err
+		}
+	}
+
+	if reflectVal.Kind() != reflect.Struct {
+		return nil, fmt.Errorf("expected struct, %T given", strct)
+	}
+
+	f := reflectVal.FieldByName(field)
+	if !f.IsValid() {
+		return nil, fmt.Errorf("field %+q does not exist", field)
+	}
+
+	if !f.CanSet() { // handle unexported fields
+		if !f.CanAddr() {
+			tmpReflectVal := reflect.New(reflectVal.Type()).Elem()
+			tmpReflectVal.Set(reflectVal)
+			f = tmpReflectVal.FieldByName(field)
+		}
+		f = reflect.NewAt(f.Type(), unsafe.Pointer(f.UnsafeAddr())).Elem()
+	}
+
+	return f.Interface(), nil
+}
+
 func Set(strct any, field string, val any, convert bool) (err error) {
 	defer func() {
 		if err != nil {
@@ -49,11 +105,12 @@ func Set(strct any, field string, val any, convert bool) (err error) {
 		}
 	}()
 
-	if field == "_" {
-		return errors.New(`"_" is not supported`)
+	if err := fieldNotSupportedError(field); err != nil {
+		return err
 	}
 
-	chain, err := valueToKindChain(strct)
+	reflectVal := reflect.ValueOf(strct)
+	chain, err := valueToKindChain(reflectVal)
 	if err != nil {
 		return err
 	}
@@ -70,7 +127,6 @@ func Set(strct any, field string, val any, convert bool) (err error) {
 			var s3 any = &s
 			Set(&s3, ... // chain == {Ptr, Interface, Ptr, Interface, Ptr, Interface, Struct}
 	*/
-	reflectVal := reflect.ValueOf(strct)
 	for {
 		switch {
 		case chain.prefixed(reflect.Ptr, reflect.Ptr):
@@ -110,6 +166,9 @@ func Set(strct any, field string, val any, convert bool) (err error) {
 		return nil
 
 	default:
+		if err := ptrToNilStructError(strct); err != nil {
+			return err
+		}
 		return fmt.Errorf("expected pointer to struct, %T given", strct)
 	}
 }
@@ -120,7 +179,7 @@ func setOnValue(strct reflect.Value, field string, val any, convert bool) error 
 		return fmt.Errorf("field %+q does not exist", field)
 	}
 
-	v, err := intReflect.ValueOf(val, f.Type(), convert)
+	v, err := ValueOf(val, f.Type(), convert)
 	if err != nil {
 		return err
 	}
@@ -130,4 +189,49 @@ func setOnValue(strct reflect.Value, field string, val any, convert bool) error 
 	}
 	f.Set(v)
 	return nil
+}
+
+type kindChain []reflect.Kind
+
+func (c kindChain) equalTo(kinds ...reflect.Kind) bool {
+	if len(c) != len(kinds) {
+		return false
+	}
+
+	for i := 0; i < len(c); i++ {
+		if c[i] != kinds[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (c kindChain) prefixed(kinds ...reflect.Kind) bool {
+	if len(c) < len(kinds) {
+		return false
+	}
+
+	return c[:len(kinds)].equalTo(kinds...)
+}
+
+func valueToKindChain(v reflect.Value) (kindChain, error) {
+	var r kindChain
+	ptrs := make(map[uintptr]struct{})
+	for {
+		if v.Kind() == reflect.Ptr && !v.IsNil() {
+			ptr := v.Elem().UnsafeAddr()
+			if _, ok := ptrs[ptr]; ok {
+				return nil, errors.New("unexpected pointer loop")
+			}
+			ptrs[ptr] = struct{}{}
+		}
+		r = append(r, v.Kind())
+		if v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {
+			v = v.Elem()
+			continue
+		}
+		break
+	}
+	return r, nil
 }

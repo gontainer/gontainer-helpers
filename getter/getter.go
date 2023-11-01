@@ -18,56 +18,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package accessors
+package getter
 
 import (
-	"errors"
-	"fmt"
-	"reflect"
-	"unsafe"
-
-	"github.com/gontainer/gontainer-helpers/v2/grouperror"
+	"github.com/gontainer/gontainer-helpers/v2/internal/reflect"
 )
 
-func Get(strct any, field string) (_ any, err error) {
-	defer func() {
-		if err != nil {
-			err = grouperror.Prefix(fmt.Sprintf("get (%T).%+q: ", strct, field), err)
-		}
-	}()
+/*
+Get returns the value of `field` of the `struct`.
 
-	if field == "_" {
-		return nil, errors.New(`"_" is not supported`)
+	person := struct {
+		name string
+	}{
+		name: "Mary",
 	}
-
-	chain, err := valueToKindChain(strct)
-	if err != nil {
-		return nil, err
-	}
-
-	reflectVal := reflect.ValueOf(strct)
-	for len(chain) > 1 {
-		chain = chain[1:]
-		reflectVal = reflectVal.Elem()
-	}
-
-	if !reflectVal.IsValid() || reflectVal.Kind() != reflect.Struct {
-		return nil, fmt.Errorf("expected struct, %T given", strct)
-	}
-
-	f := reflectVal.FieldByName(field)
-	if !f.IsValid() {
-		return nil, fmt.Errorf("field %+q does not exist", field)
-	}
-
-	if !f.CanSet() { // handle unexported fields
-		if !f.CanAddr() {
-			tmpReflectVal := reflect.New(reflectVal.Type()).Elem()
-			tmpReflectVal.Set(reflectVal)
-			f = tmpReflectVal.FieldByName(field)
-		}
-		f = reflect.NewAt(f.Type(), unsafe.Pointer(f.UnsafeAddr())).Elem()
-	}
-
-	return f.Interface(), nil
+	v, _ := getter.Get(person, "name")
+	fmt.Println(v)
+	// Output: Mary
+*/
+func Get(strct any, field string) (any, error) {
+	return reflect.Get(strct, field)
 }

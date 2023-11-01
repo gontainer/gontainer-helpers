@@ -18,39 +18,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package accessors_test
+package setter_test
 
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/v2/accessors"
+	"github.com/gontainer/gontainer-helpers/v2/setter"
 )
-
-func Example() {
-	person := struct {
-		name string
-	}{}
-	_ = accessors.Set(&person, "name", "Mary", false)
-	fmt.Println(person.name)
-	// Output: Mary
-}
-
-func ExampleGet() {
-	person := struct {
-		name string
-	}{
-		name: "Mary",
-	}
-	v, _ := accessors.Get(person, "name")
-	fmt.Println(v)
-	// Output: Mary
-}
 
 func ExampleSet_ok() {
 	person := struct {
 		name string
 	}{}
-	err := accessors.Set(&person, "name", "Mary", false)
+	err := setter.Set(&person, "name", "Mary", false)
 	fmt.Println(person.name)
 	fmt.Println(err)
 	// Output:
@@ -62,19 +42,19 @@ func ExampleSet_errFieldDoesNotExists() {
 	person := struct {
 		name string
 	}{}
-	err := accessors.Set(&person, "firstname", "Mary", false)
+	err := setter.Set(&person, "firstname", "Mary", false)
 	fmt.Println(err)
 	// Output: set (*struct { name string })."firstname": field "firstname" does not exist
 }
 
-func ExampleSet_errNoPtr() {
+func ExampleSet_errNilPtr() {
 	type Person struct {
 		name string //nolint:unused
 	}
 	var person Person
-	err := accessors.Set(person, "name", "Mary", false)
+	err := setter.Set(person, "name", "Mary", false)
 	fmt.Println(err)
-	// Output: set (accessors_test.Person)."name": expected pointer to struct, accessors_test.Person given
+	// Output: set (setter_test.Person)."name": pointer to nil struct given
 }
 
 func ExampleSet_typeMismatchingError() {
@@ -84,9 +64,9 @@ func ExampleSet_typeMismatchingError() {
 		name string //nolint:unused
 	}
 	var person Person
-	err := accessors.Set(&person, "name", name("Jane"), false)
+	err := setter.Set(&person, "name", name("Jane"), false)
 	fmt.Println(err)
-	// Output: set (*accessors_test.Person)."name": value of type accessors_test.name is not assignable to type string
+	// Output: set (*setter_test.Person)."name": value of type setter_test.name is not assignable to type string
 }
 
 func ExampleSet_typeMismatchingConvert() {
@@ -96,7 +76,7 @@ func ExampleSet_typeMismatchingConvert() {
 		name string //nolint:unused
 	}
 	var person Person
-	_ = accessors.Set(&person, "name", name("Jane"), true)
+	_ = setter.Set(&person, "name", name("Jane"), true)
 	fmt.Println(person.name)
 	// Output: Jane
 }

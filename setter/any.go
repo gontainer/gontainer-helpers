@@ -18,5 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// Package accessors allows for read and write operations on fields of any struct.
-package accessors
+package setter
+
+type any = interface{}
