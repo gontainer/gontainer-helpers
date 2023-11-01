@@ -1,6 +1,6 @@
 # Exporter
 
-This package provides sets of function to export variables to a GO code.
+This package provides sets of functions to export variables to a GO code.
 
 ```go
 s, _ := exporter.Export([3]any{nil, 1.5, "hello world"})
