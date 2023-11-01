@@ -18,5 +18,5 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// Package setter allows for write operations on fields of any struct.
-package setter
+// Package getter allows for read operations on fields of any struct.
+package getter

@@ -18,5 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// Package setter allows for write operations on fields of any struct.
-package setter
+package getter_test
+
+type any = interface{}

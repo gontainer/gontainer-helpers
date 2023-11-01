@@ -18,5 +18,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// Package setter allows for write operations on fields of any struct.
-package setter
+package getter_test
+
+import (
+	"fmt"
+
+	"github.com/gontainer/gontainer-helpers/v2/getter"
+)
+
+func ExampleGet_ok() {
+	person := struct {
+		name string
+	}{
+		name: "Mary",
+	}
+	v, _ := getter.Get(person, "name")
+	fmt.Println(v)
+	// Output: Mary
+}
+
+func ExampleGet_error() {
+	_, err := getter.Get(nil, "name")
+	fmt.Println(err)
+	// Output: get (<nil>)."name": expected struct, <nil> given
+}

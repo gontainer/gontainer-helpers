@@ -18,5 +18,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// Package setter allows for write operations on fields of any struct.
-package setter
+package getter
+
+import (
+	"github.com/gontainer/gontainer-helpers/v2/internal/reflect"
+)
+
+/*
+Get returns the value of `field` of the `struct`.
+
+	person := struct {
+		name string
+	}{
+		name: "Mary",
+	}
+	v, _ := getter.Get(person, "name")
+	fmt.Println(v)
+	// Output: Mary
+*/
+func Get(strct any, field string) (any, error) {
+	return reflect.Get(strct, field)
+}

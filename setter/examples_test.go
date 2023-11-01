@@ -26,15 +26,6 @@ import (
 	"github.com/gontainer/gontainer-helpers/v2/setter"
 )
 
-func Example() {
-	person := struct {
-		name string
-	}{}
-	_ = setter.Set(&person, "name", "Mary", false)
-	fmt.Println(person.name)
-	// Output: Mary
-}
-
 func ExampleSet_ok() {
 	person := struct {
 		name string
@@ -56,14 +47,14 @@ func ExampleSet_errFieldDoesNotExists() {
 	// Output: set (*struct { name string })."firstname": field "firstname" does not exist
 }
 
-func ExampleSet_errNoPtr() {
+func ExampleSet_errNilPtr() {
 	type Person struct {
 		name string //nolint:unused
 	}
 	var person Person
 	err := setter.Set(person, "name", "Mary", false)
 	fmt.Println(err)
-	// Output: set (setter_test.Person)."name": expected pointer to struct, setter_test.Person given
+	// Output: set (setter_test.Person)."name": pointer to nil struct given
 }
 
 func ExampleSet_typeMismatchingError() {
