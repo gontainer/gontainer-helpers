@@ -26,8 +26,8 @@ import (
 	"strings"
 )
 
-// Join joins provided errors. It ignores nil nil-values.
-// It may return nil, when there are no errors given.
+// Join joins provided errors. It ignores nil-values.
+// It returns nil, when there are no errors given.
 func Join(errs ...error) error {
 	return Prefix("", errs...)
 }
