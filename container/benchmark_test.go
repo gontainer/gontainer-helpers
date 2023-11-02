@@ -32,13 +32,17 @@ type Employee struct {
 	Name string
 }
 
+func (e *Employee) SetName(n string) {
+	e.Name = n
+}
+
 func BenchmarkContainer_scopeDefault(b *testing.B) {
 	c := container.New()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
 		return Employee{}
 	})
-	e.SetField("Name", container.NewDependencyParam("name"))
+	e.AppendCall("SetName", container.NewDependencyParam("name"))
 	e.SetScopeDefault()
 	c.OverrideService("employee", e)
 	c.OverrideParam("name", container.NewDependencyValue("Mary"))
@@ -57,7 +61,7 @@ func BenchmarkContainer_scopeShared(b *testing.B) {
 	e.SetConstructor(func() interface{} {
 		return Employee{}
 	})
-	e.SetField("Name", container.NewDependencyParam("name"))
+	e.AppendCall("SetName", container.NewDependencyParam("name"))
 	e.SetScopeShared()
 	c.OverrideService("employee", e)
 	c.OverrideParam("name", container.NewDependencyValue("Mary"))
@@ -71,6 +75,25 @@ func BenchmarkContainer_scopeShared(b *testing.B) {
 }
 
 func BenchmarkContainer_scopeContextual(b *testing.B) {
+	c := container.New()
+	e := container.NewService()
+	e.SetConstructor(func() interface{} {
+		return Employee{}
+	})
+	e.AppendCall("SetName", container.NewDependencyParam("name"))
+	e.SetScopeContextual()
+	c.OverrideService("employee", e)
+	c.OverrideParam("name", container.NewDependencyValue("Mary"))
+	emp, _ := c.Get("employee") // warm up
+	require.Equal(b, Employee{Name: "Mary"}, emp)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		_, _ = c.Get("employee")
+	}
+}
+
+func BenchmarkContainer_scopeContextualSetField(b *testing.B) {
 	c := container.New()
 	e := container.NewService()
 	e.SetConstructor(func() interface{} {
@@ -95,7 +118,7 @@ func BenchmarkContainer_scopeContextual_in_same_context(b *testing.B) {
 	e.SetConstructor(func() interface{} {
 		return Employee{}
 	})
-	e.SetField("Name", container.NewDependencyParam("name"))
+	e.AppendCall("SetName", container.NewDependencyParam("name"))
 	e.SetScopeContextual()
 	c.OverrideService("employee", e)
 	c.OverrideParam("name", container.NewDependencyValue("Mary"))
@@ -117,7 +140,7 @@ func BenchmarkContainer_scopeNonShared(b *testing.B) {
 	e.SetConstructor(func() interface{} {
 		return Employee{}
 	})
-	e.SetField("Name", container.NewDependencyParam("name"))
+	e.AppendCall("SetName", container.NewDependencyParam("name"))
 	e.SetScopeNonShared()
 	c.OverrideService("employee", e)
 	c.OverrideParam("name", container.NewDependencyValue("Mary"))

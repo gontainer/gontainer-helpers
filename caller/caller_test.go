@@ -266,6 +266,24 @@ func TestCallProvider(t *testing.T) {
 		}
 	})
 
+	t.Run("Provider error", func(t *testing.T) {
+		type myError struct {
+			error
+		}
+		p := func() (any, error) {
+			return nil, &myError{errors.New("my error")}
+		}
+		_, err := caller.CallProvider(p, nil, false)
+		assert.EqualError(t, err, "my error")
+		assert.IsType(t, (*caller.ProviderError)(nil), err)
+
+		var providerErr *caller.ProviderError
+		assert.True(t, errors.As(err, &providerErr))
+
+		var myErr *myError
+		assert.True(t, errors.As(err, &myErr))
+	})
+
 	t.Run("Given errors", func(t *testing.T) {
 		scenarios := []struct {
 			provider any
@@ -292,7 +310,7 @@ func TestCallProvider(t *testing.T) {
 				provider: func() (any, error) {
 					return nil, errors.New("test error")
 				},
-				err: "cannot call provider func() (interface {}, error): test error", // todo maybe provider returned an error?
+				err: "test error",
 			},
 			{
 				provider: func() any {
@@ -452,6 +470,7 @@ func (i ints) Append(v int) ints {
 
 type person struct {
 	name string
+	age  uint
 }
 
 func (p person) Clone() (person, error) {
@@ -468,4 +487,93 @@ func (p person) withName(n string) person { //nolint:unused
 
 func (p *person) setName(n string) {
 	p.name = n
+}
+
+func (p *person) SetName(n string) {
+	p.name = n
+}
+
+type nums []int
+
+func (n *nums) Append(v int) {
+	*n = append(*n, v)
+}
+
+func TestEnforcedCall(t *testing.T) {
+	t.Run("OK", func(t *testing.T) {
+		t.Run("#1", func(t *testing.T) {
+			var p any = person{age: 28} // make sure pre-initiated values won't disappear
+			var p2 any = &p
+			var p3 = &p2
+			_, err := caller.ForceCallByName(&p3, "SetName", []any{"Jane"}, false)
+			assert.NoError(t, err)
+			assert.Equal(t, person{age: 28, name: "Jane"}, p)
+		})
+		t.Run("OK #2", func(t *testing.T) {
+			var n any = nums{}
+			for i := 5; i < 8; i++ {
+				r, err := caller.ForceCallByName(&n, "Append", []any{i}, false)
+				assert.NoError(t, err)
+				assert.Nil(t, r)
+			}
+			assert.Equal(t, nums{5, 6, 7}, n.(nums))
+		})
+	})
+	t.Run("Errors", func(t *testing.T) {
+		t.Run("#1", func(t *testing.T) {
+			var a *int
+			_, err := caller.ForceCallByName(a, "SomeMethod", nil, false)
+			assert.EqualError(t, err, `cannot call method (*int)."SomeMethod": invalid func (*int)."SomeMethod"`)
+		})
+		t.Run("Method panics", func(t *testing.T) {
+			defer func() {
+				assert.Equal(
+					t,
+					"runtime error: invalid memory address or nil pointer dereference",
+					fmt.Sprintf("%s", recover()),
+				)
+			}()
+
+			var p *person
+			fmt.Println(caller.ForceCallByName(&p, "SetName", []any{"Jane"}, false))
+		})
+	})
+}
+
+type Pet struct {
+	Name string
+	Type string
+}
+
+func (p *Pet) WithName(n string) *Pet {
+	r := *p
+	r.Name = n
+	return &r
+}
+
+func (p *Pet) WithType(t string) *Pet {
+	r := *p
+	r.Type = t
+	return &r
+}
+
+func (p *Pet) NameType() (name, type_ string) {
+	return p.Name, p.Type
+}
+
+func TestForceCallWitherByName(t *testing.T) {
+	t.Run("OK", func(t *testing.T) {
+		var p any = Pet{}
+		r, err := caller.ForceCallWitherByName(&p, "WithName", []any{"Laika"}, false)
+		assert.NoError(t, err)
+		r, err = caller.ForceCallWitherByName(&r, "WithType", []any{"dog"}, false)
+		assert.NoError(t, err)
+		assert.Equal(t, Pet{Name: "Laika", Type: "dog"}, *r.(*Pet))
+	})
+	t.Run("Error", func(t *testing.T) {
+		var p any = Pet{}
+		r, err := caller.ForceCallWitherByName(&p, "NameType", nil, false)
+		assert.EqualError(t, err, `cannot call wither (*interface {})."NameType": wither must return 1 value, given function returns 2 values`)
+		assert.Nil(t, r)
+	})
 }

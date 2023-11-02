@@ -373,8 +373,8 @@ func ExampleContainer_CircularDeps() {
 
 func ExampleContainer_Get_setter() {
 	riemannSvc := container.NewService()
-	riemannSvc.SetConstructor(func() *Person { // we have to use a pointer, because we use a setter
-		return &Person{}
+	riemannSvc.SetConstructor(func() Person { // we don't need to use a pointer here, even tho `SetName` requires a pointer receiver :)
+		return Person{}
 	})
 	riemannSvc.AppendCall("SetName", container.NewDependencyValue("Bernhard Riemann"))
 
@@ -384,7 +384,7 @@ func ExampleContainer_Get_setter() {
 	riemann, _ := c.Get("riemann")
 	fmt.Println(riemann)
 
-	// Output: &{Bernhard Riemann}
+	// Output: {Bernhard Riemann}
 }
 
 func ExampleContainer_Get_wither() {

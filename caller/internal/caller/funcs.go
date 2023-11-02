@@ -57,6 +57,10 @@ func Provider(fn any) (reflect.Value, error) {
 	return v, nil
 }
 
+const (
+	invalidMethodErr = "invalid func (%T).%+q"
+)
+
 func Method(object any, method string) (reflect.Value, error) {
 	obj := reflect.ValueOf(object)
 	if !obj.IsValid() {
@@ -72,18 +76,22 @@ func Method(object any, method string) (reflect.Value, error) {
 		fn = obj.MethodByName(method)
 	}
 	if !fn.IsValid() {
-		return reflect.Value{}, fmt.Errorf("invalid func (%T).%+q", object, method)
+		return reflect.Value{}, fmt.Errorf(invalidMethodErr, object, method)
 	}
 	return fn, nil
 }
 
-func Wither(object any, method string) (reflect.Value, error) {
-	fn, err := Method(object, method)
-	if err != nil {
-		return reflect.Value{}, err
-	}
-	if fn.Type().NumOut() != 1 {
-		return reflect.Value{}, fmt.Errorf("wither must return 1 value, given function returns %d values", fn.Type().NumOut())
+func MethodByName(val reflect.Value, method string) (reflect.Value, error) {
+	fn := val.MethodByName(method)
+	if !fn.IsValid() {
+		return reflect.Value{}, fmt.Errorf(invalidMethodErr, val.Interface(), method)
 	}
 	return fn, nil
+}
+
+func validateWither(fn reflect.Value) error {
+	if fn.Type().NumOut() != 1 {
+		return fmt.Errorf("wither must return 1 value, given function returns %d values", fn.Type().NumOut())
+	}
+	return nil
 }

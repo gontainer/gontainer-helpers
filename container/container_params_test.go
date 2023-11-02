@@ -64,7 +64,7 @@ func TestContainer_GetParam(t *testing.T) {
 		}))
 
 		v, err := c.GetParam("env")
-		assert.EqualError(t, err, `getParam("env"): cannot call provider func() (interface {}, error): could not read env variable`)
+		assert.EqualError(t, err, `getParam("env"): could not read env variable`)
 		assert.Nil(t, v)
 	})
 

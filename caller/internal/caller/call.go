@@ -47,10 +47,20 @@ func (t reflectType) In(i int) reflect.Type {
 	return r
 }
 
+// ValidateAndCallFunc validates and calls the given func.
+//
+// fn.Kind() MUST BE equal to [reflect.Func]
+func ValidateAndCallFunc(fn reflect.Value, args []any, convertArgs bool, v FuncValidator) ([]any, error) {
+	if err := v.Validate(fn); err != nil {
+		return nil, err
+	}
+	return CallFunc(fn, args, convertArgs)
+}
+
 // CallFunc calls the given func.
 //
 // fn.Kind() MUST BE equal to [reflect.Func]
-func CallFunc(fn reflect.Value, args []any, convertArgs bool) (res []any, err error) {
+func CallFunc(fn reflect.Value, args []any, convertArgs bool) (res []any, _ error) {
 	fnType := reflectType{fn.Type()}
 
 	if len(args) > fnType.NumIn() && !fnType.IsVariadic() {
@@ -88,4 +98,82 @@ func CallFunc(fn reflect.Value, args []any, convertArgs bool) (res []any, err er
 	}
 
 	return result, nil
+}
+
+func ValidateAndForceCallByName(object any, method string, args []any, convertArgs bool, v FuncValidator) ([]any, error) {
+	val := reflect.ValueOf(object)
+	if val.Kind() != reflect.Ptr {
+		return nil, fmt.Errorf("expected %s, %T given", reflect.Ptr.String(), object)
+	}
+	chain, err := intReflect.ValueToKindChain(val)
+	if err != nil {
+		return nil, err
+	}
+
+	for {
+		switch {
+		case chain.Prefixed(reflect.Ptr, reflect.Ptr):
+			val = val.Elem()
+			chain = chain[1:]
+			continue
+		case chain.Prefixed(reflect.Ptr, reflect.Interface, reflect.Ptr):
+			val = val.Elem().Elem()
+			chain = chain[2:]
+			continue
+		}
+
+		break
+	}
+
+	if len(chain) == 2 && chain.Prefixed(reflect.Ptr) {
+		fn, err := MethodByName(val, method)
+		if err != nil {
+			return nil, err
+		}
+		return ValidateAndCallFunc(fn, args, convertArgs, v)
+	}
+
+	if len(chain) == 3 && chain.Prefixed(reflect.Ptr, reflect.Interface) {
+		tmp := val.Elem().Elem()
+		if !tmp.IsValid() {
+			return nil, errors.New("nil value")
+		}
+		cp := reflect.New(val.Elem().Elem().Type())
+		cp.Elem().Set(val.Elem().Elem())
+
+		fn, err := MethodByName(cp, method)
+		if err != nil {
+			return nil, err
+		}
+
+		return func() (res []any, err error) {
+			res, err = ValidateAndCallFunc(fn, args, convertArgs, v)
+			if err == nil {
+				val.Elem().Set(cp.Elem())
+			}
+			return
+		}()
+	}
+
+	panic("ValidateAndForceCallByName: unexpected error") // this should be unreachable
+}
+
+var (
+	DontValidate   = ChainValidator{}
+	ValidateWither = ChainValidator{validateWither}
+)
+
+type FuncValidator interface {
+	Validate(reflect.Value) error
+}
+
+type ChainValidator []func(reflect.Value) error
+
+func (f ChainValidator) Validate(fn reflect.Value) error {
+	for _, v := range f {
+		if err := v(fn); err != nil {
+			return err
+		}
+	}
+	return nil
 }
