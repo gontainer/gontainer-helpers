@@ -379,9 +379,9 @@ func ExampleContainer_Get_setter() {
 	riemannSvc.AppendCall("SetName", container.NewDependencyValue("Bernhard Riemann"))
 
 	c := container.New()
-	c.OverrideService("riemannSvc", riemannSvc)
+	c.OverrideService("riemann", riemannSvc)
 
-	riemann, _ := c.Get("riemannSvc")
+	riemann, _ := c.Get("riemann")
 	fmt.Println(riemann)
 
 	// Output: &{Bernhard Riemann}
@@ -395,9 +395,9 @@ func ExampleContainer_Get_wither() {
 	riemannSvc.AppendWither("WithName", container.NewDependencyValue("Bernhard Riemann"))
 
 	c := container.New()
-	c.OverrideService("riemannSvc", riemannSvc)
+	c.OverrideService("riemann", riemannSvc)
 
-	riemann, _ := c.Get("riemannSvc")
+	riemann, _ := c.Get("riemann")
 	fmt.Println(riemann)
 
 	// Output: {Bernhard Riemann}
