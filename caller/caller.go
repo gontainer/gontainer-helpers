@@ -131,7 +131,7 @@ func CallByName(object any, method string, args []any, convertArgs bool) (_ []an
 }
 
 /*
-ForceCallByName is extended version of [CallByName].
+ForceCallByName is an extended version of [CallByName].
 
 The following code cannot work:
 
@@ -139,7 +139,7 @@ The following code cannot work:
 	caller.CallByName(&p, "SetName", []any{"Jane"}, false)
 
 because `&p` returns a pointer to an interface, not to the `person` type.
-The same problem exists without using that package:
+The same problem occurs without using that package:
 
 	var tmp any = person{}
 	p := &tmp.(person)
