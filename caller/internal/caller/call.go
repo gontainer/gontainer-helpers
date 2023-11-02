@@ -154,24 +154,3 @@ func ValidateAndForceCallByName(object any, method string, args []any, convertAr
 
 	panic("ValidateAndForceCallByName: unexpected error") // this should be unreachable
 }
-
-var (
-	DontValidate     = ChainValidator{}
-	ValidateWither   = ChainValidator{validateWither}
-	ValidateProvider = ChainValidator{validateProvider}
-)
-
-type FuncValidator interface {
-	Validate(reflect.Value) error
-}
-
-type ChainValidator []func(reflect.Value) error
-
-func (f ChainValidator) Validate(fn reflect.Value) error {
-	for _, v := range f {
-		if err := v(fn); err != nil {
-			return err
-		}
-	}
-	return nil
-}

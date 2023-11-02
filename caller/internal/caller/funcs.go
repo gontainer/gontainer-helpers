@@ -21,7 +21,6 @@
 package caller
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 
@@ -73,21 +72,4 @@ func MethodByName(val reflect.Value, method string) (reflect.Value, error) {
 		return reflect.Value{}, fmt.Errorf(invalidMethodErr, val.Interface(), method)
 	}
 	return fn, nil
-}
-
-func validateWither(fn reflect.Value) error {
-	if fn.Type().NumOut() != 1 {
-		return fmt.Errorf("wither must return 1 value, given function returns %d values", fn.Type().NumOut())
-	}
-	return nil
-}
-
-func validateProvider(fn reflect.Value) error {
-	if fn.Type().NumOut() == 0 || fn.Type().NumOut() > 2 {
-		return fmt.Errorf("provider must return 1 or 2 values, given function returns %d values", fn.Type().NumOut())
-	}
-	if fn.Type().NumOut() == 2 && !fn.Type().Out(1).Implements(errorInterface) {
-		return errors.New("second value returned by provider must implement error interface")
-	}
-	return nil
 }
