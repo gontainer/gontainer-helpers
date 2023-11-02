@@ -449,7 +449,7 @@ func ExampleContainer_Get_scopeShared() {
 
 	num := container.NewService()
 	num.SetConstructor(func() int {
-		i++
+		i++ // each invocation increments the value
 		return i
 	})
 	num.SetScopeShared()
