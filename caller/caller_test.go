@@ -460,6 +460,14 @@ func TestCallWitherByName(t *testing.T) {
 		assert.EqualError(t, err, `cannot call wither (*interface {})."method": unexpected pointer loop`)
 		assert.Nil(t, r)
 	})
+
+	t.Run("Nil pointer", func(t *testing.T) {
+		var p *person
+		r, err := caller.CallWitherByName(p, "Empty", nil, false)
+		assert.NoError(t, err)
+		assert.Nil(t, p)
+		assert.Equal(t, person{}, r)
+	})
 }
 
 type ints []int
