@@ -21,6 +21,7 @@
 package exporter
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -37,22 +38,22 @@ var (
 )
 
 func newDefaultExporter() exporter {
-	interfaceSliceExp := &interfaceSliceExporter{}
-	primitiveTypeSliceExp := &primitiveTypeSliceExporter{}
+	return newDisposableExporter(func() exporter {
+		multiArrayExp := &multiArray{}
 
-	result := newChainExporter(
-		&boolExporter{},
-		&nilExporter{},
-		&numberExporter{explicitType: true},
-		&stringExporter{},
-		&bytesExporter{},
-		interfaceSliceExp,
-		primitiveTypeSliceExp,
-	)
-	interfaceSliceExp.exporter = result
-	primitiveTypeSliceExp.exporter = result
+		result := newAntiLoopExporter(newChainExporter(
+			&boolExporter{},
+			&nilExporter{},
+			&numberExporter{explicitType: true},
+			&stringExporter{},
+			&bytesExporter{},
+			multiArrayExp,
+		))
 
-	return result
+		multiArrayExp.exporter = result
+
+		return result
+	})
 }
 
 // Export exports input value to a GO code.
@@ -94,15 +95,69 @@ func MustCastToString(i any) string {
 
 type exporter interface {
 	export(any) (string, error)
-}
-
-type subExporter interface {
-	exporter
 	supports(any) bool
 }
 
+type disposableExporter struct {
+	factory func() exporter
+}
+
+func newDisposableExporter(factory func() exporter) *disposableExporter {
+	return &disposableExporter{factory: factory}
+}
+
+func (d disposableExporter) export(a any) (string, error) {
+	return d.factory().export(a)
+}
+
+func (d disposableExporter) supports(a any) bool {
+	return d.factory().supports(a)
+}
+
+type stack []any
+
+func newStack() *stack {
+	r := make(stack, 0)
+	return &r
+}
+
+func (s *stack) pop() {
+	*s = (*s)[:len(*s)-1]
+}
+
+func (s *stack) push(v any) error {
+	for _, x := range *s {
+		if reflect.DeepEqual(x, v) {
+			return errors.New("unexpected infinite loop")
+		}
+	}
+	*s = append(*s, v)
+	return nil
+}
+
+type antiLoopExporter struct {
+	stack *stack
+	next  exporter
+}
+
+func (a antiLoopExporter) export(v any) (string, error) {
+	if err := a.stack.push(v); err != nil {
+		return "", err
+	}
+	defer a.stack.pop()
+	return a.next.export(v)
+}
+
+func (a antiLoopExporter) supports(v any) bool {
+	return a.next.supports(v)
+}
+
+func newAntiLoopExporter(next exporter) *antiLoopExporter {
+	return &antiLoopExporter{stack: newStack(), next: next}
+}
+
 type chainExporter struct {
-	exporters []subExporter
+	exporters []exporter
 }
 
 func (c chainExporter) export(v any) (string, error) {
@@ -115,7 +170,16 @@ func (c chainExporter) export(v any) (string, error) {
 	return "", fmt.Errorf("type %T is not supported", v)
 }
 
-func newChainExporter(exporters ...subExporter) *chainExporter {
+func (c chainExporter) supports(v any) bool {
+	for _, e := range c.exporters {
+		if e.supports(v) {
+			return true
+		}
+	}
+	return false
+}
+
+func newChainExporter(exporters ...exporter) *chainExporter {
 	return &chainExporter{exporters: exporters}
 }
 
@@ -218,96 +282,79 @@ func (bytesExporter) supports(v any) bool {
 	return ok
 }
 
-type interfaceSliceExporter struct {
+type multiArray struct {
 	exporter exporter
 }
 
-func (i interfaceSliceExporter) export(v any) (string, error) {
+func isBuiltInSliceOrArray(t reflect.Type) bool {
+	return t.PkgPath() == "" && (t.Kind() == reflect.Slice || t.Kind() == reflect.Array)
+}
+
+func (m multiArray) export(v any) (string, error) {
 	val := reflect.ValueOf(v)
-	if val.Type().Kind() == reflect.Slice && val.Len() == 0 {
-		return "make([]interface{}, 0)", nil
-	}
-	parts := make([]string, val.Len())
-	for j := 0; j < val.Len(); j++ {
-		part, err := i.exporter.export(val.Index(j).Interface())
-		if err != nil {
-			return "", fmt.Errorf("cannot export %s[%d]: %w", val.Type().Kind().String(), j, err)
+	t := val.Type()
+	prefix := ""
+	for isBuiltInSliceOrArray(t) {
+		if t.Kind() == reflect.Array {
+			prefix += fmt.Sprintf("[%d]", t.Len())
+		} else {
+			prefix += "[]"
 		}
-		parts[j] = part
+		t = t.Elem()
 	}
 
-	prefix := "[]interface{}"
-	if val.Type().Kind() == reflect.Array {
-		prefix = fmt.Sprintf("[%d]interface{}", val.Len())
+	var ts string
+	if t.Kind() == reflect.Interface {
+		ts = "interface{}"
+	} else {
+		ts = t.Kind().String()
 	}
 
-	return prefix + "{" + strings.Join(parts, ", ") + "}", nil
-}
-
-func (i interfaceSliceExporter) supports(v any) bool {
-	t := reflect.TypeOf(v)
-	if t == nil {
-		return false
+	if val.Type().Kind() == reflect.Slice {
+		switch {
+		case val.IsNil():
+			return fmt.Sprintf("(%s%s)(nil)", prefix, ts), nil
+		case val.Len() == 0:
+			return fmt.Sprintf("make(%s%s, 0)", prefix, ts), nil
+		}
 	}
-	return t.PkgPath() == "" &&
-		(t.Kind() == reflect.Slice || t.Kind() == reflect.Array) &&
-		t.Elem().Kind() == reflect.Interface && t.Elem().NumMethod() == 0
-}
 
-type primitiveTypeSliceExporter struct {
-	exporter exporter
-}
-
-func (p primitiveTypeSliceExporter) export(v any) (string, error) {
-	val := reflect.ValueOf(v)
-	if val.Type().Kind() == reflect.Slice && val.Len() == 0 {
-		return fmt.Sprintf("make([]%s, 0)", val.Type().Elem().Kind().String()), nil
-	}
 	parts := make([]string, val.Len())
 	for i := 0; i < val.Len(); i++ {
 		var err error
-		parts[i], err = p.exporter.export(val.Index(i).Interface())
+		parts[i], err = m.exporter.export(val.Index(i).Interface())
 		if err != nil {
-			return "", fmt.Errorf("unexpected err %s[%d]: %w", val.Type().Kind().String(), i, err)
+			return "", fmt.Errorf("cannot export (%s)[%d]: %w", prefix+ts, i, err)
 		}
 	}
-	prefix := "[]"
-	if val.Type().Kind() == reflect.Array {
-		prefix = fmt.Sprintf("[%d]", val.Len())
-	}
-	return prefix + val.Type().Elem().Kind().String() + "{" + strings.Join(parts, ", ") + "}", nil
+
+	return prefix + ts + "{" + strings.Join(parts, ", ") + "}", nil
 }
 
-func (p primitiveTypeSliceExporter) supports(v any) bool {
+func (m multiArray) supports(v any) bool {
 	val := reflect.ValueOf(v)
-	if val.Kind() == reflect.Invalid {
+	if !val.IsValid() {
 		return false
 	}
-	if val.Type().Kind() != reflect.Slice && val.Type().Kind() != reflect.Array {
+	t := val.Type()
+	if !isBuiltInSliceOrArray(t) {
 		return false
 	}
-	if val.Type().Elem().PkgPath() != "" {
+	for isBuiltInSliceOrArray(t) {
+		t = t.Elem()
+	}
+
+	// workaround: we have to check PkgPath && NumMethod, otherwise
+	//
+	// z := reflect.Zero(t).Interface()
+	// m.exporter.supports(z) // it will return true for interface with methods, e.g. interface{ Do() }
+	if t.PkgPath() != "" {
+		return false
+	}
+	if t.Kind() == reflect.Interface && t.NumMethod() > 0 {
 		return false
 	}
 
-	switch val.Type().Elem().Kind() {
-	case
-		reflect.Bool,
-		reflect.Int,
-		reflect.Int8,
-		reflect.Int16,
-		reflect.Int32,
-		reflect.Int64,
-		reflect.Uint,
-		reflect.Uint8,
-		reflect.Uint16,
-		reflect.Uint32,
-		reflect.Uint64,
-		reflect.Float32,
-		reflect.Float64,
-		reflect.String:
-		return true
-	}
-
-	return false
+	z := reflect.Zero(t).Interface()
+	return m.exporter.supports(z)
 }

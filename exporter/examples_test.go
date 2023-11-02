@@ -103,7 +103,14 @@ func ExampleExport_emptySlice2() {
 	var v []any = nil
 	s, _ := exporter.Export(v)
 	fmt.Println(s)
-	// Output: make([]interface{}, 0)
+	// Output: ([]interface{})(nil)
+}
+
+func ExampleExport_multidimensionalSlice() {
+	v := [2][][]int{nil, {{1, 2, 3}}}
+	s, _ := exporter.Export(v)
+	fmt.Println(s)
+	// Output: [2][][]int{([][]int)(nil), [][]int{[]int{int(1), int(2), int(3)}}}
 }
 
 func ExampleExport_array() {

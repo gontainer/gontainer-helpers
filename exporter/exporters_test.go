@@ -35,15 +35,6 @@ type aliasInt = int
 type myBool bool
 type aliasBool = bool
 
-type mockExporter struct {
-	result string
-	error  error
-}
-
-func (m mockExporter) export(any) (string, error) {
-	return m.result, m.error
-}
-
 func TestChainExporter_Export(t *testing.T) {
 	t.Run("Given scenarios", func(t *testing.T) {
 		scenarios := map[string]struct {
@@ -107,6 +98,42 @@ func TestChainExporter_Export(t *testing.T) {
 				input:  aliasBool(true),
 				output: "true",
 			},
+			`([][2][][]interface{})(nil)`: {
+				input:  ([][2][][]interface{})(nil),
+				output: `([][2][][]interface{})(nil)`,
+			},
+			`[][2][][]int{{{{1, 2}}, nil}}`: {
+				input:  [][2][][]int{{{{1, 2}}, nil}},
+				output: `[][2][][]int{[2][][]int{[][]int{[]int{int(1), int(2)}}, ([][]int)(nil)}}`,
+			},
+			`[][2][][]int{{{{1, 2}}, nil}} #2`: {
+				input:  [][2][][]int{[2][][]int{[][]int{[]int{int(1), int(2)}}, ([][]int)(nil)}},
+				output: `[][2][][]int{[2][][]int{[][]int{[]int{int(1), int(2)}}, ([][]int)(nil)}}`,
+			},
+			`[][]any{nil, nil, {(*int)(nil)}}`: {
+				input: [][]any{nil, nil, {(*int)(nil)}},
+				error: `cannot export ([][]interface{})[2]: cannot export ([]interface{})[0]: type *int is not supported`,
+			},
+			`[]any{(*int)(nil)}`: {
+				input: []any{(*int)(nil)},
+				error: `cannot export ([]interface{})[0]: type *int is not supported`,
+			},
+			`[0][][]any{}`: {
+				input:  [0][][]any{},
+				output: `[0][][]interface{}{}`,
+			},
+			`[0][][]any{} #2`: {
+				input:  [0][][]interface{}{},
+				output: `[0][][]interface{}{}`,
+			},
+			`[]any{[][]int{{1, 2}, {3, 4}}, ([][][]any)(nil)}`: {
+				input:  []any{[][]int{{1, 2}, {3, 4}}, ([][][]any)(nil)},
+				output: `[]interface{}{[][]int{[]int{int(1), int(2)}, []int{int(3), int(4)}}, ([][][]interface{})(nil)}`,
+			},
+			`[]any{[][]int{{1, 2}, {3, 4}}, ([][][]any)(nil)} #2`: {
+				input:  []interface{}{[][]int{[]int{int(1), int(2)}, []int{int(3), int(4)}}, ([][][]interface{})(nil)},
+				output: `[]interface{}{[][]int{[]int{int(1), int(2)}, []int{int(3), int(4)}}, ([][][]interface{})(nil)}`,
+			},
 		}
 
 		for k, tmp := range scenarios {
@@ -150,18 +177,26 @@ func TestExport(t *testing.T) {
 			output: "make([]interface{}, 0)",
 		},
 		{
+			input:  ([]interface{})(nil),
+			output: "([]interface{})(nil)",
+		},
+		{
+			input:  ([]any)(nil),
+			output: "([]interface{})(nil)",
+		},
+		{
 			input:  [0]any{},
 			output: "[0]interface{}{}",
 		},
 		{
 			input: []any{struct{}{}},
-			error: "cannot export slice[0]: type struct {} is not supported",
-			panic: "cannot export []interface {} to string: cannot export slice[0]: type struct {} is not supported",
+			error: "cannot export ([]interface{})[0]: type struct {} is not supported",
+			panic: "cannot export []interface {} to string: cannot export ([]interface{})[0]: type struct {} is not supported",
 		},
 		{
 			input: [1]any{struct{}{}},
-			error: "cannot export array[0]: type struct {} is not supported",
-			panic: "cannot export [1]interface {} to string: cannot export array[0]: type struct {} is not supported",
+			error: "cannot export ([1]interface{})[0]: type struct {} is not supported",
+			panic: "cannot export [1]interface {} to string: cannot export ([1]interface{})[0]: type struct {} is not supported",
 		},
 		{
 			input:  []int{1, 2, 3, -1000000},
@@ -174,6 +209,18 @@ func TestExport(t *testing.T) {
 		{
 			input:  [0]int{},
 			output: "[0]int{}",
+		},
+		{
+			input:  ([]int)(nil),
+			output: "([]int)(nil)",
+		},
+		{
+			input:  []any{([]uint)(nil), []int{1, 2, 3}},
+			output: "[]interface{}{([]uint)(nil), []int{int(1), int(2), int(3)}}",
+		},
+		{
+			input:  [][]int{nil, {1, 2, 3}},
+			output: `[][]int{([]int)(nil), []int{int(1), int(2), int(3)}}`,
 		},
 		{
 			input:  []float32{},
@@ -206,6 +253,11 @@ func TestExport(t *testing.T) {
 			input:  [3]any{},
 			output: "[3]interface{}{nil, nil, nil}",
 		},
+		{
+			input: []interface{ Do() }{nil},
+			error: `type []interface { Do() } is not supported`,
+			panic: `cannot export []interface { Do() } to string: type []interface { Do() } is not supported`,
+		},
 	}
 
 	for i, tmp := range scenarios {
@@ -235,18 +287,12 @@ func TestExport(t *testing.T) {
 		})
 	}
 
-	t.Run("Given invalid scenario", func(t *testing.T) {
-		originalExporter := defaultExporter
-		defer func() {
-			defaultExporter = originalExporter
-		}()
-
-		expectedErr := fmt.Errorf("my test error")
-		defaultExporter = mockExporter{
-			error: expectedErr,
-		}
-		_, err := Export(123)
-		assert.EqualError(t, err, expectedErr.Error())
+	t.Run("Pointer loop", func(t *testing.T) {
+		a := make([]any, 2)
+		a[1] = a
+		v, err := Export(a)
+		assert.EqualError(t, err, "cannot export ([]interface{})[1]: unexpected infinite loop")
+		assert.Empty(t, v)
 	})
 }
 
@@ -368,112 +414,4 @@ func TestNumericExporter_Supports(t *testing.T) {
 			)
 		})
 	}
-}
-
-func TestPrimitiveTypeSliceExporter_Supports(t *testing.T) {
-	scenarios := []struct {
-		input    any
-		expected bool
-	}{
-		{
-			input:    nil,
-			expected: false,
-		},
-		{
-			input:    math.Pi,
-			expected: false,
-		},
-		{
-			input:    "3.14",
-			expected: false,
-		},
-		{
-			input:    []uint{0, 1},
-			expected: true,
-		},
-		{
-			input:    []struct{}{},
-			expected: false,
-		},
-		{
-			input:    []myBool{},
-			expected: false,
-		},
-	}
-
-	for i, tmp := range scenarios {
-		s := tmp
-		t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(
-				t,
-				s.expected,
-				primitiveTypeSliceExporter{}.supports(s.input),
-			)
-		})
-	}
-}
-
-func TestInterfaceSliceExporter_Supports(t *testing.T) {
-	scenarios := []struct {
-		input    any
-		expected bool
-	}{
-		{
-			input:    nil,
-			expected: false,
-		},
-		{
-			input:    math.Pi,
-			expected: false,
-		},
-		{
-			input:    "3.14",
-			expected: false,
-		},
-		{
-			input:    []uint{0, 1},
-			expected: false,
-		},
-		{
-			input:    []struct{}{},
-			expected: false,
-		},
-		{
-			input:    []any{},
-			expected: true,
-		},
-		{
-			input:    []myBool{},
-			expected: false,
-		},
-	}
-
-	for i, tmp := range scenarios {
-		s := tmp
-		t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(
-				t,
-				s.expected,
-				interfaceSliceExporter{}.supports(s.input),
-				fmt.Sprintf("value: %#v", s.input),
-			)
-		})
-	}
-}
-
-func TestPrimitiveTypeSliceExporter_Export(t *testing.T) {
-	t.Run("Given error in subexporter", func(t *testing.T) {
-		exp := primitiveTypeSliceExporter{
-			exporter: chainExporter{},
-		}
-		v, err := exp.export([]uint{1})
-		assert.Equal(t, "", v)
-		assert.EqualError(
-			t,
-			err,
-			"unexpected err slice[0]: type uint is not supported",
-		)
-	})
 }
