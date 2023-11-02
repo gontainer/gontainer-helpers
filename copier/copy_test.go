@@ -137,7 +137,7 @@ func TestCopy(t *testing.T) {
 		assert.EqualError(
 			t,
 			copier.Copy(5, nil, false),
-			"expected ptr, <nil> given", // TODO unify with other errors
+			"expected ptr, <nil> given",
 		)
 	})
 	t.Run("Convert", func(t *testing.T) {
