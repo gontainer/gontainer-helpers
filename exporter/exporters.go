@@ -39,8 +39,6 @@ var (
 
 func newDefaultExporter() exporter {
 	return newDisposableExporter(func() exporter {
-		interfaceSliceExp := &interfaceSliceExporter{}
-		primitiveTypeSliceExp := &primitiveTypeSliceExporter{}
 		multiArrayExp := &multiArray{}
 
 		result := newAntiLoopExporter(newChainExporter(
@@ -49,13 +47,9 @@ func newDefaultExporter() exporter {
 			&numberExporter{explicitType: true},
 			&stringExporter{},
 			&bytesExporter{},
-			interfaceSliceExp,
-			primitiveTypeSliceExp,
 			multiArrayExp,
 		))
 
-		interfaceSliceExp.exporter = result
-		primitiveTypeSliceExp.exporter = result
 		multiArrayExp.exporter = result
 
 		return result
@@ -288,110 +282,6 @@ func (bytesExporter) supports(v any) bool {
 	return ok
 }
 
-type interfaceSliceExporter struct {
-	exporter exporter
-}
-
-func (i interfaceSliceExporter) export(v any) (string, error) {
-	val := reflect.ValueOf(v)
-	if val.Type().Kind() == reflect.Slice {
-		switch {
-		case val.IsNil():
-			return "([]interface{})(nil)", nil
-		case val.Len() == 0:
-			return "make([]interface{}, 0)", nil
-		}
-	}
-
-	prefix := "[]interface{}"
-	if val.Type().Kind() == reflect.Array {
-		prefix = fmt.Sprintf("[%d]interface{}", val.Len())
-	}
-
-	parts := make([]string, val.Len())
-	for j := 0; j < val.Len(); j++ {
-		part, err := i.exporter.export(val.Index(j).Interface())
-		if err != nil {
-			return "", fmt.Errorf("cannot export (%s)[%d]: %w", prefix, j, err)
-		}
-		parts[j] = part
-	}
-
-	return prefix + "{" + strings.Join(parts, ", ") + "}", nil
-}
-
-func (i interfaceSliceExporter) supports(v any) bool {
-	t := reflect.TypeOf(v)
-	if t == nil {
-		return false
-	}
-	return isBuiltInSliceOrArray(t) && isAny(t.Elem())
-}
-
-type primitiveTypeSliceExporter struct {
-	exporter exporter
-}
-
-func (p primitiveTypeSliceExporter) export(v any) (string, error) {
-	val := reflect.ValueOf(v)
-	if val.Type().Kind() == reflect.Slice {
-		switch {
-		case val.IsNil():
-			return fmt.Sprintf("([]%s)(nil)", val.Type().Elem().Kind().String()), nil
-		case val.Len() == 0:
-			return fmt.Sprintf("make([]%s, 0)", val.Type().Elem().Kind().String()), nil
-		}
-	}
-	prefix := "[]"
-	if val.Type().Kind() == reflect.Array {
-		prefix = fmt.Sprintf("[%d]", val.Len())
-	}
-	prefix += val.Type().Elem().Kind().String()
-	parts := make([]string, val.Len())
-	for i := 0; i < val.Len(); i++ {
-		var err error
-		parts[i], err = p.exporter.export(val.Index(i).Interface())
-		if err != nil {
-			return "", fmt.Errorf("unexpected err (%s)[%d]: %w", prefix, i, err)
-		}
-	}
-	return prefix + "{" + strings.Join(parts, ", ") + "}", nil
-}
-
-func (p primitiveTypeSliceExporter) supports(v any) bool {
-	val := reflect.ValueOf(v)
-	if val.Kind() == reflect.Invalid {
-		return false
-	}
-	if val.Type().Kind() != reflect.Slice && val.Type().Kind() != reflect.Array {
-		return false
-	}
-	if val.Type().Elem().PkgPath() != "" {
-		return false
-	}
-
-	switch val.Type().Elem().Kind() {
-	case
-		reflect.Bool,
-		reflect.Int,
-		reflect.Int8,
-		reflect.Int16,
-		reflect.Int32,
-		reflect.Int64,
-		reflect.Uint,
-		reflect.Uint8,
-		reflect.Uint16,
-		reflect.Uint32,
-		reflect.Uint64,
-		reflect.Float32,
-		reflect.Float64,
-		reflect.String:
-		return true
-	}
-
-	return false
-}
-
 type multiArray struct {
 	exporter exporter
 }
@@ -416,8 +306,13 @@ func (m multiArray) export(v any) (string, error) {
 		ts = t.Kind().String()
 	}
 
-	if val.Kind() == reflect.Slice && val.IsNil() {
-		return fmt.Sprintf("(%s%s)(nil)", prefix, ts), nil
+	if val.Type().Kind() == reflect.Slice {
+		switch {
+		case val.IsNil():
+			return fmt.Sprintf("(%s%s)(nil)", prefix, ts), nil
+		case val.Len() == 0:
+			return fmt.Sprintf("make(%s%s, 0)", prefix, ts), nil
+		}
 	}
 
 	parts := make([]string, val.Len())
