@@ -110,6 +110,7 @@ func ValidateAndForceCallByName(object any, method string, args []any, convertAr
 		return nil, err
 	}
 
+	// see [intReflect.Set]
 	for {
 		switch {
 		case chain.Prefixed(reflect.Ptr, reflect.Ptr):
