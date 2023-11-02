@@ -372,33 +372,33 @@ func ExampleContainer_CircularDeps() {
 }
 
 func ExampleContainer_Get_setter() {
-	riemann := container.NewService()
-	riemann.SetConstructor(func() *Person { // we have to use a pointer, because we use a setter
+	riemannSvc := container.NewService()
+	riemannSvc.SetConstructor(func() *Person { // we have to use a pointer, because we use a setter
 		return &Person{}
 	})
-	riemann.AppendCall("SetName", container.NewDependencyValue("Bernhard Riemann"))
+	riemannSvc.AppendCall("SetName", container.NewDependencyValue("Bernhard Riemann"))
 
 	c := container.New()
-	c.OverrideService("riemann", riemann)
+	c.OverrideService("riemannSvc", riemannSvc)
 
-	maryObject, _ := c.Get("riemann")
-	fmt.Println(maryObject)
+	riemann, _ := c.Get("riemannSvc")
+	fmt.Println(riemann)
 
 	// Output: &{Bernhard Riemann}
 }
 
 func ExampleContainer_Get_wither() {
-	riemann := container.NewService()
-	riemann.SetConstructor(func() Person {
+	riemannSvc := container.NewService()
+	riemannSvc.SetConstructor(func() Person {
 		return Person{}
 	})
-	riemann.AppendWither("WithName", container.NewDependencyValue("Bernhard Riemann"))
+	riemannSvc.AppendWither("WithName", container.NewDependencyValue("Bernhard Riemann"))
 
 	c := container.New()
-	c.OverrideService("riemann", riemann)
+	c.OverrideService("riemannSvc", riemannSvc)
 
-	maryObject, _ := c.Get("riemann")
-	fmt.Println(maryObject)
+	riemann, _ := c.Get("riemannSvc")
+	fmt.Println(riemann)
 
 	// Output: {Bernhard Riemann}
 }
