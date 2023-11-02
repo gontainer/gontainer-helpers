@@ -262,7 +262,7 @@ func ExampleContainer_Get_errorServiceDoesNotExist() {
 	riemann.SetField("Name", container.NewDependencyValue("Bernhard Riemann"))
 
 	c := container.New()
-	// oops... we forgot to add the variable `riemann` to the Container
+	// oops... we forgot to add the variable `riemann` to the container
 	// c.OverrideService("riemann", riemann)
 
 	_, err := c.Get("riemann")
