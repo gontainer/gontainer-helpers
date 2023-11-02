@@ -304,7 +304,19 @@ func TestCallProvider(t *testing.T) {
 				provider: func() (any, any) {
 					return nil, nil
 				},
-				err: "cannot call provider func() (interface {}, interface {}): second value returned by provider must implement error interface",
+				err: "cannot call provider func() (interface {}, interface {}): second value returned by provider must implement error interface, interface {} given",
+			},
+			{
+				provider: func() (any, int) {
+					return nil, 0
+				},
+				err: "cannot call provider func() (interface {}, int): second value returned by provider must implement error interface, int given",
+			},
+			{
+				provider: func() (any, Person) {
+					return nil, Person{}
+				},
+				err: "cannot call provider func() (interface {}, caller_test.Person): second value returned by provider must implement error interface, caller_test.Person given",
 			},
 			{
 				provider: func() (any, error) {
