@@ -135,10 +135,6 @@ func ValidateAndForceCallByName(object any, method string, args []any, convertAr
 	}
 
 	if len(chain) == 3 && chain.Prefixed(reflect.Ptr, reflect.Interface) {
-		tmp := val.Elem().Elem()
-		if !tmp.IsValid() {
-			return nil, errors.New("nil value")
-		}
 		cp := reflect.New(val.Elem().Elem().Type())
 		cp.Elem().Set(val.Elem().Elem())
 

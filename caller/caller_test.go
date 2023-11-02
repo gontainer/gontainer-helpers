@@ -493,6 +493,10 @@ func (p *person) SetName(n string) {
 	p.name = n
 }
 
+func (p *person) Empty() person {
+	return person{}
+}
+
 type nums []int
 
 func (n *nums) Append(v int) {
@@ -517,6 +521,14 @@ func TestEnforcedCall(t *testing.T) {
 				assert.Nil(t, r)
 			}
 			assert.Equal(t, nums{5, 6, 7}, n.(nums))
+		})
+		t.Run("OK #3 (nil pointer)", func(t *testing.T) {
+			var p1 *person
+			var p2 any = p1
+			r, err := caller.ForceCallByName(&p2, "Empty", nil, false)
+			assert.NoError(t, err)
+			assert.Nil(t, p1)
+			assert.Equal(t, person{}, r[0])
 		})
 	})
 	t.Run("Errors", func(t *testing.T) {
