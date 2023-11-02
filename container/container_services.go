@@ -246,7 +246,7 @@ func (c *Container) executeServiceCalls(
 		}
 
 		if call.wither {
-			result, err = caller.CallWitherByName(result, call.method, params, convertArgs)
+			result, err = caller.ForceCallWitherByName(&result, call.method, params, convertArgs)
 			if err != nil {
 				errs[i] = grouperror.Prefix(fmt.Sprintf("%s %+q: ", action, call.method), err)
 				// wither may return a nil value for error,
@@ -254,7 +254,7 @@ func (c *Container) executeServiceCalls(
 				break
 			}
 		} else {
-			_, err = caller.CallByName(&result, call.method, params, convertArgs)
+			_, err = caller.ForceCallByName(&result, call.method, params, convertArgs)
 			errs[i] = grouperror.Prefix(fmt.Sprintf("%s %+q: ", action, call.method), err)
 		}
 	}

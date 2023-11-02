@@ -65,7 +65,7 @@ func TestConstraint(t *testing.T) {
 	// v := book{}; CallByName(v, ...
 	// var v interface{} = book{}; CallByName(&v, ...
 	t.Run("Call a method", func(t *testing.T) {
-		t.Run("A pointer receiver", func(t *testing.T) {
+		t.Run("Pointer receiver", func(t *testing.T) {
 			t.Run("Given errors", func(t *testing.T) {
 				t.Run("v := book{}; CallByName(v, ...", func(t *testing.T) {
 					b := book{}
@@ -75,11 +75,20 @@ func TestConstraint(t *testing.T) {
 					assert.Zero(t, b)
 				})
 				t.Run("var v any = book{}; CallByName(&v, ...", func(t *testing.T) {
-					var b any = book{}
-					r, err := caller.CallByName(&b, "SetTitle", []any{harryPotterTitle}, false)
-					assert.EqualError(t, err, `cannot call method (*interface {})."SetTitle": invalid func (*interface {})."SetTitle"`)
-					assert.Nil(t, r)
-					assert.Equal(t, emptyBook, b)
+					t.Run("CallByName", func(t *testing.T) {
+						var b any = book{}
+						r, err := caller.CallByName(&b, "SetTitle", []any{harryPotterTitle}, false)
+						assert.EqualError(t, err, `cannot call method (*interface {})."SetTitle": invalid func (*interface {})."SetTitle"`)
+						assert.Nil(t, r)
+						assert.Equal(t, emptyBook, b)
+					})
+					t.Run("ForceCallByName", func(t *testing.T) {
+						var b any = book{}
+						r, err := caller.ForceCallByName(&b, "SetTitle", []any{harryPotterTitle}, false)
+						assert.NoError(t, err)
+						assert.Nil(t, r)
+						assert.Equal(t, harryPotter, b)
+					})
 				})
 			})
 			t.Run("Given scenarios", func(t *testing.T) {
@@ -128,7 +137,7 @@ func TestConstraint(t *testing.T) {
 			})
 		})
 		// Methods with a value receiver do not have any constraints
-		t.Run("A value receiver", func(t *testing.T) {
+		t.Run("Value receiver", func(t *testing.T) {
 			t.Run("b := book{}", func(t *testing.T) {
 				b := book{}
 				r, err := caller.CallWitherByName(b, "WithTitle", []any{harryPotterTitle}, false)
@@ -158,10 +167,17 @@ func TestConstraint(t *testing.T) {
 				assert.Equal(t, &emptyBook, b)
 			})
 		})
-		t.Run("An unexported method", func(t *testing.T) {
-			b := book{}
-			_, err := caller.CallByName(&b, "setTitle", []any{harryPotter}, false)
-			assert.EqualError(t, err, `cannot call method (*caller_test.book)."setTitle": invalid func (*caller_test.book)."setTitle"`)
+		t.Run("Unexported method", func(t *testing.T) {
+			t.Run("CallByName", func(t *testing.T) {
+				b := book{}
+				_, err := caller.CallByName(&b, "setTitle", []any{harryPotter}, false)
+				assert.EqualError(t, err, `cannot call method (*caller_test.book)."setTitle": invalid func (*caller_test.book)."setTitle"`)
+			})
+			t.Run("ForceCallByName", func(t *testing.T) {
+				b := book{}
+				_, err := caller.ForceCallByName(&b, "setTitle", []any{harryPotter}, false)
+				assert.EqualError(t, err, `cannot call method (*caller_test.book)."setTitle": invalid func (*caller_test.book)."setTitle"`)
+			})
 		})
 	})
 }

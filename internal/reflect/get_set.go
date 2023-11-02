@@ -136,11 +136,11 @@ func Set(strct any, field string, val any, convert bool) (err error) {
 	*/
 	for {
 		switch {
-		case chain.prefixed(reflect.Ptr, reflect.Ptr):
+		case chain.Prefixed(reflect.Ptr, reflect.Ptr):
 			reflectVal = reflectVal.Elem()
 			chain = chain[1:]
 			continue
-		case chain.prefixed(reflect.Ptr, reflect.Interface, reflect.Ptr):
+		case chain.Prefixed(reflect.Ptr, reflect.Interface, reflect.Ptr):
 			reflectVal = reflectVal.Elem().Elem()
 			chain = chain[2:]
 			continue
@@ -214,7 +214,7 @@ func (c kindChain) equalTo(kinds ...reflect.Kind) bool {
 	return true
 }
 
-func (c kindChain) prefixed(kinds ...reflect.Kind) bool {
+func (c kindChain) Prefixed(kinds ...reflect.Kind) bool {
 	if len(c) < len(kinds) {
 		return false
 	}

@@ -48,6 +48,7 @@ func Call(fn any, args []any, convertArgs bool) (_ []any, err error) {
 CallProvider works similar to [Call] with the difference it requires a provider as the first argument.
 Provider is a function which returns 1 or 2 values.
 The second return value which is optional must be a type of error.
+See [ProviderError].
 
 	p := func() (any, error) {
 	    db, err := sql.Open("mysql", "user:password@/dbname")
@@ -65,8 +66,9 @@ The second return value which is optional must be a type of error.
 	mysql, err := CallProvider(p)
 */
 func CallProvider(provider any, args []any, convertArgs bool) (_ any, err error) {
+	executedProvider := false
 	defer func() {
-		if err != nil {
+		if !executedProvider && err != nil {
 			err = grouperror.Prefix(fmt.Sprintf("cannot call provider %T: ", provider), err)
 		}
 	}()
@@ -81,11 +83,16 @@ func CallProvider(provider any, args []any, convertArgs bool) (_ any, err error)
 		return nil, err
 	}
 
+	executedProvider = true
+
 	r := results[0]
 	var e error
 	if len(results) > 1 {
 		// do not panic when results[1] == nil
 		e, _ = results[1].(error)
+	}
+	if e != nil {
+		e = newProviderError(grouperror.Prefix("provider returned error: ", e))
 	}
 
 	return r, e
@@ -124,6 +131,35 @@ func CallByName(object any, method string, args []any, convertArgs bool) (_ []an
 }
 
 /*
+ForceCallByName is an extended version of [CallByName].
+
+The following code cannot work:
+
+	var p any = person{}
+	caller.CallByName(&p, "SetName", []any{"Jane"}, false)
+
+because `&p` returns a pointer to an interface, not to the `person` type.
+The same problem occurs without using that package:
+
+	var tmp any = person{}
+	p := &tmp.(person)
+	// compiler returns:
+	// invalid operation: cannot take address of tmp.(person) (comma, ok expression of type person).
+
+[ForceCallByName] solves that problem by copying the value and creating a pointer to it using the [reflect] package,
+but that solution is slightly slower. In contrast to [CallByName], it requires a pointer always.
+*/
+func ForceCallByName(object any, method string, args []any, convertArgs bool) (_ []any, err error) {
+	defer func() {
+		if err != nil {
+			err = grouperror.Prefix(fmt.Sprintf("cannot call method (%T).%+q: ", object, method), err)
+		}
+	}()
+
+	return caller.ValidateAndForceCallByName(object, method, args, convertArgs, caller.DontValidate)
+}
+
+/*
 CallWitherByName works similar to [CallByName] with the difference the method must be a wither.
 
 	type Person struct {
@@ -148,15 +184,30 @@ func CallWitherByName(object any, wither string, args []any, convertArgs bool) (
 		}
 	}()
 
-	fn, err := caller.Wither(object, wither)
+	fn, err := caller.Method(object, wither)
 	if err != nil {
 		return nil, err
 	}
 
-	r, err := caller.CallFunc(fn, args, convertArgs)
-	var v any
-	if len(r) > 0 {
-		v = r[0]
+	r, err := caller.ValidateAndCallFunc(fn, args, convertArgs, caller.ValidateWither)
+	if err != nil {
+		return nil, err
 	}
-	return v, err
+	return r[0], nil
+}
+
+// ForceCallWitherByName calls the given wither (see [CallWitherByName]) using the same approach as [ForceCallByName].
+func ForceCallWitherByName(object any, wither string, args []any, convertArgs bool) (_ any, err error) {
+	defer func() {
+		if err != nil {
+			err = grouperror.Prefix(fmt.Sprintf("cannot call wither (%T).%+q: ", object, wither), err)
+		}
+	}()
+
+	r, err := caller.ValidateAndForceCallByName(object, wither, args, convertArgs, caller.ValidateWither)
+	if err != nil {
+		return nil, err
+	}
+
+	return r[0], nil
 }

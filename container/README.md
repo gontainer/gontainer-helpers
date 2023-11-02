@@ -369,8 +369,8 @@ func (p *Person) SetName(n string) {
 
 func main() {
 	s := container.NewService()
-	s.SetConstructor(func () *Person {
-		return &Person{} // it must be a pointer, because `SetName` requires a pointer receiver
+	s.SetConstructor(func() Person {
+		return Person{}
 	})
 	s.AppendCall("SetName", container.NewDependencyValue("Jane"))
 
@@ -379,7 +379,7 @@ func main() {
 
 	jane, _ := c.Get("jane")
 	fmt.Printf("%+v\n", jane)
-	// Output: &{Name:Jane}
+	// Output: {Name:Jane}
 }
 ```
 </details>
