@@ -35,15 +35,6 @@ type aliasInt = int
 type myBool bool
 type aliasBool = bool
 
-type mockExporter struct {
-	result string
-	error  error
-}
-
-func (m mockExporter) export(any) (string, error) {
-	return m.result, m.error
-}
-
 func TestChainExporter_Export(t *testing.T) {
 	t.Run("Given scenarios", func(t *testing.T) {
 		scenarios := map[string]struct {
@@ -107,6 +98,42 @@ func TestChainExporter_Export(t *testing.T) {
 				input:  aliasBool(true),
 				output: "true",
 			},
+			`([][2][][]interface{})(nil)`: {
+				input:  ([][2][][]interface{})(nil),
+				output: `([][2][][]interface{})(nil)`,
+			},
+			`[][2][][]int{{{{1, 2}}, nil}}`: {
+				input:  [][2][][]int{{{{1, 2}}, nil}},
+				output: `[][2][][]int{[2][][]int{[][]int{[]int{int(1), int(2)}}, ([][]int)(nil)}}`,
+			},
+			`[][2][][]int{{{{1, 2}}, nil}} #2`: {
+				input:  [][2][][]int{[2][][]int{[][]int{[]int{int(1), int(2)}}, ([][]int)(nil)}},
+				output: `[][2][][]int{[2][][]int{[][]int{[]int{int(1), int(2)}}, ([][]int)(nil)}}`,
+			},
+			`[][]any{nil, nil, {(*int)(nil)}}`: {
+				input: [][]any{nil, nil, {(*int)(nil)}},
+				error: `cannot export ([][]interface{})[2]: cannot export ([]interface{})[0]: type *int is not supported`,
+			},
+			`[]any{(*int)(nil)}`: {
+				input: []any{(*int)(nil)},
+				error: `cannot export ([]interface{})[0]: type *int is not supported`,
+			},
+			`[0][][]any{}`: {
+				input:  [0][][]any{},
+				output: `[0][][]interface{}{}`,
+			},
+			`[0][][]any{} #2`: {
+				input:  [0][][]interface{}{},
+				output: `[0][][]interface{}{}`,
+			},
+			`[]any{[][]int{{1, 2}, {3, 4}}, ([][][]any)(nil)}`: {
+				input:  []any{[][]int{{1, 2}, {3, 4}}, ([][][]any)(nil)},
+				output: `[]interface{}{[][]int{[]int{int(1), int(2)}, []int{int(3), int(4)}}, ([][][]interface{})(nil)}`,
+			},
+			`[]any{[][]int{{1, 2}, {3, 4}}, ([][][]any)(nil)} #2`: {
+				input:  []interface{}{[][]int{[]int{int(1), int(2)}, []int{int(3), int(4)}}, ([][][]interface{})(nil)},
+				output: `[]interface{}{[][]int{[]int{int(1), int(2)}, []int{int(3), int(4)}}, ([][][]interface{})(nil)}`,
+			},
 		}
 
 		for k, tmp := range scenarios {
@@ -163,13 +190,13 @@ func TestExport(t *testing.T) {
 		},
 		{
 			input: []any{struct{}{}},
-			error: "cannot export slice[0]: type struct {} is not supported",
-			panic: "cannot export []interface {} to string: cannot export slice[0]: type struct {} is not supported",
+			error: "cannot export ([]interface{})[0]: type struct {} is not supported",
+			panic: "cannot export []interface {} to string: cannot export ([]interface{})[0]: type struct {} is not supported",
 		},
 		{
 			input: [1]any{struct{}{}},
-			error: "cannot export array[0]: type struct {} is not supported",
-			panic: "cannot export [1]interface {} to string: cannot export array[0]: type struct {} is not supported",
+			error: "cannot export ([1]interface{})[0]: type struct {} is not supported",
+			panic: "cannot export [1]interface {} to string: cannot export ([1]interface{})[0]: type struct {} is not supported",
 		},
 		{
 			input:  []int{1, 2, 3, -1000000},
@@ -193,7 +220,7 @@ func TestExport(t *testing.T) {
 		},
 		{
 			input:  [][]int{nil, {1, 2, 3}},
-			output: "TODO",
+			output: `[][]int{([]int)(nil), []int{int(1), int(2), int(3)}}`,
 		},
 		{
 			input:  []float32{},
@@ -255,18 +282,12 @@ func TestExport(t *testing.T) {
 		})
 	}
 
-	t.Run("Given invalid scenario", func(t *testing.T) {
-		originalExporter := defaultExporter
-		defer func() {
-			defaultExporter = originalExporter
-		}()
-
-		expectedErr := fmt.Errorf("my test error")
-		defaultExporter = mockExporter{
-			error: expectedErr,
-		}
-		_, err := Export(123)
-		assert.EqualError(t, err, expectedErr.Error())
+	t.Run("Pointer loop", func(t *testing.T) {
+		a := make([]any, 2)
+		a[1] = a
+		v, err := Export(a)
+		assert.EqualError(t, err, "cannot export ([]interface{})[1]: unexpected infinite loop")
+		assert.Empty(t, v)
 	})
 }
 
@@ -493,7 +514,7 @@ func TestPrimitiveTypeSliceExporter_Export(t *testing.T) {
 		assert.EqualError(
 			t,
 			err,
-			"unexpected err slice[0]: type uint is not supported",
+			"unexpected err ([]uint)[0]: type uint is not supported",
 		)
 	})
 }

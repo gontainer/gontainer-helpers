@@ -106,6 +106,13 @@ func ExampleExport_emptySlice2() {
 	// Output: ([]interface{})(nil)
 }
 
+func ExampleExport_multiSlice() {
+	v := [2][][]int{nil, {{1, 2, 3}}}
+	s, _ := exporter.Export(v)
+	fmt.Println(s)
+	// Output: [2][][]int{([][]int)(nil), [][]int{[]int{int(1), int(2), int(3)}}}
+}
+
 func ExampleExport_array() {
 	s, _ := exporter.Export([3]uint{1, 2, 3})
 	fmt.Println(s)
