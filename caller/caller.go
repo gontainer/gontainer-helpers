@@ -92,7 +92,7 @@ func CallProvider(provider any, args []any, convertArgs bool) (_ any, err error)
 		e, _ = results[1].(error)
 	}
 	if e != nil {
-		e = newProviderError(e) // TODO decorate?
+		e = newProviderError(grouperror.Prefix("provider returned error: ", e))
 	}
 
 	return r, e

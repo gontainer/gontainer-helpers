@@ -274,7 +274,7 @@ func TestCallProvider(t *testing.T) {
 			return nil, &myError{errors.New("my error")}
 		}
 		_, err := caller.CallProvider(p, nil, false)
-		assert.EqualError(t, err, "my error")
+		assert.EqualError(t, err, "provider returned error: my error")
 		assert.IsType(t, (*caller.ProviderError)(nil), err)
 
 		var providerErr *caller.ProviderError
@@ -310,7 +310,7 @@ func TestCallProvider(t *testing.T) {
 				provider: func() (any, error) {
 					return nil, errors.New("test error")
 				},
-				err: "test error",
+				err: "provider returned error: test error",
 			},
 			{
 				provider: func() any {

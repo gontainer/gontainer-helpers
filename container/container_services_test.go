@@ -96,7 +96,7 @@ func TestContainer_executeServiceCalls(t *testing.T) {
 		c.OverrideService("service", s)
 
 		expected := []string{
-			`get("service"): resolve args "SetName": arg #0: could not fetch the name from the config`,
+			`get("service"): resolve args "SetName": arg #0: provider returned error: could not fetch the name from the config`,
 			`get("service"): call "SetAge": cannot call method (*interface {})."SetAge": invalid func (*struct {})."SetAge"`,
 			`get("service"): call "SetColor": cannot call method (*interface {})."SetColor": invalid func (*struct {})."SetColor"`,
 			`get("service"): wither "WithLogger": cannot call wither (*interface {})."WithLogger": invalid func (*struct {})."WithLogger"`,
@@ -119,7 +119,7 @@ func TestContainer_createNewService(t *testing.T) {
 		c.OverrideService("service", s)
 		service, err := c.Get("service")
 		assert.Nil(t, service)
-		assert.EqualError(t, err, `get("service"): constructor: could not create`)
+		assert.EqualError(t, err, `get("service"): constructor: provider returned error: could not create`)
 	})
 	t.Run("Errors in args", func(t *testing.T) {
 		s := container.NewService()
@@ -137,8 +137,8 @@ func TestContainer_createNewService(t *testing.T) {
 		c.OverrideService("server", s)
 
 		expected := []string{
-			`get("server"): constructor args: arg #0: unexpected error 1`,
-			`get("server"): constructor args: arg #1: unexpected error 2`,
+			`get("server"): constructor args: arg #0: provider returned error: unexpected error 1`,
+			`get("server"): constructor args: arg #1: provider returned error: unexpected error 2`,
 		}
 
 		svc, err := c.Get("server")
@@ -179,7 +179,7 @@ func TestContainer_setServiceFields(t *testing.T) {
 
 		expected := []string{
 			`get("service"): set field "Name": set (*interface {})."Name": field "Name" does not exist`,
-			`get("service"): field value "Age": unexpected error`,
+			`get("service"): field value "Age": provider returned error: unexpected error`,
 		}
 
 		svc, err := c.Get("service")
@@ -223,7 +223,7 @@ func TestContainer_Get_doNotCacheOnError(t *testing.T) {
 			ctx = container.ContextWithContainer(ctx, c)
 
 			five, err := c.GetInContext(ctx, "five")
-			assert.EqualError(t, err, `get("five"): constructor: my error`)
+			assert.EqualError(t, err, `get("five"): constructor: provider returned error: my error`)
 			assert.Nil(t, five)
 
 			// second invocation does not return error
@@ -326,7 +326,7 @@ func TestContainer_Get_errorInDecorator(t *testing.T) {
 	)
 
 	_, err := c.Get("service")
-	assert.EqualError(t, err, `get("service"): decorator #0: my error`)
+	assert.EqualError(t, err, `get("service"): decorator #0: provider returned error: my error`)
 }
 
 type Server struct {
