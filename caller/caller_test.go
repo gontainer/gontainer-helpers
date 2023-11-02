@@ -574,13 +574,21 @@ func (p *Pet) NameType() (name, type_ string) {
 }
 
 func TestForceCallWitherByName(t *testing.T) {
-	t.Run("OK", func(t *testing.T) {
+	t.Run("OK #1", func(t *testing.T) {
 		var p any = Pet{}
 		r, err := caller.ForceCallWitherByName(&p, "WithName", []any{"Laika"}, false)
 		assert.NoError(t, err)
 		r, err = caller.ForceCallWitherByName(&r, "WithType", []any{"dog"}, false)
 		assert.NoError(t, err)
 		assert.Equal(t, Pet{Name: "Laika", Type: "dog"}, *r.(*Pet))
+	})
+	t.Run("OK #2 (nil pointer)", func(t *testing.T) {
+		var p1 *person
+		var p2 any = p1
+		r, err := caller.ForceCallWitherByName(&p2, "Empty", nil, false)
+		assert.NoError(t, err)
+		assert.Nil(t, p1)
+		assert.Equal(t, person{}, r)
 	})
 	t.Run("Error", func(t *testing.T) {
 		var p any = Pet{}
