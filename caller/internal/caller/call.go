@@ -60,7 +60,7 @@ func ValidateAndCallFunc(fn reflect.Value, args []any, convertArgs bool, v FuncV
 // CallFunc calls the given func.
 //
 // fn.Kind() MUST BE equal to [reflect.Func]
-func CallFunc(fn reflect.Value, args []any, convertArgs bool) (res []any, _ error) {
+func CallFunc(fn reflect.Value, args []any, convertArgs bool) ([]any, error) {
 	fnType := reflectType{fn.Type()}
 
 	if len(args) > fnType.NumIn() && !fnType.IsVariadic() {
