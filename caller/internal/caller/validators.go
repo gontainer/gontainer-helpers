@@ -55,10 +55,16 @@ func validateWither(fn reflect.Value) error {
 
 func validateProvider(fn reflect.Value) error {
 	if fn.Type().NumOut() == 0 || fn.Type().NumOut() > 2 {
-		return fmt.Errorf("provider must return 1 or 2 values, given function returns %d values", fn.Type().NumOut())
+		return fmt.Errorf(
+			"provider must return 1 or 2 values, given function returns %d values",
+			fn.Type().NumOut(),
+		)
 	}
 	if fn.Type().NumOut() == 2 && !fn.Type().Out(1).Implements(errorInterface) {
-		return fmt.Errorf("second value returned by provider must implement error interface, %s given", fn.Type().Out(1))
+		return fmt.Errorf(
+			"second value returned by provider must implement error interface, %s given",
+			fn.Type().Out(1).String(),
+		)
 	}
 	return nil
 }
