@@ -69,7 +69,7 @@ func Get(strct any, field string) (_ any, err error) {
 	}
 
 	reflectVal := reflect.ValueOf(strct)
-	chain, err := valueToKindChain(reflectVal)
+	chain, err := ValueToKindChain(reflectVal)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func Set(strct any, field string, val any, convert bool) (err error) {
 	}
 
 	reflectVal := reflect.ValueOf(strct)
-	chain, err := valueToKindChain(reflectVal)
+	chain, err := ValueToKindChain(reflectVal)
 	if err != nil {
 		return err
 	}
@@ -222,7 +222,7 @@ func (c kindChain) prefixed(kinds ...reflect.Kind) bool {
 	return c[:len(kinds)].equalTo(kinds...)
 }
 
-func valueToKindChain(v reflect.Value) (kindChain, error) {
+func ValueToKindChain(v reflect.Value) (kindChain, error) {
 	var r kindChain
 	ptrs := make(map[uintptr]struct{})
 	for {
