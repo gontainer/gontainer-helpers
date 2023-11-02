@@ -24,6 +24,8 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+
+	intReflect "github.com/gontainer/gontainer-helpers/v2/internal/reflect"
 )
 
 var (
@@ -61,6 +63,10 @@ func Method(object any, method string) (reflect.Value, error) {
 		return reflect.Value{}, fmt.Errorf("invalid method receiver: %T", object)
 	}
 	fn := obj.MethodByName(method)
+	_, err := intReflect.ValueToKindChain(obj)
+	if err != nil {
+		return reflect.Value{}, err
+	}
 	for !fn.IsValid() && (obj.Kind() == reflect.Ptr || obj.Kind() == reflect.Interface) {
 		obj = obj.Elem()
 		fn = obj.MethodByName(method)

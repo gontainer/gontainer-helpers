@@ -334,6 +334,16 @@ func TestCallProvider(t *testing.T) {
 	})
 }
 
+func TestCallByName(t *testing.T) {
+	t.Run("Pointer loop", func(t *testing.T) {
+		var a any
+		a = &a
+		r, err := caller.CallByName(a, "method", nil, false)
+		assert.EqualError(t, err, `cannot call method (*interface {})."method": unexpected pointer loop`)
+		assert.Nil(t, r)
+	})
+}
+
 func TestCallWitherByName(t *testing.T) {
 	t.Run("Given scenarios", func(t *testing.T) {
 		var emptyPerson any = person{}
@@ -423,6 +433,14 @@ func TestCallWitherByName(t *testing.T) {
 				assert.EqualError(t, err, s.error)
 			})
 		}
+	})
+
+	t.Run("Pointer loop", func(t *testing.T) {
+		var a any
+		a = &a
+		r, err := caller.CallWitherByName(a, "method", nil, false)
+		assert.EqualError(t, err, `cannot call wither (*interface {})."method": unexpected pointer loop`)
+		assert.Nil(t, r)
 	})
 }
 
