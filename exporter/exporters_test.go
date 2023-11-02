@@ -192,6 +192,10 @@ func TestExport(t *testing.T) {
 			output: "[]interface{}{([]uint)(nil), []int{int(1), int(2), int(3)}}",
 		},
 		{
+			input:  [][]int{nil, {1, 2, 3}},
+			output: "TODO",
+		},
+		{
 			input:  []float32{},
 			output: "make([]float32, 0)",
 		},
