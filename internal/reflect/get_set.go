@@ -26,7 +26,7 @@ import (
 	"reflect"
 	"unsafe"
 
-	"github.com/gontainer/gontainer-helpers/v2/grouperror"
+	"github.com/gontainer/gontainer-helpers/v3/grouperror"
 )
 
 func ptrToNilStructError(v any) error {

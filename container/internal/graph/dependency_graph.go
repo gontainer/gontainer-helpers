@@ -21,7 +21,7 @@
 package graph
 
 import (
-	pkgGraph "github.com/gontainer/gontainer-helpers/v2/graph"
+	pkgGraph "github.com/gontainer/gontainer-helpers/v3/graph"
 )
 
 type graph interface {

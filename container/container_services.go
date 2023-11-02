@@ -26,9 +26,9 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/gontainer/gontainer-helpers/v2/caller"
-	"github.com/gontainer/gontainer-helpers/v2/grouperror"
-	"github.com/gontainer/gontainer-helpers/v2/setter"
+	"github.com/gontainer/gontainer-helpers/v3/caller"
+	"github.com/gontainer/gontainer-helpers/v3/grouperror"
+	"github.com/gontainer/gontainer-helpers/v3/setter"
 )
 
 func contextDone(ctx context.Context) bool {

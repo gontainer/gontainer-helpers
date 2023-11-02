@@ -23,7 +23,7 @@ package exporter_test
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/v2/exporter"
+	"github.com/gontainer/gontainer-helpers/v3/exporter"
 )
 
 func Example() {

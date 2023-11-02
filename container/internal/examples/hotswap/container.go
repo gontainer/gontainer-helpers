@@ -23,7 +23,7 @@ package hotswap
 import (
 	"net/http"
 
-	"github.com/gontainer/gontainer-helpers/v2/container"
+	"github.com/gontainer/gontainer-helpers/v3/container"
 )
 
 type Container struct {

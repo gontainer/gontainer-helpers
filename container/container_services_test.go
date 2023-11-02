@@ -30,9 +30,9 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/gontainer/gontainer-helpers/v2/container"
-	"github.com/gontainer/gontainer-helpers/v2/copier"
-	assertErr "github.com/gontainer/gontainer-helpers/v2/grouperror/assert"
+	"github.com/gontainer/gontainer-helpers/v3/container"
+	"github.com/gontainer/gontainer-helpers/v3/copier"
+	assertErr "github.com/gontainer/gontainer-helpers/v3/grouperror/assert"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -29,8 +29,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gontainer/gontainer-helpers/v2/container"
-	"github.com/gontainer/gontainer-helpers/v2/container/internal/examples/hotswap"
+	"github.com/gontainer/gontainer-helpers/v3/container"
+	"github.com/gontainer/gontainer-helpers/v3/container/internal/examples/hotswap"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
