@@ -461,7 +461,7 @@ func TestCallWitherByName(t *testing.T) {
 		assert.Nil(t, r)
 	})
 
-	t.Run("Nil pointer", func(t *testing.T) {
+	t.Run("Nil pointer receiver", func(t *testing.T) {
 		var p *person
 		r, err := caller.CallWitherByName(p, "Empty", nil, false)
 		assert.NoError(t, err)
@@ -530,7 +530,7 @@ func TestEnforcedCall(t *testing.T) {
 			}
 			assert.Equal(t, nums{5, 6, 7}, n.(nums))
 		})
-		t.Run("OK #3 (nil pointer)", func(t *testing.T) {
+		t.Run("OK #3 (nil pointer receiver)", func(t *testing.T) {
 			var p1 *person
 			var p2 any = p1
 			r, err := caller.ForceCallByName(&p2, "Empty", nil, false)
@@ -590,7 +590,7 @@ func TestForceCallWitherByName(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, Pet{Name: "Laika", Type: "dog"}, *r.(*Pet))
 	})
-	t.Run("OK #2 (nil pointer)", func(t *testing.T) {
+	t.Run("OK #2 (nil pointer receiver)", func(t *testing.T) {
 		var p1 *person
 		var p2 any = p1
 		r, err := caller.ForceCallWitherByName(&p2, "Empty", nil, false)
