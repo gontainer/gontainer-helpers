@@ -106,7 +106,7 @@ func ExampleExport_emptySlice2() {
 	// Output: ([]interface{})(nil)
 }
 
-func ExampleExport_multiSlice() {
+func ExampleExport_multidimensionalSlice() {
 	v := [2][][]int{nil, {{1, 2, 3}}}
 	s, _ := exporter.Export(v)
 	fmt.Println(s)
