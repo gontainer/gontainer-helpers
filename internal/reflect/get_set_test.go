@@ -23,7 +23,7 @@ package reflect_test
 import (
 	"testing"
 
-	"github.com/gontainer/gontainer-helpers/v2/internal/reflect"
+	"github.com/gontainer/gontainer-helpers/v3/internal/reflect"
 	"github.com/stretchr/testify/assert"
 )
 

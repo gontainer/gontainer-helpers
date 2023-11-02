@@ -23,8 +23,8 @@ package graph_test
 import (
 	"testing"
 
-	"github.com/gontainer/gontainer-helpers/v2/container/internal/graph"
-	errAssert "github.com/gontainer/gontainer-helpers/v2/grouperror/assert"
+	"github.com/gontainer/gontainer-helpers/v3/container/internal/graph"
+	errAssert "github.com/gontainer/gontainer-helpers/v3/grouperror/assert"
 )
 
 func TestNew(t *testing.T) {

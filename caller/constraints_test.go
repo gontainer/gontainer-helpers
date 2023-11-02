@@ -23,7 +23,7 @@ package caller_test
 import (
 	"testing"
 
-	"github.com/gontainer/gontainer-helpers/v2/caller"
+	"github.com/gontainer/gontainer-helpers/v3/caller"
 	"github.com/stretchr/testify/assert"
 )
 

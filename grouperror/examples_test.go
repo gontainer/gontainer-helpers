@@ -24,7 +24,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/v2/grouperror"
+	"github.com/gontainer/gontainer-helpers/v3/grouperror"
 )
 
 func Example() {

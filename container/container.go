@@ -27,9 +27,9 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/gontainer/gontainer-helpers/v2/caller"
-	"github.com/gontainer/gontainer-helpers/v2/container/internal/groupcontext"
-	"github.com/gontainer/gontainer-helpers/v2/grouperror"
+	"github.com/gontainer/gontainer-helpers/v3/caller"
+	"github.com/gontainer/gontainer-helpers/v3/container/internal/groupcontext"
+	"github.com/gontainer/gontainer-helpers/v3/grouperror"
 )
 
 // Container is a DI container. Use [New] to allocate a new instance.

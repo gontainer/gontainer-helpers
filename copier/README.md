@@ -35,7 +35,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/v2/copier"
+	"github.com/gontainer/gontainer-helpers/v3/copier"
 )
 
 type Person struct {

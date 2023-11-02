@@ -21,7 +21,7 @@
 package graph
 
 import (
-	"github.com/gontainer/gontainer-helpers/v2/container/internal/graph"
+	"github.com/gontainer/gontainer-helpers/v3/container/internal/graph"
 )
 
 var (

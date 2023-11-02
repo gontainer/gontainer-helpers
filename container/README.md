@@ -4,7 +4,7 @@ This package provides a concurrently safe DI container. It supports **scoped var
 For bigger projects, it provides a tool for the code generation.
 
 ```bash
-go get -u github.com/gontainer/gontainer-helpers/v2/container@latest
+go get -u github.com/gontainer/gontainer-helpers/v3/container@latest
 ```
 
 1. [Why?](#why)
@@ -113,7 +113,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/v2/container"
+	"github.com/gontainer/gontainer-helpers/v3/container"
 )
 
 type God struct {
@@ -309,7 +309,7 @@ package main
 import (
    "fmt"
 
-   "github.com/gontainer/gontainer-helpers/v2/container"
+   "github.com/gontainer/gontainer-helpers/v3/container"
 )
 
 func main() {
@@ -356,7 +356,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/v2/container"
+	"github.com/gontainer/gontainer-helpers/v3/container"
 )
 
 type Person struct {
@@ -397,7 +397,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/v2/container"
+	"github.com/gontainer/gontainer-helpers/v3/container"
 )
 
 type Person struct {
@@ -437,7 +437,7 @@ package main
 import (
    "fmt"
 
-   "github.com/gontainer/gontainer-helpers/v2/container"
+   "github.com/gontainer/gontainer-helpers/v3/container"
 )
 
 type Person struct {
@@ -479,7 +479,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/v2/container"
+	"github.com/gontainer/gontainer-helpers/v3/container"
 )
 
 func main() {
@@ -550,7 +550,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/gontainer/gontainer-helpers/v2/container"
+	"github.com/gontainer/gontainer-helpers/v3/container"
 )
 
 func main() {
@@ -843,7 +843,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/v2/container"
+	"github.com/gontainer/gontainer-helpers/v3/container"
 )
 
 type Spouse struct {
@@ -1062,7 +1062,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/v2/container"
+	"github.com/gontainer/gontainer-helpers/v3/container"
 )
 
 func main() {

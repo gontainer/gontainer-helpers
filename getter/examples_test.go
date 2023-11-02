@@ -23,7 +23,7 @@ package getter_test
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/v2/getter"
+	"github.com/gontainer/gontainer-helpers/v3/getter"
 )
 
 func ExampleGet_ok() {

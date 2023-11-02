@@ -26,7 +26,7 @@ import (
 	"reflect"
 	"testing"
 
-	intReflect "github.com/gontainer/gontainer-helpers/v2/internal/reflect"
+	intReflect "github.com/gontainer/gontainer-helpers/v3/internal/reflect"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -24,7 +24,7 @@ import (
 	"fmt"
 	"sort"
 
-	containerGraph "github.com/gontainer/gontainer-helpers/v2/container/internal/graph"
+	containerGraph "github.com/gontainer/gontainer-helpers/v3/container/internal/graph"
 )
 
 // graphBuilder is a helper for [*Container], it analyzes dependencies to resolve the scope in runtime,

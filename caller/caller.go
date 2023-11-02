@@ -23,8 +23,8 @@ package caller
 import (
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/v2/caller/internal/caller"
-	"github.com/gontainer/gontainer-helpers/v2/grouperror"
+	"github.com/gontainer/gontainer-helpers/v3/caller/internal/caller"
+	"github.com/gontainer/gontainer-helpers/v3/grouperror"
 )
 
 // Call calls the given function with the given arguments.
