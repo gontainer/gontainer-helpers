@@ -253,6 +253,11 @@ func TestExport(t *testing.T) {
 			input:  [3]any{},
 			output: "[3]interface{}{nil, nil, nil}",
 		},
+		{
+			input: []interface{ Do() }{nil},
+			error: `type []interface { Do() } is not supported`,
+			panic: `cannot export []interface { Do() } to string: type []interface { Do() } is not supported`,
+		},
 	}
 
 	for i, tmp := range scenarios {

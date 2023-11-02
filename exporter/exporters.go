@@ -286,6 +286,10 @@ type multiArray struct {
 	exporter exporter
 }
 
+func isBuiltInSliceOrArray(t reflect.Type) bool {
+	return t.PkgPath() == "" && (t.Kind() == reflect.Slice || t.Kind() == reflect.Array)
+}
+
 func (m multiArray) export(v any) (string, error) {
 	val := reflect.ValueOf(v)
 	t := val.Type()
