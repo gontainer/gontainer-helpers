@@ -371,7 +371,7 @@ func ExampleContainer_CircularDeps() {
 	// CircularDeps(): %name% -> %name%
 }
 
-func ExampleContainer_Get_setter() {
+func ExampleContainer_Get_setterInjection() {
 	riemannSvc := container.NewService()
 	riemannSvc.SetConstructor(func() Person { // we don't need to use a pointer here, even tho `SetName` requires a pointer receiver :)
 		return Person{}
@@ -387,12 +387,28 @@ func ExampleContainer_Get_setter() {
 	// Output: {Bernhard Riemann}
 }
 
-func ExampleContainer_Get_wither() {
+func ExampleContainer_Get_witherInjection() {
 	riemannSvc := container.NewService()
 	riemannSvc.SetConstructor(func() Person {
 		return Person{}
 	})
 	riemannSvc.AppendWither("WithName", container.NewDependencyValue("Bernhard Riemann"))
+
+	c := container.New()
+	c.OverrideService("riemann", riemannSvc)
+
+	riemann, _ := c.Get("riemann")
+	fmt.Println(riemann)
+
+	// Output: {Bernhard Riemann}
+}
+
+func ExampleContainer_Get_fieldInjection() {
+	riemannSvc := container.NewService()
+	riemannSvc.SetConstructor(func() Person {
+		return Person{}
+	})
+	riemannSvc.SetField("Name", container.NewDependencyValue("Bernhard Riemann"))
 
 	c := container.New()
 	c.OverrideService("riemann", riemannSvc)
