@@ -156,8 +156,9 @@ func ValidateAndForceCallByName(object any, method string, args []any, convertAr
 }
 
 var (
-	DontValidate   = ChainValidator{}
-	ValidateWither = ChainValidator{validateWither}
+	DontValidate     = ChainValidator{}
+	ValidateWither   = ChainValidator{validateWither}
+	ValidateProvider = ChainValidator{validateProvider}
 )
 
 type FuncValidator interface {

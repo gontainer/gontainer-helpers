@@ -43,20 +43,6 @@ func Func(fn any) (reflect.Value, error) {
 	return v, nil
 }
 
-func Provider(fn any) (reflect.Value, error) {
-	v, err := Func(fn)
-	if err != nil {
-		return reflect.Value{}, err
-	}
-	if v.Type().NumOut() == 0 || v.Type().NumOut() > 2 {
-		return reflect.Value{}, fmt.Errorf("provider must return 1 or 2 values, given function returns %d values", v.Type().NumOut())
-	}
-	if v.Type().NumOut() == 2 && !v.Type().Out(1).Implements(errorInterface) {
-		return reflect.Value{}, errors.New("second value returned by provider must implement error interface")
-	}
-	return v, nil
-}
-
 const (
 	invalidMethodErr = "invalid func (%T).%+q"
 )
@@ -92,6 +78,16 @@ func MethodByName(val reflect.Value, method string) (reflect.Value, error) {
 func validateWither(fn reflect.Value) error {
 	if fn.Type().NumOut() != 1 {
 		return fmt.Errorf("wither must return 1 value, given function returns %d values", fn.Type().NumOut())
+	}
+	return nil
+}
+
+func validateProvider(fn reflect.Value) error {
+	if fn.Type().NumOut() == 0 || fn.Type().NumOut() > 2 {
+		return fmt.Errorf("provider must return 1 or 2 values, given function returns %d values", fn.Type().NumOut())
+	}
+	if fn.Type().NumOut() == 2 && !fn.Type().Out(1).Implements(errorInterface) {
+		return errors.New("second value returned by provider must implement error interface")
 	}
 	return nil
 }
