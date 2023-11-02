@@ -150,6 +150,14 @@ func TestExport(t *testing.T) {
 			output: "make([]interface{}, 0)",
 		},
 		{
+			input:  ([]interface{})(nil),
+			output: "([]interface{})(nil)",
+		},
+		{
+			input:  ([]any)(nil),
+			output: "([]interface{})(nil)",
+		},
+		{
 			input:  [0]any{},
 			output: "[0]interface{}{}",
 		},
@@ -174,6 +182,14 @@ func TestExport(t *testing.T) {
 		{
 			input:  [0]int{},
 			output: "[0]int{}",
+		},
+		{
+			input:  ([]int)(nil),
+			output: "([]int)(nil)",
+		},
+		{
+			input:  []any{([]uint)(nil), []int{1, 2, 3}},
+			output: "[]interface{}{([]uint)(nil), []int{int(1), int(2), int(3)}}",
 		},
 		{
 			input:  []float32{},

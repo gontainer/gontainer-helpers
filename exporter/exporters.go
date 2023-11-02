@@ -224,8 +224,13 @@ type interfaceSliceExporter struct {
 
 func (i interfaceSliceExporter) export(v any) (string, error) {
 	val := reflect.ValueOf(v)
-	if val.Type().Kind() == reflect.Slice && val.Len() == 0 {
-		return "make([]interface{}, 0)", nil
+	if val.Type().Kind() == reflect.Slice {
+		switch {
+		case val.IsNil():
+			return "([]interface{})(nil)", nil
+		case val.Len() == 0:
+			return "make([]interface{}, 0)", nil
+		}
 	}
 	parts := make([]string, val.Len())
 	for j := 0; j < val.Len(); j++ {
@@ -260,8 +265,13 @@ type primitiveTypeSliceExporter struct {
 
 func (p primitiveTypeSliceExporter) export(v any) (string, error) {
 	val := reflect.ValueOf(v)
-	if val.Type().Kind() == reflect.Slice && val.Len() == 0 {
-		return fmt.Sprintf("make([]%s, 0)", val.Type().Elem().Kind().String()), nil
+	if val.Type().Kind() == reflect.Slice {
+		switch {
+		case val.IsNil():
+			return fmt.Sprintf("([]%s)(nil)", val.Type().Elem().Kind().String()), nil
+		case val.Len() == 0:
+			return fmt.Sprintf("make([]%s, 0)", val.Type().Elem().Kind().String()), nil
+		}
 	}
 	parts := make([]string, val.Len())
 	for i := 0; i < val.Len(); i++ {
