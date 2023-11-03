@@ -125,13 +125,18 @@ func (c *Container) CircularDeps() error {
 }
 
 func (c *Container) resolveDeps(contextualBag keyValue, deps ...Dependency) ([]any, error) {
+	if len(deps) == 0 {
+		return nil, nil
+	}
 	r := make([]any, len(deps))
-	errs := make([]error, len(deps))
+	var errs []error
 
 	for i, d := range deps {
 		var err error
 		r[i], err = c.resolveDep(contextualBag, d)
-		errs[i] = grouperror.Prefix(fmt.Sprintf("arg #%d: ", i), err)
+		if err != nil {
+			errs = append(errs, grouperror.Prefix(fmt.Sprintf("arg #%d: ", i), err))
+		}
 	}
 
 	return r, grouperror.Join(errs...)
@@ -162,7 +167,5 @@ func (c *Container) invalidateGraph() {
 }
 
 func (c *Container) warmUpGraph() {
-	c.onceWarmUp.Do(func() {
-		c.graphBuilder.warmUp()
-	})
+	c.onceWarmUp.Do(c.graphBuilder.warmUp)
 }

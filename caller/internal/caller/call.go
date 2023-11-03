@@ -143,13 +143,11 @@ func ValidateAndForceCallByName(object any, method string, args []any, convertAr
 			return nil, err
 		}
 
-		return func() (res []any, err error) {
-			res, err = ValidateAndCallFunc(fn, args, convertArgs, v)
-			if err == nil {
-				val.Elem().Set(cp.Elem())
-			}
-			return
-		}()
+		res, err := ValidateAndCallFunc(fn, args, convertArgs, v)
+		if err == nil {
+			val.Elem().Set(cp.Elem())
+		}
+		return res, err
 	}
 
 	panic("ValidateAndForceCallByName: unexpected error") // this should be unreachable

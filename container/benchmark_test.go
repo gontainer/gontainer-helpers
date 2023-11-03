@@ -22,6 +22,7 @@ package container_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/gontainer/gontainer-helpers/v3/container"
@@ -153,14 +154,30 @@ func BenchmarkContainer_scopeNonShared(b *testing.B) {
 	}
 }
 
-func BenchmarkContainer_map(b *testing.B) {
-	m := make(map[string]interface{})
-	m["employee"] = Employee{
-		Name: "Mary",
+type serviceMap map[string]interface{}
+
+func (s serviceMap) Get(id string) (interface{}, error) {
+	v, ok := s[id]
+	if !ok {
+		return nil, errors.New("does not exist")
 	}
+	return v, nil
+}
+
+func (s serviceMap) Set(id string, v interface{}) {
+	s[id] = v
+}
+
+func BenchmarkContainer_map(b *testing.B) {
+	m := make(serviceMap)
+	m.Set("employee", Employee{
+		Name: "Mary",
+	})
+	emp, _ := m.Get("employee")
+	require.Equal(b, Employee{Name: "Mary"}, emp)
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		_, _ = m["employee"] //nolint:gosimple
+		_, _ = m.Get("employee")
 	}
 }

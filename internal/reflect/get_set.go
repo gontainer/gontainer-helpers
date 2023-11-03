@@ -224,6 +224,7 @@ func (c kindChain) Prefixed(kinds ...reflect.Kind) bool {
 
 func ValueToKindChain(v reflect.Value) (kindChain, error) {
 	var r kindChain
+	r = make(kindChain, 0, 5)
 	ptrs := make(map[uintptr]struct{})
 	for {
 		if v.Kind() == reflect.Ptr && !v.IsNil() {
