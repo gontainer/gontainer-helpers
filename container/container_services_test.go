@@ -57,12 +57,26 @@ func TestContainer_GetTaggedBy(t *testing.T) {
 			Name string
 		}{})
 		p.SetField("Name", container.NewDependencyParam("name"))
+		p.SetField("Age", container.NewDependencyValue(30))
 		p.Tag("person", 0)
+
+		p2 := container.NewService()
+		p2.SetValue(struct {
+			Name string
+		}{})
+		p2.SetField("Name", container.NewDependencyParam("name"))
+		p2.Tag("person", 0)
 
 		c := container.New()
 		c.OverrideService("jane", p)
+		c.OverrideService("john", p2)
 		_, err := c.GetTaggedBy("person")
-		assert.EqualError(t, err, `getTaggedBy("person"): get("jane"): field value "Name": getParam("name"): param does not exist`)
+		expected := []string{
+			`getTaggedBy("person"): get("jane"): field value "Name": getParam("name"): param does not exist`,
+			`getTaggedBy("person"): get("jane"): set field "Age": set (*interface {})."Age": field "Age" does not exist`,
+			`getTaggedBy("person"): get("john"): field value "Name": getParam("name"): param does not exist`,
+		}
+		assertErr.EqualErrorGroup(t, err, expected)
 	})
 }
 

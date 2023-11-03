@@ -51,8 +51,10 @@ func (t reflectType) In(i int) reflect.Type {
 //
 // fn.Kind() MUST BE equal to [reflect.Func]
 func ValidateAndCallFunc(fn reflect.Value, args []any, convertArgs bool, v FuncValidator) ([]any, error) {
-	if err := v.Validate(fn); err != nil {
-		return nil, err
+	if v != nil {
+		if err := v.Validate(fn); err != nil {
+			return nil, err
+		}
 	}
 	return CallFunc(fn, args, convertArgs)
 }
@@ -143,13 +145,11 @@ func ValidateAndForceCallByName(object any, method string, args []any, convertAr
 			return nil, err
 		}
 
-		return func() (res []any, err error) {
-			res, err = ValidateAndCallFunc(fn, args, convertArgs, v)
-			if err == nil {
-				val.Elem().Set(cp.Elem())
-			}
-			return
-		}()
+		res, err := ValidateAndCallFunc(fn, args, convertArgs, v)
+		if err == nil {
+			val.Elem().Set(cp.Elem())
+		}
+		return res, err
 	}
 
 	panic("ValidateAndForceCallByName: unexpected error") // this should be unreachable

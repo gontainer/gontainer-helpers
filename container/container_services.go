@@ -211,16 +211,16 @@ func (c *Container) setServiceFields(
 	svc Service,
 	contextualBag keyValue,
 ) (any, error) {
-	errs := make([]error, len(svc.fields))
-	for i, f := range svc.fields {
+	var errs []error
+	for _, f := range svc.fields {
 		fieldVal, err := c.resolveDep(contextualBag, f.dep)
 		if err != nil {
-			errs[i] = grouperror.Prefix(fmt.Sprintf("field value %+q: ", f.name), err)
+			errs = append(errs, grouperror.Prefix(fmt.Sprintf("field value %+q: ", f.name), err))
 			continue
 		}
 		err = setter.Set(&result, f.name, fieldVal, convertArgs)
 		if err != nil {
-			errs[i] = grouperror.Prefix(fmt.Sprintf("set field %+q: ", f.name), err)
+			errs = append(errs, grouperror.Prefix(fmt.Sprintf("set field %+q: ", f.name), err))
 		}
 	}
 	return result, grouperror.Join(errs...)
@@ -231,9 +231,9 @@ func (c *Container) executeServiceCalls(
 	svc Service,
 	contextualBag keyValue,
 ) (any, error) {
-	errs := make([]error, len(svc.calls))
+	var errs []error
 
-	for i, call := range svc.calls {
+	for _, call := range svc.calls {
 		action := "call"
 		if call.wither {
 			action = "wither"
@@ -241,21 +241,23 @@ func (c *Container) executeServiceCalls(
 
 		params, err := c.resolveDeps(contextualBag, call.deps...)
 		if err != nil {
-			errs[i] = grouperror.Prefix(fmt.Sprintf("resolve args %+q: ", call.method), err)
+			errs = append(errs, grouperror.Prefix(fmt.Sprintf("resolve args %+q: ", call.method), err))
 			continue
 		}
 
 		if call.wither {
 			result, err = caller.ForceCallWitherByName(&result, call.method, params, convertArgs)
 			if err != nil {
-				errs[i] = grouperror.Prefix(fmt.Sprintf("%s %+q: ", action, call.method), err)
+				errs = append(errs, grouperror.Prefix(fmt.Sprintf("%s %+q: ", action, call.method), err))
 				// wither may return a nil value for error,
 				// so we have to stop execution here
 				break
 			}
 		} else {
 			_, err = caller.ForceCallByName(&result, call.method, params, convertArgs)
-			errs[i] = grouperror.Prefix(fmt.Sprintf("%s %+q: ", action, call.method), err)
+			if err != nil {
+				errs = append(errs, grouperror.Prefix(fmt.Sprintf("%s %+q: ", action, call.method), err))
+			}
 		}
 	}
 
@@ -326,12 +328,14 @@ func (c *Container) getTaggedBy(tag string, contextualBag keyValue) (result []an
 	})
 
 	result = make([]any, len(services))
+	var errs []error
 	for i, s := range services {
-		result[i], err = c.get(s.id, contextualBag)
-		if err != nil {
-			return nil, err
+		var cErr error
+		result[i], cErr = c.get(s.id, contextualBag)
+		if cErr != nil {
+			errs = append(errs, cErr)
 		}
 	}
 
-	return result, nil
+	return result, grouperror.Join(errs...)
 }
