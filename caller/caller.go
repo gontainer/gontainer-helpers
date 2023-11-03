@@ -78,7 +78,11 @@ func CallProvider(provider any, args []any, convertArgs bool) (_ any, err error)
 		return nil, err
 	}
 
-	results, err := caller.ValidateAndCallFunc(fn, args, convertArgs, caller.ValidateProvider)
+	if err := caller.ValidateProvider.Validate(fn); err != nil {
+		return nil, err
+	}
+
+	results, err := caller.CallFunc(fn, args, convertArgs)
 	if err != nil {
 		return nil, err
 	}

@@ -51,8 +51,10 @@ func (t reflectType) In(i int) reflect.Type {
 //
 // fn.Kind() MUST BE equal to [reflect.Func]
 func ValidateAndCallFunc(fn reflect.Value, args []any, convertArgs bool, v FuncValidator) ([]any, error) {
-	if err := v.Validate(fn); err != nil {
-		return nil, err
+	if v != nil {
+		if err := v.Validate(fn); err != nil {
+			return nil, err
+		}
 	}
 	return CallFunc(fn, args, convertArgs)
 }
