@@ -27,10 +27,6 @@ import (
 	intReflect "github.com/gontainer/gontainer-helpers/v3/internal/reflect"
 )
 
-var (
-	errorInterface = reflect.TypeOf((*error)(nil)).Elem()
-)
-
 func Func(fn any) (reflect.Value, error) {
 	v := reflect.ValueOf(fn)
 	if !v.IsValid() {

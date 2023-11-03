@@ -31,6 +31,10 @@ var (
 	ValidateProvider = ChainValidator{validateProvider}
 )
 
+var (
+	errorInterface = reflect.TypeOf((*error)(nil)).Elem()
+)
+
 type FuncValidator interface {
 	Validate(reflect.Value) error
 }
