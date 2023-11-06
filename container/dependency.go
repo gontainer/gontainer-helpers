@@ -30,6 +30,7 @@ const (
 	dependencyParam
 	dependencyProvider
 	dependencyContainer
+	dependencyContext
 )
 
 var dependencyNames = map[dependencyType]string{
@@ -40,6 +41,7 @@ var dependencyNames = map[dependencyType]string{
 	dependencyParam:     "dependencyParam",
 	dependencyProvider:  "dependencyProvider",
 	dependencyContainer: "dependencyContainer",
+	dependencyContext:   "dependencyContext",
 }
 
 func (d dependencyType) String() string {
@@ -58,6 +60,7 @@ Use on of the following func to create a new one:
   - [NewDependencyParam]
   - [NewDependencyProvider]
   - [NewDependencyContainer]
+  - [NewDependencyContext]
 */
 type Dependency struct {
 	type_     dependencyType
@@ -112,5 +115,12 @@ func NewDependencyProvider(provider any) Dependency {
 func NewDependencyContainer() Dependency {
 	return Dependency{
 		type_: dependencyContainer,
+	}
+}
+
+// NewDependencyContext creates a [Dependency] to the current context.
+func NewDependencyContext() Dependency {
+	return Dependency{
+		type_: dependencyContext,
 	}
 }
