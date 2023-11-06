@@ -21,6 +21,7 @@
 package container
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -61,7 +62,7 @@ func (c *Container) getParam(id string) (result any, err error) {
 		return nil, grouperror.Prefix("circular dependencies: ", err)
 	}
 
-	result, err = c.resolveDep(nil, param)
+	result, err = c.resolveDep(context.Background(), nil, param)
 	if err != nil {
 		return nil, err
 	}

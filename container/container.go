@@ -124,7 +124,7 @@ func (c *Container) CircularDeps() error {
 	return grouperror.Prefix("CircularDeps(): ", c.graphBuilder.circularDeps())
 }
 
-func (c *Container) resolveDeps(contextualBag keyValue, deps ...Dependency) ([]any, error) {
+func (c *Container) resolveDeps(ctx context.Context, contextualBag keyValue, deps ...Dependency) ([]any, error) {
 	if len(deps) == 0 {
 		return nil, nil
 	}
@@ -133,7 +133,7 @@ func (c *Container) resolveDeps(contextualBag keyValue, deps ...Dependency) ([]a
 
 	for i, d := range deps {
 		var err error
-		r[i], err = c.resolveDep(contextualBag, d)
+		r[i], err = c.resolveDep(ctx, contextualBag, d)
 		if err != nil {
 			errs = append(errs, grouperror.Prefix(fmt.Sprintf("arg #%d: ", i), err))
 		}
@@ -142,20 +142,22 @@ func (c *Container) resolveDeps(contextualBag keyValue, deps ...Dependency) ([]a
 	return r, grouperror.Join(errs...)
 }
 
-func (c *Container) resolveDep(contextualBag keyValue, d Dependency) (any, error) {
+func (c *Container) resolveDep(ctx context.Context, contextualBag keyValue, d Dependency) (any, error) {
 	switch d.type_ {
 	case dependencyValue:
 		return d.value, nil
 	case dependencyTag:
-		return c.getTaggedBy(d.tagID, contextualBag)
+		return c.getTaggedBy(ctx, d.tagID, contextualBag)
 	case dependencyService:
-		return c.get(d.serviceID, contextualBag)
+		return c.get(ctx, d.serviceID, contextualBag)
 	case dependencyParam:
 		return c.getParam(d.paramID)
 	case dependencyProvider:
 		return caller.CallProvider(d.provider, nil, convertArgs)
 	case dependencyContainer:
 		return c, nil
+	case dependencyContext:
+		return ctx, nil
 	}
 
 	return nil, errors.New("unknown dependency type")
