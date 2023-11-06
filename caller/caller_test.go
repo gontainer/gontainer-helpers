@@ -377,6 +377,10 @@ func (m *mockProvider) ProviderWithError() (any, error) {
 	return m.fnWithError()
 }
 
+func (m *mockProvider) NotProvider() (any, any) {
+	return nil, nil
+}
+
 func TestCallProviderByName(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Run("#1", func(t *testing.T) {
@@ -415,6 +419,11 @@ func TestCallProviderByName(t *testing.T) {
 			r, err := caller.CallProviderByName(&p, "ProviderWithError", nil, false)
 			assert.Equal(t, "error value", r)
 			assert.EqualError(t, err, "provider returned error: my error")
+		})
+		t.Run("#3", func(t *testing.T) {
+			r, err := caller.CallProviderByName(&mockProvider{}, "NotProvider", nil, false)
+			assert.Nil(t, r)
+			assert.EqualError(t, err, `cannot call provider (*caller_test.mockProvider)."NotProvider": second value returned by provider must implement error interface, interface {} given`)
 		})
 	})
 }
@@ -459,9 +468,15 @@ func TestForceCallProviderByName(t *testing.T) {
 					return "my error value", errors.New("my error in provider")
 				},
 			}
-			r, err := caller.CallProviderByName(&p, "ProviderWithError", nil, false)
+			r, err := caller.ForceCallProviderByName(&p, "ProviderWithError", nil, false)
 			assert.Equal(t, "my error value", r)
 			assert.EqualError(t, err, "provider returned error: my error in provider")
+		})
+		t.Run("#3", func(t *testing.T) {
+			var p any = mockProvider{}
+			r, err := caller.ForceCallProviderByName(&p, "NotProvider", nil, false)
+			assert.Nil(t, r)
+			assert.EqualError(t, err, `cannot call provider (*interface {})."NotProvider": second value returned by provider must implement error interface, interface {} given`)
 		})
 	})
 }
