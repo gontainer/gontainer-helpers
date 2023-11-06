@@ -193,11 +193,11 @@ func (c *Container) createNewService(ctx context.Context, svc Service, contextua
 	result := svc.value
 
 	if svc.constructor != nil {
-		params, err := c.resolveDeps(ctx, contextualBag, svc.constructorDeps...)
+		args, err := c.resolveDeps(ctx, contextualBag, svc.constructorDeps...)
 		if err != nil {
 			return nil, grouperror.Prefix("constructor args: ", err)
 		}
-		result, err = caller.CallProvider(svc.constructor, params, convertArgs)
+		result, err = caller.CallProvider(svc.constructor, args, convertArgs)
 		if err != nil {
 			return nil, grouperror.Prefix("constructor: ", err)
 		}
@@ -208,11 +208,11 @@ func (c *Container) createNewService(ctx context.Context, svc Service, contextua
 		if err != nil {
 			return nil, grouperror.Prefix("factory service: ", err)
 		}
-		params, err := c.resolveDeps(ctx, contextualBag, svc.factoryDeps...)
+		args, err := c.resolveDeps(ctx, contextualBag, svc.factoryDeps...)
 		if err != nil {
 			return nil, grouperror.Prefix("factory args: ", err)
 		}
-		result, err = caller.ForceCallProviderByName(obj, svc.factoryMethod, params, convertArgs)
+		result, err = caller.ForceCallProviderByName(obj, svc.factoryMethod, args, convertArgs)
 		if err != nil {
 			return nil, grouperror.Prefix(fmt.Sprintf("factory @%s.%s: ", svc.factoryServiceID, svc.factoryMethod), err)
 		}
@@ -256,14 +256,14 @@ func (c *Container) executeServiceCalls(
 			action = "wither"
 		}
 
-		params, err := c.resolveDeps(ctx, contextualBag, call.deps...)
+		args, err := c.resolveDeps(ctx, contextualBag, call.deps...)
 		if err != nil {
 			errs = append(errs, grouperror.Prefix(fmt.Sprintf("resolve args %+q: ", call.method), err))
 			continue
 		}
 
 		if call.wither {
-			result, err = caller.ForceCallWitherByName(&result, call.method, params, convertArgs)
+			result, err = caller.ForceCallWitherByName(&result, call.method, args, convertArgs)
 			if err != nil {
 				errs = append(errs, grouperror.Prefix(fmt.Sprintf("%s %+q: ", action, call.method), err))
 				// wither may return a nil value for error,
@@ -271,7 +271,7 @@ func (c *Container) executeServiceCalls(
 				break
 			}
 		} else {
-			_, err = caller.ForceCallByName(&result, call.method, params, convertArgs)
+			_, err = caller.ForceCallByName(&result, call.method, args, convertArgs)
 			if err != nil {
 				errs = append(errs, grouperror.Prefix(fmt.Sprintf("%s %+q: ", action, call.method), err))
 			}
@@ -299,12 +299,12 @@ func (c *Container) decorateService(
 			ServiceID: id,
 			Service:   result,
 		}
-		params, err := c.resolveDeps(ctx, contextualBag, dec.deps...)
+		args, err := c.resolveDeps(ctx, contextualBag, dec.deps...)
 		if err != nil {
 			return nil, grouperror.Prefix(fmt.Sprintf("resolve decorator args #%d: ", i), err)
 		}
-		params = append([]any{payload}, params...)
-		result, err = caller.CallProvider(dec.fn, params, convertArgs)
+		args = append([]any{payload}, args...)
+		result, err = caller.CallProvider(dec.fn, args, convertArgs)
 		if err != nil {
 			return nil, grouperror.Prefix(fmt.Sprintf("decorator #%d: ", i), err)
 		}
