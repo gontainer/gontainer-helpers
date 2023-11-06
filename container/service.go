@@ -96,7 +96,13 @@ func (s *Service) SetConstructor(fn any, deps ...Dependency) *Service {
 	return s
 }
 
-// SetFactory TODO comment
+/*
+SetFactory sets a factory that is supposed to return the given service.
+
+	s := container.NewService()
+	s.SetFactory("db", "Begin")
+	s.SetScopeContextual()
+*/
 func (s *Service) SetFactory(serviceID string, method string, deps ...Dependency) *Service {
 	s.resetCreationMethods()
 	s.factoryServiceID = serviceID
