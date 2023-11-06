@@ -47,7 +47,7 @@ func (c *Container) Get(serviceID string) (any, error) {
 
 	c.warmUpGraph()
 
-	return c.get(context.Background(), serviceID, newSafeMap())
+	return c.get(serviceID, newSafeMap())
 }
 
 // GetInContext returns a service with the given ID.
@@ -65,7 +65,7 @@ func (c *Container) GetInContext(ctx context.Context, id string) (any, error) {
 		return nil, fmt.Errorf("GetInContext(%+q): ctx.Done() closed: %w", id, ctx.Err())
 	}
 
-	return c.get(ctx, id, bag)
+	return c.get(id, bag)
 }
 
 // GetTaggedBy returns all services tagged by the given tag.
@@ -78,7 +78,7 @@ func (c *Container) GetTaggedBy(tag string) ([]any, error) {
 
 	c.warmUpGraph()
 
-	return c.getTaggedBy(context.Background(), tag, newSafeMap())
+	return c.getTaggedBy(tag, newSafeMap())
 }
 
 // GetTaggedByInContext returns all services tagged by the given tag.
@@ -98,7 +98,7 @@ func (c *Container) GetTaggedByInContext(ctx context.Context, tag string) ([]any
 		return nil, fmt.Errorf("GetTaggedByInContext(%+q): ctx.Done() closed: %w", tag, ctx.Err())
 	}
 
-	return c.getTaggedBy(ctx, tag, bag)
+	return c.getTaggedBy(tag, bag)
 }
 
 // IsTaggedBy returns true whenever the given service is tagged by the given tag.
@@ -114,7 +114,7 @@ func (c *Container) IsTaggedBy(serviceID string, tag string) bool {
 	return ok
 }
 
-func (c *Container) get(ctx context.Context, id string, contextualBag keyValue) (result any, err error) {
+func (c *Container) get(id string, contextualBag keyValue) (result any, err error) {
 	defer func() {
 		if err != nil {
 			err = grouperror.Prefix(fmt.Sprintf("get(%+q): ", id), err)
@@ -163,25 +163,25 @@ func (c *Container) get(ctx context.Context, id string, contextualBag keyValue) 
 	}
 
 	// constructor
-	result, err = c.createNewService(ctx, svc, contextualBag)
+	result, err = c.createNewService(svc, contextualBag)
 	if err != nil {
 		return nil, err
 	}
 
 	// fields
-	result, err = c.setServiceFields(ctx, result, svc, contextualBag)
+	result, err = c.setServiceFields(result, svc, contextualBag)
 	if err != nil {
 		return nil, err
 	}
 
 	// calls
-	result, err = c.executeServiceCalls(ctx, result, svc, contextualBag)
+	result, err = c.executeServiceCalls(result, svc, contextualBag)
 	if err != nil {
 		return nil, err
 	}
 
 	// decorators
-	result, err = c.decorateService(ctx, id, result, svc, contextualBag)
+	result, err = c.decorateService(id, result, svc, contextualBag)
 	if err != nil {
 		return nil, err
 	}
@@ -189,11 +189,11 @@ func (c *Container) get(ctx context.Context, id string, contextualBag keyValue) 
 	return result, nil
 }
 
-func (c *Container) createNewService(ctx context.Context, svc Service, contextualBag keyValue) (any, error) {
+func (c *Container) createNewService(svc Service, contextualBag keyValue) (any, error) {
 	result := svc.value
 
 	if svc.constructor != nil {
-		params, err := c.resolveDeps(ctx, contextualBag, svc.constructorDeps...)
+		params, err := c.resolveDeps(contextualBag, svc.constructorDeps...)
 		if err != nil {
 			return nil, grouperror.Prefix("constructor args: ", err)
 		}
@@ -222,14 +222,13 @@ func (c *Container) createNewService(ctx context.Context, svc Service, contextua
 }
 
 func (c *Container) setServiceFields(
-	ctx context.Context,
 	result any,
 	svc Service,
 	contextualBag keyValue,
 ) (any, error) {
 	var errs []error
 	for _, f := range svc.fields {
-		fieldVal, err := c.resolveDep(ctx, contextualBag, f.dep)
+		fieldVal, err := c.resolveDep(contextualBag, f.dep)
 		if err != nil {
 			errs = append(errs, grouperror.Prefix(fmt.Sprintf("field value %+q: ", f.name), err))
 			continue
@@ -243,7 +242,6 @@ func (c *Container) setServiceFields(
 }
 
 func (c *Container) executeServiceCalls(
-	ctx context.Context,
 	result any,
 	svc Service,
 	contextualBag keyValue,
@@ -256,7 +254,7 @@ func (c *Container) executeServiceCalls(
 			action = "wither"
 		}
 
-		params, err := c.resolveDeps(ctx, contextualBag, call.deps...)
+		params, err := c.resolveDeps(contextualBag, call.deps...)
 		if err != nil {
 			errs = append(errs, grouperror.Prefix(fmt.Sprintf("resolve args %+q: ", call.method), err))
 			continue
@@ -282,7 +280,6 @@ func (c *Container) executeServiceCalls(
 }
 
 func (c *Container) decorateService(
-	ctx context.Context,
 	id string,
 	result any,
 	svc Service,
@@ -299,7 +296,7 @@ func (c *Container) decorateService(
 			ServiceID: id,
 			Service:   result,
 		}
-		params, err := c.resolveDeps(ctx, contextualBag, dec.deps...)
+		params, err := c.resolveDeps(contextualBag, dec.deps...)
 		if err != nil {
 			return nil, grouperror.Prefix(fmt.Sprintf("resolve decorator args #%d: ", i), err)
 		}
@@ -313,7 +310,7 @@ func (c *Container) decorateService(
 	return result, nil
 }
 
-func (c *Container) getTaggedBy(ctx context.Context, tag string, contextualBag keyValue) (result []any, err error) {
+func (c *Container) getTaggedBy(tag string, contextualBag keyValue) (result []any, err error) {
 	defer func() {
 		if err != nil {
 			err = grouperror.Prefix(fmt.Sprintf("getTaggedBy(%+q): ", tag), err)
@@ -349,7 +346,7 @@ func (c *Container) getTaggedBy(ctx context.Context, tag string, contextualBag k
 	var errs []error
 	for i, s := range services {
 		var cErr error
-		result[i], cErr = c.get(ctx, s.id, contextualBag)
+		result[i], cErr = c.get(s.id, contextualBag)
 		if cErr != nil {
 			errs = append(errs, cErr)
 		}
