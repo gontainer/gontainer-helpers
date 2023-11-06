@@ -209,7 +209,7 @@ func TestContainer_OverrideService(t *testing.T) {
 		defer func() {
 			assert.Equal(
 				t,
-				`overrideService("service"): service has neither a constructor nor a value`,
+				`overrideService("service"): service has neither a constructor nor a factory nor a value`,
 				recover(),
 			)
 		}()

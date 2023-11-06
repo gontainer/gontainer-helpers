@@ -61,7 +61,7 @@ func overrideService(c *Container, serviceID string, s Service) {
 	}
 
 	if !s.hasCreationMethod {
-		panic(fmt.Sprintf("overrideService(%+q): service has neither a constructor nor a value", serviceID))
+		panic(fmt.Sprintf("overrideService(%+q): service has neither a constructor nor a factory nor a value", serviceID))
 	}
 
 	c.services[serviceID] = s
