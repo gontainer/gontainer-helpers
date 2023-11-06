@@ -184,6 +184,8 @@ CallByName works similar to [Call] with the difference it calls the method by th
 		fmt.Println(p.name)
 		// Output: Mary
 	}
+
+TODO rename to CallMethod
 */
 func CallByName(object any, method string, args []any, convertArgs bool) (_ []any, err error) {
 	defer func() {
