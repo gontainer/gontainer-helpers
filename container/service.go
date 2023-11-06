@@ -42,6 +42,9 @@ type Service struct {
 	value             any
 	constructor       any
 	constructorDeps   []Dependency
+	factoryServiceID  string
+	factoryMethod     string
+	factoryDeps       []Dependency
 	calls             []serviceCall
 	fields            []serviceField
 	tags              map[string]int
@@ -60,6 +63,9 @@ func (s *Service) resetCreationMethods() {
 	s.value = nil
 	s.constructor = nil
 	s.constructorDeps = nil
+	s.factoryServiceID = ""
+	s.factoryMethod = ""
+	s.factoryDeps = nil
 }
 
 // SetValue sets a predefined value of the service. It excludes [*Service.SetConstructor].
@@ -86,6 +92,16 @@ func (s *Service) SetConstructor(fn any, deps ...Dependency) *Service {
 	s.resetCreationMethods()
 	s.constructor = fn
 	s.constructorDeps = deps
+	s.hasCreationMethod = true
+	return s
+}
+
+// SetFactory TODO comment
+func (s *Service) SetFactory(serviceID string, method string, deps ...Dependency) *Service {
+	s.resetCreationMethods()
+	s.factoryServiceID = serviceID
+	s.factoryMethod = method
+	s.factoryDeps = deps
 	s.hasCreationMethod = true
 	return s
 }
