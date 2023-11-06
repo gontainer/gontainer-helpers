@@ -367,7 +367,7 @@ func TestContainer_createNewService1(t *testing.T) {
 	c.OverrideService("db", svcDB)
 
 	svcTx := container.NewService()
-	svcTx.SetFactory("db", "Begin")
+	svcTx.SetFactory("db", "BeginTx", container.NewDependencyContext(), container.NewDependencyValue(nil))
 	svcTx.SetScopeContextual()
 	c.OverrideService("tx", svcTx)
 
@@ -377,15 +377,23 @@ func TestContainer_createNewService1(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectCommit()
+	mock.ExpectBegin()
+	mock.ExpectCommit()
 
-	tmp, err := c.GetInContext(ctx, "tx") // it should call db.Begin()
-	_, _ = c.GetInContext(ctx, "tx")      // but for the following executions in the same context
-	_, _ = c.GetInContext(ctx, "tx")      // we should receive
-	_, _ = c.GetInContext(ctx, "tx")      // the same instance of *sql.Tx
+	firstTx, err := c.GetInContext(ctx, "tx") // it should call db.Begin()
+	secondTx, _ := c.GetInContext(ctx, "tx")  // but for the following executions in the same context
+	_, _ = c.GetInContext(ctx, "tx")          // we should receive
+	_, _ = c.GetInContext(ctx, "tx")          // the same instance of *sql.Tx
 	require.NoError(t, err)
-	require.IsType(t, (*sql.Tx)(nil), tmp)
-	tx := tmp.(*sql.Tx)
-	_ = tx.Commit()
+	require.IsType(t, (*sql.Tx)(nil), firstTx)
+	assert.Same(t, firstTx, secondTx)
+	assert.NoError(t, firstTx.(*sql.Tx).Commit())
+
+	anotherTx, err := c.Get("tx") // it will create a new tx, the default "context.Background()" is used
+	require.IsType(t, (*sql.Tx)(nil), anotherTx)
+	require.NoError(t, err)
+	assert.NotSame(t, firstTx, anotherTx)
+	assert.NoError(t, anotherTx.(*sql.Tx).Commit())
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
