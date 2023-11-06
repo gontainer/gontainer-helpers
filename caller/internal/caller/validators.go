@@ -26,9 +26,9 @@ import (
 )
 
 var (
-	DontValidate     FuncValidator = nil
-	ValidateWither                 = ChainValidator{validateWither}
-	ValidateProvider               = ChainValidator{validateProvider}
+	DontValidate      FuncValidator = nil
+	ValidatorWither                 = ChainValidator{validateWither}
+	ValidatorProvider               = ChainValidator{validateProvider}
 )
 
 var (

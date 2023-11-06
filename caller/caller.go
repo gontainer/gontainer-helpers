@@ -78,7 +78,7 @@ func CallProvider(provider any, args []any, convertArgs bool) (_ any, err error)
 		return nil, err
 	}
 
-	if err := caller.ValidateProvider.Validate(fn); err != nil {
+	if err := caller.ValidatorProvider.Validate(fn); err != nil {
 		return nil, err
 	}
 
@@ -193,7 +193,7 @@ func CallWitherByName(object any, wither string, args []any, convertArgs bool) (
 		return nil, err
 	}
 
-	if err := caller.ValidateWither.Validate(fn); err != nil {
+	if err := caller.ValidatorWither.Validate(fn); err != nil {
 		return nil, err
 	}
 
@@ -212,7 +212,7 @@ func ForceCallWitherByName(object any, wither string, args []any, convertArgs bo
 		}
 	}()
 
-	r, err := caller.ValidateAndForceCallByName(object, wither, args, convertArgs, caller.ValidateWither)
+	r, err := caller.ValidateAndForceCallByName(object, wither, args, convertArgs, caller.ValidatorWither)
 	if err != nil {
 		return nil, err
 	}
