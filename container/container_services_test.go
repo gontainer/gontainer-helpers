@@ -354,7 +354,7 @@ func NewServer(host string, port int) *Server {
 	return &Server{Host: host, Port: port}
 }
 
-func TestContainer_createNewService1(t *testing.T) {
+func TestContainer_createNewService_useFactory(t *testing.T) {
 	c := container.New()
 
 	db, mock, err := sqlmock.New()
