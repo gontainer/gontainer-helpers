@@ -104,6 +104,13 @@ SetFactory sets a factory that is supposed to return the given service.
 	s.SetScopeContextual()
 */
 func (s *Service) SetFactory(serviceID string, method string, deps ...Dependency) *Service {
+	if serviceID == "" {
+		panic(`serviceID == ""`)
+	}
+	if method == "" {
+		panic(`method == ""`)
+	}
+
 	s.resetCreationMethods()
 	s.factoryServiceID = serviceID
 	s.factoryMethod = method
