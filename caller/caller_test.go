@@ -364,6 +364,108 @@ func TestCallProvider(t *testing.T) {
 	})
 }
 
+type mockProvider struct {
+	fn          func() any
+	fnWithError func() (any, error)
+}
+
+func (m *mockProvider) Provider() any {
+	return m.fn()
+}
+
+func (m *mockProvider) ProviderWithError() (any, error) {
+	return m.fnWithError()
+}
+
+func TestCallProviderByName(t *testing.T) {
+	t.Run("OK", func(t *testing.T) {
+		t.Run("#1", func(t *testing.T) {
+			p := mockProvider{
+				fn: func() any {
+					return "value #1"
+				},
+			}
+			r, err := caller.CallProviderByName(&p, "Provider", nil, false)
+			assert.NoError(t, err)
+			assert.Equal(t, "value #1", r)
+		})
+		t.Run("#2", func(t *testing.T) {
+			p := mockProvider{
+				fnWithError: func() (any, error) {
+					return "value #2", nil
+				},
+			}
+			r, err := caller.CallProviderByName(&p, "ProviderWithError", nil, false)
+			assert.NoError(t, err)
+			assert.Equal(t, "value #2", r)
+		})
+	})
+	t.Run("Errors", func(t *testing.T) {
+		t.Run("#1", func(t *testing.T) {
+			r, err := caller.CallProviderByName(nil, "MyProvider", nil, false)
+			assert.Nil(t, r)
+			assert.EqualError(t, err, `cannot call provider (<nil>)."MyProvider": invalid method receiver: <nil>`)
+		})
+		t.Run("#2", func(t *testing.T) {
+			p := mockProvider{
+				fnWithError: func() (any, error) {
+					return "error value", errors.New("my error")
+				},
+			}
+			r, err := caller.CallProviderByName(&p, "ProviderWithError", nil, false)
+			assert.Equal(t, "error value", r)
+			assert.EqualError(t, err, "provider returned error: my error")
+		})
+	})
+}
+
+func TestForceCallProviderByName(t *testing.T) {
+	t.Run("OK", func(t *testing.T) {
+		t.Run("#1", func(t *testing.T) {
+			t.Run(`With "Force" prefix`, func(t *testing.T) {
+				var p any = mockProvider{
+					fn: func() any {
+						return "my value"
+					},
+				}
+				// p is not a pointer, Provider requires pointer receiver, but this function can handle that
+				r, err := caller.ForceCallProviderByName(&p, "Provider", nil, false)
+				assert.Equal(t, "my value", r)
+				assert.NoError(t, err)
+			})
+
+			t.Run(`Without "Force" prefix`, func(t *testing.T) {
+				var p any = mockProvider{
+					fnWithError: func() (any, error) {
+						return "error value", errors.New("my error")
+					},
+				}
+				// oops... p is not a pointer, ProviderWithError requires pointer receiver
+				r, err := caller.CallProviderByName(&p, "ProviderWithError", nil, false)
+				assert.Nil(t, r)
+				assert.EqualError(t, err, `cannot call provider (*interface {})."ProviderWithError": invalid func (*interface {})."ProviderWithError"`)
+			})
+		})
+	})
+	t.Run("Errors", func(t *testing.T) {
+		t.Run("#1", func(t *testing.T) {
+			r, err := caller.ForceCallProviderByName(nil, "MyProvider", nil, false)
+			assert.Nil(t, r)
+			assert.EqualError(t, err, `cannot call provider (<nil>)."MyProvider": expected ptr, <nil> given`)
+		})
+		t.Run("#2", func(t *testing.T) {
+			p := mockProvider{
+				fnWithError: func() (any, error) {
+					return "my error value", errors.New("my error in provider")
+				},
+			}
+			r, err := caller.CallProviderByName(&p, "ProviderWithError", nil, false)
+			assert.Equal(t, "my error value", r)
+			assert.EqualError(t, err, "provider returned error: my error in provider")
+		})
+	})
+}
+
 func TestCallByName(t *testing.T) {
 	t.Run("Pointer loop", func(t *testing.T) {
 		var a any

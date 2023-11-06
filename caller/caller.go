@@ -22,6 +22,7 @@ package caller
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/gontainer/gontainer-helpers/v3/caller/internal/caller"
 	"github.com/gontainer/gontainer-helpers/v3/grouperror"
@@ -42,6 +43,54 @@ func Call(fn any, args []any, convertArgs bool) (_ []any, err error) {
 		return nil, err
 	}
 	return caller.CallFunc(v, args, convertArgs)
+}
+
+const (
+	providerInternalErrPrefix       = "cannot call provider %T: "
+	providerMethodInternalErrPrefix = "cannot call provider (%T).%+q: "
+	providerExternalErrPrefix       = "provider returned error: "
+)
+
+func callProvider(
+	getFn func() (reflect.Value, error),
+	args []any,
+	convertArgs bool,
+	internalErrPrefix func() string,
+) (_ any, err error) {
+	executedProvider := false
+	defer func() {
+		if !executedProvider && err != nil {
+			err = grouperror.Prefix(internalErrPrefix(), err)
+		}
+	}()
+
+	fn, err := getFn()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := caller.ValidatorProvider.Validate(fn); err != nil {
+		return nil, err
+	}
+
+	results, err := caller.CallFunc(fn, args, convertArgs)
+	if err != nil {
+		return nil, err
+	}
+
+	executedProvider = true
+
+	r := results[0]
+	var e error
+	if len(results) > 1 {
+		// do not panic when results[1] == nil
+		e, _ = results[1].(error)
+	}
+	if e != nil {
+		e = newProviderError(grouperror.Prefix(providerExternalErrPrefix, e))
+	}
+
+	return r, e
 }
 
 /*
@@ -65,29 +114,40 @@ See [ProviderError].
 
 	mysql, err := CallProvider(p)
 */
-func CallProvider(provider any, args []any, convertArgs bool) (_ any, err error) {
-	executedProvider := false
-	defer func() {
-		if !executedProvider && err != nil {
-			err = grouperror.Prefix(fmt.Sprintf("cannot call provider %T: ", provider), err)
-		}
-	}()
+func CallProvider(provider any, args []any, convertArgs bool) (any, error) {
+	return callProvider(
+		func() (reflect.Value, error) {
+			return caller.Func(provider)
+		},
+		args,
+		convertArgs,
+		func() string {
+			return fmt.Sprintf(providerInternalErrPrefix, provider)
+		},
+	)
+}
 
-	fn, err := caller.Func(provider)
+// CallProviderByName works similar to [CallProvider], but the provider must be a method on the given object.
+func CallProviderByName(object any, method string, args []any, convertArgs bool) (any, error) {
+	return callProvider(
+		func() (reflect.Value, error) {
+			return caller.Method(object, method)
+		},
+		args,
+		convertArgs,
+		func() string {
+			return fmt.Sprintf(providerMethodInternalErrPrefix, object, method)
+		},
+	)
+}
+
+// ForceCallProviderByName is an extended version of [CallProviderByName].
+// See [ForceCallByName].
+func ForceCallProviderByName(object any, method string, args []any, convertArgs bool) (any, error) {
+	results, err := caller.ValidateAndForceCallByName(object, method, args, convertArgs, caller.ValidatorProvider)
 	if err != nil {
-		return nil, err
+		return nil, grouperror.Prefix(fmt.Sprintf(providerMethodInternalErrPrefix, object, method), err)
 	}
-
-	if err := caller.ValidatorProvider.Validate(fn); err != nil {
-		return nil, err
-	}
-
-	results, err := caller.CallFunc(fn, args, convertArgs)
-	if err != nil {
-		return nil, err
-	}
-
-	executedProvider = true
 
 	r := results[0]
 	var e error
@@ -96,7 +156,7 @@ func CallProvider(provider any, args []any, convertArgs bool) (_ any, err error)
 		e, _ = results[1].(error)
 	}
 	if e != nil {
-		e = newProviderError(grouperror.Prefix("provider returned error: ", e))
+		e = newProviderError(grouperror.Prefix(providerExternalErrPrefix, e))
 	}
 
 	return r, e
