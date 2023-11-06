@@ -112,7 +112,7 @@ See [ProviderError].
 	    return db, nil
 	}
 
-	mysql, err := CallProvider(p)
+	db, err := caller.CallProvider(p, nil, false)
 */
 func CallProvider(provider any, args []any, convertArgs bool) (any, error) {
 	return callProvider(
@@ -127,7 +127,12 @@ func CallProvider(provider any, args []any, convertArgs bool) (any, error) {
 	)
 }
 
-// CallProviderByName works similar to [CallProvider], but the provider must be a method on the given object.
+/*
+CallProviderByName works similar to [CallProvider], but the provider must be a method on the given object.
+
+	db, _ := sql.Open("mysql", "user:password@/dbname")
+	tx, err := caller.CallProviderByName(db, "Begin", nil, false)
+*/
 func CallProviderByName(object any, method string, args []any, convertArgs bool) (any, error) {
 	return callProvider(
 		func() (reflect.Value, error) {
