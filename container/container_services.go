@@ -203,6 +203,21 @@ func (c *Container) createNewService(svc Service, contextualBag keyValue) (any, 
 		}
 	}
 
+	if svc.factoryMethod != "" {
+		obj, err := c.get(svc.factoryServiceID, contextualBag)
+		if err != nil {
+			return nil, grouperror.Prefix("factory service: ", err)
+		}
+		params, err := c.resolveDeps(contextualBag, svc.factoryDeps...)
+		if err != nil {
+			return nil, grouperror.Prefix("factory args: ", err)
+		}
+		result, err = caller.ForceCallProviderByName(obj, svc.factoryMethod, params, convertArgs)
+		if err != nil {
+			return nil, grouperror.Prefix(fmt.Sprintf("factory @%s.%s: ", svc.factoryServiceID, svc.factoryMethod), err)
+		}
+	}
+
 	return result, nil
 }
 

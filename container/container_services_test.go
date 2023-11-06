@@ -22,6 +22,7 @@ package container_test
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"log"
@@ -30,6 +31,7 @@ import (
 	"sync/atomic"
 	"testing"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/gontainer/gontainer-helpers/v3/container"
 	"github.com/gontainer/gontainer-helpers/v3/copier"
 	assertErr "github.com/gontainer/gontainer-helpers/v3/grouperror/assert"
@@ -350,4 +352,42 @@ type Server struct {
 
 func NewServer(host string, port int) *Server {
 	return &Server{Host: host, Port: port}
+}
+
+func TestContainer_createNewService1(t *testing.T) {
+	c := container.New()
+
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+
+	svcDB := container.NewService()
+	svcDB.SetValue(db)
+	c.OverrideService("db", svcDB)
+
+	svcTx := container.NewService()
+	svcTx.SetFactory("db", "Begin")
+	svcTx.SetScopeContextual()
+	c.OverrideService("tx", svcTx)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ctx = container.ContextWithContainer(ctx, c)
+
+	mock.ExpectBegin()
+	mock.ExpectCommit()
+
+	tmp, err := c.GetInContext(ctx, "tx") // it should call db.Begin()
+	_, _ = c.GetInContext(ctx, "tx")      // but for the following executions in the same context
+	_, _ = c.GetInContext(ctx, "tx")      // we should receive
+	_, _ = c.GetInContext(ctx, "tx")      // the same instance of *sql.Tx
+	require.NoError(t, err)
+	require.IsType(t, (*sql.Tx)(nil), tmp)
+	tx := tmp.(*sql.Tx)
+	_ = tx.Commit()
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
 }
