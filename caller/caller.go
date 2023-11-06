@@ -193,7 +193,11 @@ func CallWitherByName(object any, wither string, args []any, convertArgs bool) (
 		return nil, err
 	}
 
-	r, err := caller.ValidateAndCallFunc(fn, args, convertArgs, caller.ValidateWither)
+	if err := caller.ValidateWither.Validate(fn); err != nil {
+		return nil, err
+	}
+
+	r, err := caller.CallFunc(fn, args, convertArgs)
 	if err != nil {
 		return nil, err
 	}
