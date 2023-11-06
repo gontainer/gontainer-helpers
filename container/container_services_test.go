@@ -378,7 +378,10 @@ func TestContainer_createNewService1(t *testing.T) {
 	mock.ExpectBegin()
 	mock.ExpectCommit()
 
-	tmp, err := c.Get("tx")
+	tmp, err := c.GetInContext(ctx, "tx") // it should call db.Begin()
+	_, _ = c.GetInContext(ctx, "tx")      // but for the following executions
+	_, _ = c.GetInContext(ctx, "tx")      // we should receive
+	_, _ = c.GetInContext(ctx, "tx")      // the same instance of *sql.Tx
 	require.NoError(t, err)
 	require.IsType(t, (*sql.Tx)(nil), tmp)
 	tx := tmp.(*sql.Tx)
