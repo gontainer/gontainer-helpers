@@ -613,19 +613,20 @@ Parameters are being registered as dependencies. See [dependencies](#dependencie
 package main
 
 import (
-	"fmt"
-	"math"
+   "fmt"
+   "math"
 
-	"github.com/gontainer/gontainer-helpers/v3/container"
+   "github.com/gontainer/gontainer-helpers/v3/container"
+   "github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
 )
 
 func main() {
-	c := container.New()
-	c.OverrideParam("pi", container.NewDependencyValue(math.Pi))
+   c := container.New()
+   c.OverrideParam("pi", dependency.Value(math.Pi))
 
-	pi, _ := c.GetParam("pi")
-	fmt.Printf("%.2f\n", pi)
-	// Output: 3.14
+   pi, _ := c.GetParam("pi")
+   fmt.Printf("%.2f\n", pi)
+   // Output: 3.14
 }
 ```
 </details>
