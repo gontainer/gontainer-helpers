@@ -33,6 +33,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/gontainer/gontainer-helpers/v3/container"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
 	"github.com/gontainer/gontainer-helpers/v3/copier"
 	assertErr "github.com/gontainer/gontainer-helpers/v3/grouperror/assert"
 	"github.com/stretchr/testify/assert"
@@ -374,8 +375,9 @@ func TestContainer_createNewService_useFactory(t *testing.T) {
 	c.OverrideService("db", svcDB)
 
 	svcTx := container.NewService()
-	svcTx.SetFactory("db", "BeginTx", container.NewDependencyContext(), container.NewDependencyValue(nil))
-	svcTx.SetScopeContextual()
+	svcTx.
+		SetFactory("db", "BeginTx", dependency.Context(), dependency.Value(nil)). // tx, err := db.BeginTx(ctx, nil)
+		SetScopeContextual()
 	c.OverrideService("tx", svcTx)
 
 	ctx, cancel := context.WithCancel(context.Background())
