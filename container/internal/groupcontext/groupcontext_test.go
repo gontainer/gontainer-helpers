@@ -94,6 +94,8 @@ func TestNew(t *testing.T) {
 		g.Add(ctx1)
 		g.Add(childCtx2)
 
+		s := time.Now()
+
 		go func() {
 			time.Sleep(time.Millisecond * 100)
 			atomic.AddInt64(counter, 1)
@@ -106,7 +108,6 @@ func TestNew(t *testing.T) {
 			cancel2() // it cancels the child context as well
 		}()
 
-		s := time.Now()
 		g.Wait()
 		assert.GreaterOrEqual(t, time.Since(s), time.Millisecond*200)
 		assert.Equal(t, int64(2), atomic.LoadInt64(counter))
