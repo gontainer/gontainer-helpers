@@ -26,6 +26,8 @@ import (
 	"math"
 
 	"github.com/gontainer/gontainer-helpers/v3/container"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dep"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 	"github.com/gontainer/gontainer-helpers/v3/copier"
 )
 
@@ -58,38 +60,47 @@ type Team struct {
 	Gods []God
 }
 
+func describePoseidon() service.Service {
+	p := service.New()
+	p.
+		SetValue(God{}).
+		SetField("Name", dep.Value("Poseidon")). // field injection
+		Tag("olympians", 0)
+	return p
+}
+
+func describeAthena() service.Service {
+	a := service.New()
+	a.
+		SetValue(God{Name: "Athena"}).
+		Tag("olympians", 0)
+	return a
+}
+
+func describeZeus() service.Service {
+	z := service.New()
+	z.
+		SetConstructor(NewGod, dep.Value("Zeus")). // constructor injection
+		Tag("olympians", 1)                        // Zeus has a higher priority
+	return z
+}
+
+func describeOlympians() service.Service {
+	o := service.New()
+	o.
+		SetValue(Team{}).
+		SetField("Gods", dep.Tag("olympians"))
+	return o
+}
+
 func buildContainer() *container.Container {
-	// describe Poseidon
-	poseidon := container.NewService()
-	poseidon.SetValue(God{})
-	poseidon.SetField("Name", container.NewDependencyValue("Poseidon")) // field injection
-	poseidon.Tag("olympians", 0)
-
-	// describe Athena
-	athena := container.NewService()
-	athena.SetValue(God{
-		Name: "Athena",
-	})
-	athena.Tag("olympians", 0)
-
-	// describe Zeus
-	zeus := container.NewService()
-	zeus.SetConstructor(
-		NewGod,
-		container.NewDependencyValue("Zeus"), // constructor injection
-	)
-	zeus.Tag("olympians", 1) // Zeus has a higher priority
-
-	// describe Olympians
-	olympians := container.NewService()
-	olympians.SetValue(Team{})
-	olympians.SetField("Gods", container.NewDependencyTag("olympians"))
-
 	c := container.New()
-	c.OverrideService("poseidon", poseidon)
-	c.OverrideService("athena", athena)
-	c.OverrideService("zeus", zeus)
-	c.OverrideService("olympians", olympians)
+	c.OverrideServices(map[string]service.Service{
+		"poseidon":  describePoseidon(),
+		"athena":    describeAthena(),
+		"zeus":      describeZeus(),
+		"olympians": describeOlympians(),
+	})
 
 	return c
 }
