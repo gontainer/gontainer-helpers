@@ -114,6 +114,8 @@ import (
 	"fmt"
 
 	"github.com/gontainer/gontainer-helpers/v3/container"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 )
 
 type God struct {
@@ -189,7 +191,8 @@ func main() {
 2. **Parameter** - a variable that holds a configuration. E.g. a password can be a parameter.
 3. **Provider** - a function that returns one or two values.
 First return may be of any type. Second return if exists must be of a type error.
-4. **Wither** - a method that returns a single value always.
+4. **Factory** - it's a method that is a **provider**.
+5. **Wither** - a method that returns a single value always.
 Withers in opposition to setters are being used to achieve immutable structures.
 
 **Sample providers**
@@ -256,6 +259,10 @@ Hardcoded value. The simplest possible dependency.
 
 ```go
 container.NewDependencyValue("https://go.dev/")
+
+// or shorter syntax
+
+dependency.Value("https://go.dev/")
 ```
 
 **Tag**
@@ -265,6 +272,10 @@ Sort them by priority first (descending), then by name (alphabetically), and ret
 
 ```go
 container.NewDependencyTag("employee")
+
+// or shorter syntax
+
+dependency.Tag("employee")
 ```
 
 **Service**
@@ -273,6 +284,10 @@ It refers to a service with the given id in the container.
 
 ```go
 container.NewDependencyService("db")
+
+// or shorter syntax
+
+dependency.Service("db")
 ```
 
 **Param**
@@ -280,7 +295,11 @@ container.NewDependencyService("db")
 It refers to a param with the given id in the container.
 
 ```go
-container.NewDependencyParam("db.password")
+container.NewDependencyParam("db_password")
+
+// or shorter syntax
+
+dependency.Param("db_password")
 ```
 
 **Provider**
@@ -291,6 +310,12 @@ A function that is being invoked whenever the given dependency is requested.
 container.NewDependencyProvider(func() string {
     return os.Getenv("DB_PASSWORD")
 })
+
+// or shorter syntax
+
+dependency.Provider(func() string {
+    return os.Getenv("DB_PASSWORD")
+})
 ```
 
 **Container**
@@ -299,6 +324,21 @@ It refers to the container.
 
 ```go
 container.NewDependencyContainer()
+
+//or shorter syntax
+
+dependency.Container()
+```
+
+**Context**
+
+It refers to the current `context.Context`.
+```go
+container.NewDependencyContext()
+
+// or shorter syntax
+
+dependency.Context()
 ```
 
 ---
