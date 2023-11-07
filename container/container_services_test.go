@@ -362,8 +362,15 @@ func TestContainer_createNewService_useFactory(t *testing.T) {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 
+	mock.ExpectBegin()
+	mock.ExpectCommit()
+	mock.ExpectBegin()
+	mock.ExpectCommit()
+
 	svcDB := container.NewService()
-	svcDB.SetValue(db)
+	svcDB.SetConstructor(func() *sql.DB {
+		return db
+	})
 	c.OverrideService("db", svcDB)
 
 	svcTx := container.NewService()
@@ -372,13 +379,7 @@ func TestContainer_createNewService_useFactory(t *testing.T) {
 	c.OverrideService("tx", svcTx)
 
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 	ctx = container.ContextWithContainer(ctx, c)
-
-	mock.ExpectBegin()
-	mock.ExpectCommit()
-	mock.ExpectBegin()
-	mock.ExpectCommit()
 
 	firstTx, err := c.GetInContext(ctx, "tx") // it should call db.Begin()
 	secondTx, _ := c.GetInContext(ctx, "tx")  // but for the following executions in the same context
@@ -394,6 +395,11 @@ func TestContainer_createNewService_useFactory(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotSame(t, firstTx, anotherTx)
 	assert.NoError(t, anotherTx.(*sql.Tx).Commit())
+
+	cancel()
+	tmp, err := c.GetInContext(ctx, "tx") // it does not start a new transaction, because the context is done
+	assert.Nil(t, tmp)
+	assert.EqualError(t, err, `GetInContext("tx"): ctx.Done() closed: context canceled`)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)

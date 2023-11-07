@@ -70,3 +70,49 @@ func TestService_SetFields(t *testing.T) {
 		s.fields,
 	)
 }
+
+func TestService_SetValue(t *testing.T) {
+	svc := NewService()
+	svc.SetValue(nil)
+
+	t.Run("Panic", func(t *testing.T) {
+		scenarios := []struct {
+			Name  string
+			Input any
+			Panic string
+		}{
+			{
+				Name:  "slice",
+				Input: []int{1, 2, 3},
+				Panic: "container.Service: passing slice to SetValue is error-prone, use SetConstructor instead",
+			},
+			{
+				Name:  "chan",
+				Input: make(chan struct{}),
+				Panic: "container.Service: passing chan to SetValue is error-prone, use SetConstructor instead",
+			},
+			{
+				Name:  "pointer",
+				Input: t,
+				Panic: "container.Service: passing ptr to SetValue is error-prone, use SetConstructor instead",
+			},
+			{
+				Name:  "map",
+				Input: make(map[string]any),
+				Panic: "container.Service: passing map to SetValue is error-prone, use SetConstructor instead",
+			},
+		}
+
+		for _, s := range scenarios {
+			s := s
+			t.Run(s.Name, func(t *testing.T) {
+				defer func() {
+					assert.Equal(t, s.Panic, recover())
+				}()
+
+				svc := NewService()
+				svc.SetValue(s.Input)
+			})
+		}
+	})
+}

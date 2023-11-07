@@ -21,6 +21,8 @@
 package container
 
 import (
+	"fmt"
+	"reflect"
 	"sort"
 )
 
@@ -68,8 +70,39 @@ func (s *Service) resetCreationMethods() {
 	s.factoryDeps = nil
 }
 
-// SetValue sets a predefined value of the service. It excludes [*Service.SetConstructor].
+/*
+SetValue sets a predefined value of the service. It excludes [*Service.SetConstructor].
+It panics for pointers, channels, maps, and slices, otherwise we could have issues with scopes.
+
+Example of error-prone code:
+
+	c := container.New()
+	svc := container.NewService()
+	svc.SetValue(make(chan struct{}))
+	svc.SetScopeNonShared() // scope is non shared, so we expect a new chan for each invocation
+	c.OverrideService("chan", svc)
+
+	chan1, _ := c.Get("chan")
+	chan2, _ := c.Get("chan")
+	fmt.Println(chan1 == chan2) // true - it's unexpected
+
+Using a constructor solves that problem:
+
+	svc.SetConstructor(func() chan struct{} {
+		return make(chan struct{})
+	})
+*/
 func (s *Service) SetValue(v any) *Service {
+	k := reflect.ValueOf(v).Kind()
+	switch reflect.ValueOf(v).Kind() {
+	case
+		reflect.Ptr,
+		reflect.Chan,
+		reflect.Map,
+		reflect.Slice:
+		panic(fmt.Sprintf("container.Service: passing %s to SetValue is error-prone, use SetConstructor instead", k))
+	}
+
 	s.resetCreationMethods()
 	s.value = v
 	s.hasCreationMethod = true
