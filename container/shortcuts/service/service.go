@@ -25,7 +25,8 @@ import (
 )
 
 type (
-	Service = container.Service
+	Service  = container.Service
+	Services = map[string]Service
 )
 
 var (
