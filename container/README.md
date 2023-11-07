@@ -124,42 +124,51 @@ func NewGod(name string) God {
 	return God{Name: name}
 }
 
-type Team struct {
+type Gods struct {
 	Gods []God
 }
 
+func describePoseidon() service.Service {
+	p := service.New()
+	p.
+		SetValue(God{}).
+		SetField("Name", dependency.Value("Poseidon")). // field injection
+		Tag("olympians", 0)
+	return p
+}
+
+func describeAthena() service.Service {
+	a := service.New()
+	a.
+		SetValue(God{Name: "Athena"}).
+		Tag("olympians", 1) // priority 1 - ladies first :)
+	return a
+}
+
+func describeZeus() service.Service {
+	z := service.New()
+	z.
+		SetConstructor(NewGod, dependency.Value("Zeus")). // constructor injection
+		Tag("olympians", 0)
+	return z
+}
+
+func describeOlympians() service.Service {
+	o := service.New()
+	o.
+		SetValue(Gods{}).
+		SetField("Gods", dependency.Tag("olympians"))
+	return o
+}
+
 func buildContainer() *container.Container {
-	// describe Poseidon
-	poseidon := container.NewService()
-	poseidon.SetValue(God{})
-	poseidon.SetField("Name", container.NewDependencyValue("Poseidon")) // field injection
-	poseidon.Tag("olympians", 0)
-
-	// describe Athena
-	athena := container.NewService()
-	athena.SetValue(God{
-		Name: "Athena",
-	})
-	athena.Tag("olympians", 0)
-
-	// describe Zeus
-	zeus := container.NewService()
-	zeus.SetConstructor(
-		NewGod,
-		container.NewDependencyValue("Zeus"), // constructor injection
-	)
-	zeus.Tag("olympians", 1) // Zeus has a higher priority
-
-	// describe Olympians
-	olympians := container.NewService()
-	olympians.SetValue(Team{})
-	olympians.SetField("Gods", container.NewDependencyTag("olympians"))
-
 	c := container.New()
-	c.OverrideService("poseidon", poseidon)
-	c.OverrideService("athena", athena)
-	c.OverrideService("zeus", zeus)
-	c.OverrideService("olympians", olympians)
+	c.OverrideServices(service.Services{
+		"poseidon":  describePoseidon(),
+		"athena":    describeAthena(),
+		"zeus":      describeZeus(),
+		"olympians": describeOlympians(),
+	})
 
 	return c
 }
@@ -168,7 +177,7 @@ func main() {
 	c := buildContainer()
 	olympians, _ := c.Get("olympians")
 	fmt.Printf("%+v\n", olympians)
-	// Output: {Gods:[{Name:Zeus} {Name:Athena} {Name:Poseidon}]}
+	// Output: {Gods:[{Name:Athena} {Name:Poseidon} {Name:Zeus}]}
 }
 ```
 
