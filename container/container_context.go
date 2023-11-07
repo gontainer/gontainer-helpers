@@ -88,12 +88,12 @@ If the `parent` context is already attached to the given container, it returns t
 	h = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// your code
 	})
-	c = container.HTTPHandlerWithContainer(h, c)
+	h = http.HandlerWithContainer(c, h)
 
 See:
   - [*Container.HotSwap]
   - [*Container.Root]
-  - [HTTPHandlerWithContainer]
+  - [http.HandlerWithContainer]
 */
 func ContextWithContainer(parent context.Context, container Root) context.Context {
 	if parent == nil {

@@ -216,7 +216,7 @@ func TestContainer_HotSwap(t *testing.T) {
 					buff, err := ioutil.ReadAll(r.Body)
 					require.NoError(t, err)
 
-					if string(buff) != "c.ParamA() == c.ParamB()" {
+					if string(buff) != "p.ParamA() == p.ParamB()" {
 						atomic.AddUint64(&inconsistency, 1)
 					}
 				}()

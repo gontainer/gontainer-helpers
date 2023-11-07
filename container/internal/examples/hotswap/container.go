@@ -24,6 +24,9 @@ import (
 	"net/http"
 
 	"github.com/gontainer/gontainer-helpers/v3/container"
+	containerHttp "github.com/gontainer/gontainer-helpers/v3/container/http"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 )
 
 type Container struct {
@@ -54,41 +57,57 @@ func (c *Container) ParamB() int {
 	return p.(int)
 }
 
+func describeEndpointCompareParams() service.Service {
+	e := service.New()
+	e.SetConstructor(newEndpointCompareParams, dependency.Service("container"))
+	return e
+}
+
+func describeMux() service.Service {
+	m := container.NewService()
+	m.
+		SetConstructor(containerHttp.NewServeMux, dependency.Container()).
+		AppendCall("HandleDynamic", dependency.Value("/"), dependency.Value("endpointCompareParams"))
+	return m
+}
+
 func NewContainer() *Container {
 	c := &Container{container.New()}
 
-	m := container.NewService()
-	m.SetConstructor(http.NewServeMux)
-	m.AppendCall(
-		"Handle",
-		container.NewDependencyValue("/"),
-		container.NewDependencyValue(newHandleHomePage(c)),
-	)
-	m.Tag("http-handler", 0)
+	root := service.New()
+	root.SetConstructor(func() any {
+		return c
+	})
 
-	c.OverrideService("httpHandler", m)
-	c.OverrideParam("a", container.NewDependencyValue(0))
-	c.OverrideParam("b", container.NewDependencyValue(0))
-
-	c.AddDecorator(
-		"http-handler",
-		decorateHandlerByContainer,
-		container.NewDependencyContainer(),
-	)
+	c.OverrideServices(service.Services{
+		"httpHandler":           describeMux(),
+		"endpointCompareParams": describeEndpointCompareParams(),
+		"container":             root,
+	})
+	c.OverrideParams(dependency.Dependencies{
+		"a": dependency.Value(0),
+		"b": dependency.Value(0),
+	})
 
 	return c
 }
 
-func decorateHandlerByContainer(p container.DecoratorPayload, c *container.Container) http.Handler {
-	return container.HTTPHandlerWithContainer(p.Service.(http.Handler), c)
+// params is an interface that is implemented by [*Container]
+// we inject it to [newEndpointCompareParams]
+// "Clients should not be forced to depend upon interfaces that they do not use"
+type params interface {
+	ParamA() int
+	ParamB() int
 }
 
-func newHandleHomePage(c *Container) http.Handler {
+// newEndpointCompareParams helps us to check whether changing two parameters
+// using HotSwap is an atomic operation.
+func newEndpointCompareParams(p params) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if c.ParamA() == c.ParamB() {
-			_, _ = w.Write([]byte("c.ParamA() == c.ParamB()"))
+		if p.ParamA() == p.ParamB() {
+			_, _ = w.Write([]byte("p.ParamA() == p.ParamB()"))
 		} else {
-			_, _ = w.Write([]byte("c.ParamA() != c.ParamB()"))
+			_, _ = w.Write([]byte("p.ParamA() != p.ParamB()"))
 		}
 	})
 }

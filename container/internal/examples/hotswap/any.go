@@ -18,17 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package container
+package hotswap
 
-import (
-	"net/http"
-)
-
-// HTTPHandlerWithContainer creates a new HTTP handler that automatically binds contexts with the container.
-func HTTPHandlerWithContainer(handler http.Handler, container Root) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := ContextWithContainer(r.Context(), container)
-		r = r.Clone(ctx)
-		handler.ServeHTTP(w, r)
-	})
-}
+type any = interface{}
