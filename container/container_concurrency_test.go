@@ -215,9 +215,7 @@ func TestContainer_concurrency(t *testing.T) {
 
 	t.Run("All", func(t *testing.T) {
 		c := container.New()
-		name := container.NewService()
-		name.SetValue("Johnny")
-		c.OverrideService("name", name)
+		c.OverrideParam("name", container.NewDependencyValue("Johnny"))
 
 		newService := func(tag string) container.Service {
 			s := container.NewService()
@@ -226,7 +224,7 @@ func TestContainer_concurrency(t *testing.T) {
 					Name string
 				}{}
 			})
-			s.SetField("Name", container.NewDependencyService("name"))
+			s.SetField("Name", container.NewDependencyParam("name"))
 			s.Tag(tag, 0)
 			return s
 		}
@@ -244,7 +242,7 @@ func TestContainer_concurrency(t *testing.T) {
 		ctx = container.ContextWithContainer(ctx, c)
 
 		wg := sync.WaitGroup{}
-		wg.Add(max * 9)
+		wg.Add(max * 12)
 		for i := 0; i < max; i++ {
 			n := fmt.Sprintf("service%d", i)
 			nCtx := fmt.Sprintf("service-context%d", i)
@@ -253,6 +251,28 @@ func TestContainer_concurrency(t *testing.T) {
 				defer wg.Done()
 
 				c.OverrideService(n, newService("tag"))
+			}()
+
+			go func() {
+				defer wg.Done()
+
+				c.OverrideServices(map[string]container.Service{
+					n: newService("tag"),
+				})
+			}()
+
+			go func() {
+				defer wg.Done()
+
+				c.OverrideParam("name", container.NewDependencyValue("Johnny"))
+			}()
+
+			go func() {
+				defer wg.Done()
+
+				c.OverrideParams(map[string]container.Dependency{
+					"name": container.NewDependencyValue("Johnny"),
+				})
 			}()
 
 			go func() {

@@ -22,6 +22,7 @@ package container
 
 import (
 	"fmt"
+	"sort"
 	"sync"
 )
 
@@ -36,6 +37,21 @@ func (c *Container) OverrideParam(paramID string, d Dependency) {
 	overrideParam(c, paramID, d)
 }
 
+func (c *Container) OverrideParams(deps map[string]Dependency) {
+	c.globalLocker.Lock()
+	defer c.globalLocker.Unlock()
+
+	ids := make([]string, 0, len(deps))
+	for id := range deps {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+
+	for _, id := range ids {
+		overrideParam(c, id, deps[id])
+	}
+}
+
 // OverrideService adds a service to the [*Container].
 // If a service with the given ID already exists, it will be replaced by the new one.
 //
@@ -45,6 +61,21 @@ func (c *Container) OverrideService(serviceID string, s Service) {
 	defer c.globalLocker.Unlock()
 
 	overrideService(c, serviceID, s)
+}
+
+func (c *Container) OverrideServices(services map[string]Service) {
+	c.globalLocker.Lock()
+	defer c.globalLocker.Unlock()
+
+	ids := make([]string, 0, len(services))
+	for id := range services {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+
+	for _, id := range ids {
+		overrideService(c, id, services[id])
+	}
 }
 
 func overrideService(c *Container, serviceID string, s Service) {
