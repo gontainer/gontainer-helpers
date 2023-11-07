@@ -78,7 +78,7 @@ It is a method that returns one value always:
 		return p
 	}
 
-	// p, _ := caller.CallWitherByName(caller.Person{}, "WithName", []any{"Jane"}, false)
+	// p, _ := caller.CallWither(caller.Person{}, "WithName", []any{"Jane"}, false)
 	// fmt.Println(p) // {Jane}
 */
 package caller

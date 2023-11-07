@@ -102,7 +102,7 @@ func CallFunc(fn reflect.Value, args []any, convertArgs bool) ([]any, error) {
 	return result, nil
 }
 
-func ValidateAndForceCallByName(object any, method string, args []any, convertArgs bool, v FuncValidator) ([]any, error) {
+func ValidateAndForceCallMethod(object any, method string, args []any, convertArgs bool, v FuncValidator) ([]any, error) {
 	val := reflect.ValueOf(object)
 	if val.Kind() != reflect.Ptr {
 		return nil, fmt.Errorf("expected %s, %T given", reflect.Ptr.String(), object)
@@ -152,5 +152,5 @@ func ValidateAndForceCallByName(object any, method string, args []any, convertAr
 		return res, err
 	}
 
-	panic("ValidateAndForceCallByName: unexpected error") // this should be unreachable
+	panic("ValidateAndForceCallMethod: unexpected error") // this should be unreachable
 }

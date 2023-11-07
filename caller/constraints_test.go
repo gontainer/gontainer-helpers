@@ -57,34 +57,34 @@ func TestConstraint(t *testing.T) {
 	// https://github.com/golang/go/wiki/MethodSets#interfaces
 
 	// Method with a pointer receiver requires explicit definition of the pointer:
-	// v := &book{}; CallByName(v, ...
-	// var v any = &book{}; CallByName(v, ...
-	// v := book{}; CallByName(&v, ...
+	// v := &book{}; CallMethod(v, ...
+	// var v any = &book{}; CallMethod(v, ...
+	// v := book{}; CallMethod(&v, ...
 	//
 	// Creating variable as a value will not work:
-	// v := book{}; CallByName(v, ...
-	// var v interface{} = book{}; CallByName(&v, ...
+	// v := book{}; CallMethod(v, ...
+	// var v interface{} = book{}; CallMethod(&v, ...
 	t.Run("Call a method", func(t *testing.T) {
 		t.Run("Pointer receiver", func(t *testing.T) {
 			t.Run("Given errors", func(t *testing.T) {
-				t.Run("v := book{}; CallByName(v, ...", func(t *testing.T) {
+				t.Run("v := book{}; CallMethod(v, ...", func(t *testing.T) {
 					b := book{}
-					r, err := caller.CallByName(b, "SetTitle", []any{harryPotterTitle}, false)
+					r, err := caller.CallMethod(b, "SetTitle", []any{harryPotterTitle}, false)
 					assert.EqualError(t, err, `cannot call method (caller_test.book)."SetTitle": invalid func (caller_test.book)."SetTitle"`)
 					assert.Nil(t, r)
 					assert.Zero(t, b)
 				})
-				t.Run("var v any = book{}; CallByName(&v, ...", func(t *testing.T) {
-					t.Run("CallByName", func(t *testing.T) {
+				t.Run("var v any = book{}; CallMethod(&v, ...", func(t *testing.T) {
+					t.Run("CallMethod", func(t *testing.T) {
 						var b any = book{}
-						r, err := caller.CallByName(&b, "SetTitle", []any{harryPotterTitle}, false)
+						r, err := caller.CallMethod(&b, "SetTitle", []any{harryPotterTitle}, false)
 						assert.EqualError(t, err, `cannot call method (*interface {})."SetTitle": invalid func (*interface {})."SetTitle"`)
 						assert.Nil(t, r)
 						assert.Equal(t, emptyBook, b)
 					})
-					t.Run("ForceCallByName", func(t *testing.T) {
+					t.Run("ForceCallMethod", func(t *testing.T) {
 						var b any = book{}
-						r, err := caller.ForceCallByName(&b, "SetTitle", []any{harryPotterTitle}, false)
+						r, err := caller.ForceCallMethod(&b, "SetTitle", []any{harryPotterTitle}, false)
 						assert.NoError(t, err)
 						assert.Nil(t, r)
 						assert.Equal(t, harryPotter, b)
@@ -92,44 +92,44 @@ func TestConstraint(t *testing.T) {
 				})
 			})
 			t.Run("Given scenarios", func(t *testing.T) {
-				t.Run("v := book{}; CallByName(&v, ...", func(t *testing.T) {
+				t.Run("v := book{}; CallMethod(&v, ...", func(t *testing.T) {
 					b := book{}
-					r, err := caller.CallByName(&b, "SetTitle", []any{harryPotterTitle}, false)
+					r, err := caller.CallMethod(&b, "SetTitle", []any{harryPotterTitle}, false)
 					assert.NoError(t, err)
 					assert.Len(t, r, 0)
 					assert.Equal(t, harryPotter, b)
 				})
-				t.Run("v := &book{}; CallByName(&v, ...", func(t *testing.T) {
+				t.Run("v := &book{}; CallMethod(&v, ...", func(t *testing.T) {
 					b := &book{}
-					r, err := caller.CallByName(&b, "SetTitle", []any{harryPotterTitle}, false)
+					r, err := caller.CallMethod(&b, "SetTitle", []any{harryPotterTitle}, false)
 					assert.NoError(t, err)
 					assert.Len(t, r, 0)
 					assert.Equal(t, &harryPotter, b)
 				})
-				t.Run("v := &book{}; CallByName(v, ...", func(t *testing.T) {
+				t.Run("v := &book{}; CallMethod(v, ...", func(t *testing.T) {
 					b := &book{}
-					r, err := caller.CallByName(b, "SetTitle", []any{harryPotterTitle}, false)
+					r, err := caller.CallMethod(b, "SetTitle", []any{harryPotterTitle}, false)
 					assert.NoError(t, err)
 					assert.Len(t, r, 0)
 					assert.Equal(t, &harryPotter, b)
 				})
-				t.Run("var v any = &book{}; CallByName(v, ...", func(t *testing.T) {
+				t.Run("var v any = &book{}; CallMethod(v, ...", func(t *testing.T) {
 					var b any = &book{}
-					r, err := caller.CallByName(b, "SetTitle", []any{harryPotterTitle}, false)
+					r, err := caller.CallMethod(b, "SetTitle", []any{harryPotterTitle}, false)
 					assert.NoError(t, err)
 					assert.Len(t, r, 0)
 					assert.Equal(t, &harryPotter, b)
 				})
-				t.Run("var v any = &book{}; CallByName(&v, ...", func(t *testing.T) {
+				t.Run("var v any = &book{}; CallMethod(&v, ...", func(t *testing.T) {
 					var b any = &book{}
-					r, err := caller.CallByName(&b, "SetTitle", []any{harryPotterTitle}, false)
+					r, err := caller.CallMethod(&b, "SetTitle", []any{harryPotterTitle}, false)
 					assert.NoError(t, err)
 					assert.Len(t, r, 0)
 					assert.Equal(t, &harryPotter, b)
 				})
-				t.Run("var v interface{ SetTitle(string) } = &book{}; CallByName(v, ...", func(t *testing.T) {
+				t.Run("var v interface{ SetTitle(string) } = &book{}; CallMethod(v, ...", func(t *testing.T) {
 					var b interface{ SetTitle(string) } = &book{}
-					r, err := caller.CallByName(b, "SetTitle", []any{harryPotterTitle}, false)
+					r, err := caller.CallMethod(b, "SetTitle", []any{harryPotterTitle}, false)
 					assert.NoError(t, err)
 					assert.Len(t, r, 0)
 					assert.Equal(t, &harryPotter, b)
@@ -140,42 +140,42 @@ func TestConstraint(t *testing.T) {
 		t.Run("Value receiver", func(t *testing.T) {
 			t.Run("b := book{}", func(t *testing.T) {
 				b := book{}
-				r, err := caller.CallWitherByName(b, "WithTitle", []any{harryPotterTitle}, false)
+				r, err := caller.CallWither(b, "WithTitle", []any{harryPotterTitle}, false)
 				assert.NoError(t, err)
 				assert.Equal(t, harryPotter, r)
 				assert.Zero(t, b)
 			})
 			t.Run("b := &book{}", func(t *testing.T) {
 				b := &book{}
-				r, err := caller.CallWitherByName(b, "WithTitle", []any{harryPotterTitle}, false)
+				r, err := caller.CallWither(b, "WithTitle", []any{harryPotterTitle}, false)
 				assert.NoError(t, err)
 				assert.Equal(t, harryPotter, r)
 				assert.Equal(t, &emptyBook, b)
 			})
 			t.Run("var b any = book{}", func(t *testing.T) {
 				var b any = book{}
-				r, err := caller.CallWitherByName(b, "WithTitle", []any{harryPotterTitle}, false)
+				r, err := caller.CallWither(b, "WithTitle", []any{harryPotterTitle}, false)
 				assert.NoError(t, err)
 				assert.Equal(t, harryPotter, r)
 				assert.Equal(t, emptyBook, b)
 			})
 			t.Run("var b any = &book{}", func(t *testing.T) {
 				var b any = &book{}
-				r, err := caller.CallWitherByName(b, "WithTitle", []any{harryPotterTitle}, false)
+				r, err := caller.CallWither(b, "WithTitle", []any{harryPotterTitle}, false)
 				assert.NoError(t, err)
 				assert.Equal(t, harryPotter, r)
 				assert.Equal(t, &emptyBook, b)
 			})
 		})
 		t.Run("Unexported method", func(t *testing.T) {
-			t.Run("CallByName", func(t *testing.T) {
+			t.Run("CallMethod", func(t *testing.T) {
 				b := book{}
-				_, err := caller.CallByName(&b, "setTitle", []any{harryPotter}, false)
+				_, err := caller.CallMethod(&b, "setTitle", []any{harryPotter}, false)
 				assert.EqualError(t, err, `cannot call method (*caller_test.book)."setTitle": invalid func (*caller_test.book)."setTitle"`)
 			})
-			t.Run("ForceCallByName", func(t *testing.T) {
+			t.Run("ForceCallMethod", func(t *testing.T) {
 				b := book{}
-				_, err := caller.ForceCallByName(&b, "setTitle", []any{harryPotter}, false)
+				_, err := caller.ForceCallMethod(&b, "setTitle", []any{harryPotter}, false)
 				assert.EqualError(t, err, `cannot call method (*caller_test.book)."setTitle": invalid func (*caller_test.book)."setTitle"`)
 			})
 		})

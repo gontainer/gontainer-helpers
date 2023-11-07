@@ -212,7 +212,7 @@ func (c *Container) createNewService(ctx context.Context, svc Service, contextua
 		if err != nil {
 			return nil, grouperror.Prefix("factory args: ", err)
 		}
-		result, err = caller.ForceCallProviderByName(obj, svc.factoryMethod, args, convertArgs)
+		result, err = caller.ForceCallProviderMethod(obj, svc.factoryMethod, args, convertArgs)
 		if err != nil {
 			return nil, grouperror.Prefix(fmt.Sprintf("factory @%s.%s: ", svc.factoryServiceID, svc.factoryMethod), err)
 		}
@@ -263,7 +263,7 @@ func (c *Container) executeServiceCalls(
 		}
 
 		if call.wither {
-			result, err = caller.ForceCallWitherByName(&result, call.method, args, convertArgs)
+			result, err = caller.ForceCallWither(&result, call.method, args, convertArgs)
 			if err != nil {
 				errs = append(errs, grouperror.Prefix(fmt.Sprintf("%s %+q: ", action, call.method), err))
 				// wither may return a nil value for error,
@@ -271,7 +271,7 @@ func (c *Container) executeServiceCalls(
 				break
 			}
 		} else {
-			_, err = caller.ForceCallByName(&result, call.method, args, convertArgs)
+			_, err = caller.ForceCallMethod(&result, call.method, args, convertArgs)
 			if err != nil {
 				errs = append(errs, grouperror.Prefix(fmt.Sprintf("%s %+q: ", action, call.method), err))
 			}

@@ -88,16 +88,16 @@ func ExampleCallProvider() {
 	// Output: &{name:Mary}
 }
 
-func ExampleCallByName() {
+func ExampleCallMethod() {
 	p := &Person{}
-	_, _ = caller.CallByName(p, "SetName", []any{"Mary"}, false)
+	_, _ = caller.CallMethod(p, "SetName", []any{"Mary"}, false)
 	fmt.Println(p.name)
 	// Output: Mary
 }
 
-func ExampleCallWitherByName() {
+func ExampleCallWither() {
 	p := Person{}
-	p2, _ := caller.CallWitherByName(p, "WithName", []any{"Mary"}, false)
+	p2, _ := caller.CallWither(p, "WithName", []any{"Mary"}, false)
 	fmt.Printf("%+v", p2)
 	// Output: {name:Mary}
 }

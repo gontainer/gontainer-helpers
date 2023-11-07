@@ -128,12 +128,12 @@ func CallProvider(provider any, args []any, convertArgs bool) (any, error) {
 }
 
 /*
-CallProviderByName works similar to [CallProvider], but the provider must be a method on the given object.
+CallProviderMethod works similar to [CallProvider], but the provider must be a method on the given object.
 
 	db, _ := sql.Open("mysql", "user:password@/dbname")
-	tx, err := caller.CallProviderByName(db, "Begin", nil, false)
+	tx, err := caller.CallProviderMethod(db, "Begin", nil, false)
 */
-func CallProviderByName(object any, method string, args []any, convertArgs bool) (any, error) {
+func CallProviderMethod(object any, method string, args []any, convertArgs bool) (any, error) {
 	return callProvider(
 		func() (reflect.Value, error) {
 			return caller.Method(object, method)
@@ -146,10 +146,10 @@ func CallProviderByName(object any, method string, args []any, convertArgs bool)
 	)
 }
 
-// ForceCallProviderByName is an extended version of [CallProviderByName].
-// See [ForceCallByName].
-func ForceCallProviderByName(object any, method string, args []any, convertArgs bool) (any, error) {
-	results, err := caller.ValidateAndForceCallByName(object, method, args, convertArgs, caller.ValidatorProvider)
+// ForceCallProviderMethod is an extended version of [CallProviderMethod].
+// See [ForceCallMethod].
+func ForceCallProviderMethod(object any, method string, args []any, convertArgs bool) (any, error) {
+	results, err := caller.ValidateAndForceCallMethod(object, method, args, convertArgs, caller.ValidatorProvider)
 	if err != nil {
 		return nil, grouperror.Prefix(fmt.Sprintf(providerMethodInternalErrPrefix, object, method), err)
 	}
@@ -168,7 +168,7 @@ func ForceCallProviderByName(object any, method string, args []any, convertArgs 
 }
 
 /*
-CallByName works similar to [Call] with the difference it calls the method by the name over the given receiver.
+CallMethod works similar to [Call] with the difference it calls the method by the name over the given receiver.
 
 	type Person struct {
 		Name string
@@ -180,14 +180,12 @@ CallByName works similar to [Call] with the difference it calls the method by th
 
 	func main() {
 		p := &Person{}
-		_, _ = caller.CallByName(p, "SetName", []any{"Mary"}, false)
+		_, _ = caller.CallMethod(p, "SetName", []any{"Mary"}, false)
 		fmt.Println(p.name)
 		// Output: Mary
 	}
-
-TODO rename to CallMethod
 */
-func CallByName(object any, method string, args []any, convertArgs bool) (_ []any, err error) {
+func CallMethod(object any, method string, args []any, convertArgs bool) (_ []any, err error) {
 	defer func() {
 		if err != nil {
 			err = grouperror.Prefix(fmt.Sprintf("cannot call method (%T).%+q: ", object, method), err)
@@ -202,12 +200,12 @@ func CallByName(object any, method string, args []any, convertArgs bool) (_ []an
 }
 
 /*
-ForceCallByName is an extended version of [CallByName].
+ForceCallMethod is an extended version of [CallMethod].
 
 The following code cannot work:
 
 	var p any = person{}
-	caller.CallByName(&p, "SetName", []any{"Jane"}, false)
+	caller.CallMethod(&p, "SetName", []any{"Jane"}, false)
 
 because `&p` returns a pointer to an interface, not to the `person` type.
 The same problem occurs without using that package:
@@ -217,21 +215,21 @@ The same problem occurs without using that package:
 	// compiler returns:
 	// invalid operation: cannot take address of tmp.(person) (comma, ok expression of type person).
 
-[ForceCallByName] solves that problem by copying the value and creating a pointer to it using the [reflect] package,
-but that solution is slightly slower. In contrast to [CallByName], it requires a pointer always.
+[ForceCallMethod] solves that problem by copying the value and creating a pointer to it using the [reflect] package,
+but that solution is slightly slower. In contrast to [CallMethod], it requires a pointer always.
 */
-func ForceCallByName(object any, method string, args []any, convertArgs bool) (_ []any, err error) {
+func ForceCallMethod(object any, method string, args []any, convertArgs bool) (_ []any, err error) {
 	defer func() {
 		if err != nil {
 			err = grouperror.Prefix(fmt.Sprintf("cannot call method (%T).%+q: ", object, method), err)
 		}
 	}()
 
-	return caller.ValidateAndForceCallByName(object, method, args, convertArgs, caller.DontValidate)
+	return caller.ValidateAndForceCallMethod(object, method, args, convertArgs, caller.DontValidate)
 }
 
 /*
-CallWitherByName works similar to [CallByName] with the difference the method must be a wither.
+CallWither works similar to [CallMethod] with the difference the method must be a wither.
 
 	type Person struct {
 	    name string
@@ -244,11 +242,11 @@ CallWitherByName works similar to [CallByName] with the difference the method mu
 
 	func main() {
 	    p := Person{}
-	    p2, _ := caller.CallWitherByName(p, "WithName", "Mary")
+	    p2, _ := caller.CallWither(p, "WithName", "Mary")
 	    fmt.Printf("%+v", p2) // {name:Mary}
 	}
 */
-func CallWitherByName(object any, wither string, args []any, convertArgs bool) (_ any, err error) {
+func CallWither(object any, wither string, args []any, convertArgs bool) (_ any, err error) {
 	defer func() {
 		if err != nil {
 			err = grouperror.Prefix(fmt.Sprintf("cannot call wither (%T).%+q: ", object, wither), err)
@@ -271,15 +269,15 @@ func CallWitherByName(object any, wither string, args []any, convertArgs bool) (
 	return r[0], nil
 }
 
-// ForceCallWitherByName calls the given wither (see [CallWitherByName]) using the same approach as [ForceCallByName].
-func ForceCallWitherByName(object any, wither string, args []any, convertArgs bool) (_ any, err error) {
+// ForceCallWither calls the given wither (see [CallWither]) using the same approach as [ForceCallMethod].
+func ForceCallWither(object any, wither string, args []any, convertArgs bool) (_ any, err error) {
 	defer func() {
 		if err != nil {
 			err = grouperror.Prefix(fmt.Sprintf("cannot call wither (%T).%+q: ", object, wither), err)
 		}
 	}()
 
-	r, err := caller.ValidateAndForceCallByName(object, wither, args, convertArgs, caller.ValidatorWither)
+	r, err := caller.ValidateAndForceCallMethod(object, wither, args, convertArgs, caller.ValidatorWither)
 	if err != nil {
 		return nil, err
 	}

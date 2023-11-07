@@ -381,7 +381,7 @@ func (m *mockProvider) NotProvider() (any, any) {
 	return nil, nil
 }
 
-func TestCallProviderByName(t *testing.T) {
+func TestCallProviderMethod(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Run("#1", func(t *testing.T) {
 			p := mockProvider{
@@ -389,7 +389,7 @@ func TestCallProviderByName(t *testing.T) {
 					return "value #1"
 				},
 			}
-			r, err := caller.CallProviderByName(&p, "Provider", nil, false)
+			r, err := caller.CallProviderMethod(&p, "Provider", nil, false)
 			assert.NoError(t, err)
 			assert.Equal(t, "value #1", r)
 		})
@@ -399,14 +399,14 @@ func TestCallProviderByName(t *testing.T) {
 					return "value #2", nil
 				},
 			}
-			r, err := caller.CallProviderByName(&p, "ProviderWithError", nil, false)
+			r, err := caller.CallProviderMethod(&p, "ProviderWithError", nil, false)
 			assert.NoError(t, err)
 			assert.Equal(t, "value #2", r)
 		})
 	})
 	t.Run("Errors", func(t *testing.T) {
 		t.Run("#1", func(t *testing.T) {
-			r, err := caller.CallProviderByName(nil, "MyProvider", nil, false)
+			r, err := caller.CallProviderMethod(nil, "MyProvider", nil, false)
 			assert.Nil(t, r)
 			assert.EqualError(t, err, `cannot call provider (<nil>)."MyProvider": invalid method receiver: <nil>`)
 		})
@@ -416,19 +416,19 @@ func TestCallProviderByName(t *testing.T) {
 					return "error value", errors.New("my error")
 				},
 			}
-			r, err := caller.CallProviderByName(&p, "ProviderWithError", nil, false)
+			r, err := caller.CallProviderMethod(&p, "ProviderWithError", nil, false)
 			assert.Equal(t, "error value", r)
 			assert.EqualError(t, err, "provider returned error: my error")
 		})
 		t.Run("#3", func(t *testing.T) {
-			r, err := caller.CallProviderByName(&mockProvider{}, "NotProvider", nil, false)
+			r, err := caller.CallProviderMethod(&mockProvider{}, "NotProvider", nil, false)
 			assert.Nil(t, r)
 			assert.EqualError(t, err, `cannot call provider (*caller_test.mockProvider)."NotProvider": second value returned by provider must implement error interface, interface {} given`)
 		})
 	})
 }
 
-func TestForceCallProviderByName(t *testing.T) {
+func TestForceCallProviderMethod(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Run("#1", func(t *testing.T) {
 			t.Run(`With "Force" prefix`, func(t *testing.T) {
@@ -438,7 +438,7 @@ func TestForceCallProviderByName(t *testing.T) {
 					},
 				}
 				// p is not a pointer, Provider requires pointer receiver, but this function can handle that
-				r, err := caller.ForceCallProviderByName(&p, "Provider", nil, false)
+				r, err := caller.ForceCallProviderMethod(&p, "Provider", nil, false)
 				assert.Equal(t, "my value", r)
 				assert.NoError(t, err)
 			})
@@ -450,7 +450,7 @@ func TestForceCallProviderByName(t *testing.T) {
 					},
 				}
 				// oops... p is not a pointer, ProviderWithError requires pointer receiver
-				r, err := caller.CallProviderByName(&p, "ProviderWithError", nil, false)
+				r, err := caller.CallProviderMethod(&p, "ProviderWithError", nil, false)
 				assert.Nil(t, r)
 				assert.EqualError(t, err, `cannot call provider (*interface {})."ProviderWithError": invalid func (*interface {})."ProviderWithError"`)
 			})
@@ -458,7 +458,7 @@ func TestForceCallProviderByName(t *testing.T) {
 	})
 	t.Run("Errors", func(t *testing.T) {
 		t.Run("#1", func(t *testing.T) {
-			r, err := caller.ForceCallProviderByName(nil, "MyProvider", nil, false)
+			r, err := caller.ForceCallProviderMethod(nil, "MyProvider", nil, false)
 			assert.Nil(t, r)
 			assert.EqualError(t, err, `cannot call provider (<nil>)."MyProvider": expected ptr, <nil> given`)
 		})
@@ -468,30 +468,30 @@ func TestForceCallProviderByName(t *testing.T) {
 					return "my error value", errors.New("my error in provider")
 				},
 			}
-			r, err := caller.ForceCallProviderByName(&p, "ProviderWithError", nil, false)
+			r, err := caller.ForceCallProviderMethod(&p, "ProviderWithError", nil, false)
 			assert.Equal(t, "my error value", r)
 			assert.EqualError(t, err, "provider returned error: my error in provider")
 		})
 		t.Run("#3", func(t *testing.T) {
 			var p any = mockProvider{}
-			r, err := caller.ForceCallProviderByName(&p, "NotProvider", nil, false)
+			r, err := caller.ForceCallProviderMethod(&p, "NotProvider", nil, false)
 			assert.Nil(t, r)
 			assert.EqualError(t, err, `cannot call provider (*interface {})."NotProvider": second value returned by provider must implement error interface, interface {} given`)
 		})
 	})
 }
 
-func TestCallByName(t *testing.T) {
+func TestCallMethod(t *testing.T) {
 	t.Run("Pointer loop", func(t *testing.T) {
 		var a any
 		a = &a
-		r, err := caller.CallByName(a, "method", nil, false)
+		r, err := caller.CallMethod(a, "method", nil, false)
 		assert.EqualError(t, err, `cannot call method (*interface {})."method": unexpected pointer loop`)
 		assert.Nil(t, r)
 	})
 }
 
-func TestCallWitherByName(t *testing.T) {
+func TestCallWither(t *testing.T) {
 	t.Run("Given scenarios", func(t *testing.T) {
 		var emptyPerson any = person{}
 
@@ -537,7 +537,7 @@ func TestCallWitherByName(t *testing.T) {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				result, err := caller.CallWitherByName(s.object, s.wither, s.params, false)
+				result, err := caller.CallWither(s.object, s.wither, s.params, false)
 				assert.NoError(t, err)
 				assert.Equal(t, s.output, result)
 			})
@@ -575,7 +575,7 @@ func TestCallWitherByName(t *testing.T) {
 			s := tmp
 			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
 				t.Parallel()
-				o, err := caller.CallWitherByName(s.object, s.wither, s.params, false)
+				o, err := caller.CallWither(s.object, s.wither, s.params, false)
 				assert.Nil(t, o)
 				assert.EqualError(t, err, s.error)
 			})
@@ -585,14 +585,14 @@ func TestCallWitherByName(t *testing.T) {
 	t.Run("Pointer loop", func(t *testing.T) {
 		var a any
 		a = &a
-		r, err := caller.CallWitherByName(a, "method", nil, false)
+		r, err := caller.CallWither(a, "method", nil, false)
 		assert.EqualError(t, err, `cannot call wither (*interface {})."method": unexpected pointer loop`)
 		assert.Nil(t, r)
 	})
 
 	t.Run("Nil pointer receiver", func(t *testing.T) {
 		var p *person
-		r, err := caller.CallWitherByName(p, "Empty", nil, false)
+		r, err := caller.CallWither(p, "Empty", nil, false)
 		assert.NoError(t, err)
 		assert.Nil(t, p)
 		assert.Equal(t, person{}, r)
@@ -640,20 +640,20 @@ func (n *nums) Append(v int) {
 	*n = append(*n, v)
 }
 
-func TestEnforcedCall(t *testing.T) {
+func TestForceCallMethod(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Run("#1", func(t *testing.T) {
 			var p any = person{age: 28} // make sure pre-initiated values won't disappear
 			var p2 any = &p
 			var p3 = &p2
-			_, err := caller.ForceCallByName(&p3, "SetName", []any{"Jane"}, false)
+			_, err := caller.ForceCallMethod(&p3, "SetName", []any{"Jane"}, false)
 			assert.NoError(t, err)
 			assert.Equal(t, person{age: 28, name: "Jane"}, p)
 		})
 		t.Run("OK #2", func(t *testing.T) {
 			var n any = nums{}
 			for i := 5; i < 8; i++ {
-				r, err := caller.ForceCallByName(&n, "Append", []any{i}, false)
+				r, err := caller.ForceCallMethod(&n, "Append", []any{i}, false)
 				assert.NoError(t, err)
 				assert.Nil(t, r)
 			}
@@ -662,7 +662,7 @@ func TestEnforcedCall(t *testing.T) {
 		t.Run("OK #3 (nil pointer receiver)", func(t *testing.T) {
 			var p1 *person
 			var p2 any = p1
-			r, err := caller.ForceCallByName(&p2, "Empty", nil, false)
+			r, err := caller.ForceCallMethod(&p2, "Empty", nil, false)
 			assert.NoError(t, err)
 			assert.Nil(t, p1)
 			assert.Equal(t, person{}, r[0])
@@ -671,7 +671,7 @@ func TestEnforcedCall(t *testing.T) {
 	t.Run("Errors", func(t *testing.T) {
 		t.Run("#1", func(t *testing.T) {
 			var a *int
-			_, err := caller.ForceCallByName(a, "SomeMethod", nil, false)
+			_, err := caller.ForceCallMethod(a, "SomeMethod", nil, false)
 			assert.EqualError(t, err, `cannot call method (*int)."SomeMethod": invalid func (*int)."SomeMethod"`)
 		})
 		t.Run("Method panics", func(t *testing.T) {
@@ -684,7 +684,7 @@ func TestEnforcedCall(t *testing.T) {
 			}()
 
 			var p *person
-			fmt.Println(caller.ForceCallByName(&p, "SetName", []any{"Jane"}, false))
+			fmt.Println(caller.ForceCallMethod(&p, "SetName", []any{"Jane"}, false))
 		})
 	})
 }
@@ -710,26 +710,26 @@ func (p *Pet) NameType() (name, type_ string) {
 	return p.Name, p.Type
 }
 
-func TestForceCallWitherByName(t *testing.T) {
+func TestForceCallWither(t *testing.T) {
 	t.Run("OK #1", func(t *testing.T) {
 		var p any = Pet{}
-		r, err := caller.ForceCallWitherByName(&p, "WithName", []any{"Laika"}, false)
+		r, err := caller.ForceCallWither(&p, "WithName", []any{"Laika"}, false)
 		assert.NoError(t, err)
-		r, err = caller.ForceCallWitherByName(&r, "WithType", []any{"dog"}, false)
+		r, err = caller.ForceCallWither(&r, "WithType", []any{"dog"}, false)
 		assert.NoError(t, err)
 		assert.Equal(t, Pet{Name: "Laika", Type: "dog"}, *r.(*Pet))
 	})
 	t.Run("OK #2 (nil pointer receiver)", func(t *testing.T) {
 		var p1 *person
 		var p2 any = p1
-		r, err := caller.ForceCallWitherByName(&p2, "Empty", nil, false)
+		r, err := caller.ForceCallWither(&p2, "Empty", nil, false)
 		assert.NoError(t, err)
 		assert.Nil(t, p1)
 		assert.Equal(t, person{}, r)
 	})
 	t.Run("Error", func(t *testing.T) {
 		var p any = Pet{}
-		r, err := caller.ForceCallWitherByName(&p, "NameType", nil, false)
+		r, err := caller.ForceCallWither(&p, "NameType", nil, false)
 		assert.EqualError(t, err, `cannot call wither (*interface {})."NameType": wither must return 1 value, given function returns 2 values`)
 		assert.Nil(t, r)
 	})
