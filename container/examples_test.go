@@ -73,7 +73,7 @@ func describeAthena() service.Service {
 	a := service.New()
 	a.
 		SetValue(God{Name: "Athena"}).
-		Tag("olympians", 0)
+		Tag("olympians", 1) // priority 1 - ladies first :)
 	return a
 }
 
@@ -81,7 +81,7 @@ func describeZeus() service.Service {
 	z := service.New()
 	z.
 		SetConstructor(NewGod, dependency.Value("Zeus")). // constructor injection
-		Tag("olympians", 1)                               // Zeus has a higher priority
+		Tag("olympians", 0)
 	return z
 }
 
@@ -109,7 +109,7 @@ func Example() {
 	c := buildContainer()
 	olympians, _ := c.Get("olympians")
 	fmt.Printf("%+v\n", olympians)
-	// Output: {Gods:[{Name:Zeus} {Name:Athena} {Name:Poseidon}]}
+	// Output: {Gods:[{Name:Athena} {Name:Poseidon} {Name:Zeus}]}
 }
 
 func ExampleContainer_GetInContext_wrongContext() {
@@ -127,7 +127,6 @@ func ExampleContainer_GetInContext_wrongContext() {
 		fmt.Println("panic:", recover())
 	}()
 	_, _ = c.GetInContext(ctx, "five")
-
 	// Output:
 	// panic: the given context is not attached to the given container, call `ctx = container.ContextWithContainer(ctx, c)`
 }
@@ -177,7 +176,6 @@ func ExampleContainer_GetInContext() {
 		"GetInContext() and Get() return different values:",
 		ptrFromGetContext1 != ptrFromGet,
 	)
-
 	// Output:
 	// GetInContext() returns the same value for the same context: true
 	// GetInContext() returns the same value for parent and nested one: true
@@ -212,47 +210,30 @@ func ExampleContainer_GetInContext_oneContextManyContainers() {
 
 	fmt.Println(c1.GetInContext(ctx, "number"))
 	fmt.Println(c2.GetInContext(ctx, "number"))
-
 	// Output:
 	// 5 <nil>
 	// 6 <nil>
 }
 
 func ExampleContainer_Get() {
-	// describe Hera
-	hera := service.New()
-	hera.SetConstructor(func() God {
-		return God{}
-	})
-	hera.SetField("Name", dependency.Value("Hera"))
-	hera.Tag("god", 1) // priority = 1, ladies first :)
-
-	// describe Zeus
-	zeus := service.New()
-	zeus.SetConstructor(func() God {
-		return God{}
-	})
-	zeus.SetField("Name", dependency.Provider(func() string {
-		return "Zeus"
-	}))
-	zeus.Tag("god", 0)
-
 	// describe "gods"
 	gods := service.New()
-	gods.SetValue(Gods{})                        // instead of providing a constructor, we can provide a value directly
-	gods.SetField("Gods", dependency.Tag("god")) // fetch all objects tagged as "god", and assign them to the field "Gods"
+	gods.
+		SetValue(Gods{}).                             // instead of providing a constructor, we can provide a value directly
+		SetField("Gods", dependency.Tag("olympians")) // fetch all objects tagged as "olympians", and assign them to the field "Gods"
 
 	// create a Container, and append all services there
 	c := container.New()
-	c.OverrideService("hera", hera)
-	c.OverrideService("zeus", zeus)
-	c.OverrideService("gods", gods)
+	c.OverrideServices(service.Services{
+		"zeus":   describeZeus(),
+		"athena": describeAthena(),
+		"gods":   gods,
+	})
 
 	godsObject, _ := c.Get("gods")
 
 	fmt.Printf("%+v\n", godsObject)
-
-	// Output: {Gods:[{Name:Hera} {Name:Zeus}]}
+	// Output: {Gods:[{Name:Athena} {Name:Zeus}]}
 }
 
 func ExampleContainer_Get_errorServiceDoesNotExist() {
@@ -272,7 +253,6 @@ func ExampleContainer_Get_errorServiceDoesNotExist() {
 
 	_, err := c.Get("riemann")
 	fmt.Println(err)
-
 	// Output: get("riemann"): service does not exist
 }
 
@@ -291,7 +271,6 @@ func ExampleContainer_Get_errorFieldDoesNotExist() {
 
 	_, err := c.Get("riemann")
 	fmt.Println(err)
-
 	// Output:
 	// get("riemann"): set field "FullName": set (*interface {})."FullName": field "FullName" does not exist
 }
@@ -330,7 +309,6 @@ func ExampleContainer_Get_circularDepsServices() {
 
 	_, err := c.Get("wife")
 	fmt.Println(err)
-
 	// Output: get("wife"): circular dependencies: @husband -> @wife -> @husband
 }
 
@@ -347,7 +325,6 @@ func ExampleContainer_Get_circularDepsParams() {
 
 	_, err := c.Get("person")
 	fmt.Println(err)
-
 	// Output: get("person"): field value "name": getParam("name"): circular dependencies: %name% -> %name%
 }
 
@@ -385,7 +362,6 @@ func ExampleContainer_CircularDeps() {
 	c.OverrideParam("name", dependency.Param("name"))
 
 	fmt.Println(c.CircularDeps())
-
 	// Output:
 	// CircularDeps(): @husband -> @wife -> @husband
 	// CircularDeps(): %name% -> %name%
@@ -404,7 +380,6 @@ func ExampleContainer_Get_setterInjection() {
 
 	riemann, _ := c.Get("riemann")
 	fmt.Println(riemann)
-
 	// Output: {Bernhard Riemann}
 }
 
@@ -421,7 +396,6 @@ func ExampleContainer_Get_witherInjection() {
 
 	riemann, _ := c.Get("riemann")
 	fmt.Println(riemann)
-
 	// Output: {Bernhard Riemann}
 }
 
@@ -438,7 +412,6 @@ func ExampleContainer_Get_fieldInjection() {
 
 	riemann, _ := c.Get("riemann")
 	fmt.Println(riemann)
-
 	// Output: {Bernhard Riemann}
 }
 
@@ -524,7 +497,6 @@ func ExampleContainer_Get_scopeNonShared() {
 
 	// first is not equal to second, because the scope is private
 	fmt.Println(first, second)
-
 	// Output: 1 2
 }
 
@@ -597,7 +569,6 @@ func ExampleContainer_Get_invalidConstructorParameters() {
 
 	_, err := c.Get("server")
 	fmt.Println(err)
-
 	// Output:
 	// get("server"): constructor: cannot call provider func(string, int) *container_test.Server: arg0: cannot convert <nil> to string
 	// get("server"): constructor: cannot call provider func(string, int) *container_test.Server: arg1: cannot convert string to int
@@ -618,7 +589,6 @@ func ExampleContainer_IsTaggedBy() {
 
 	fmt.Printf("pi is tagged by int: %v\n", c.IsTaggedBy("pi", "int"))
 	fmt.Printf("three is tagged by int: %v\n", c.IsTaggedBy("three", "int"))
-
 	// Output:
 	// pi is tagged by int: false
 	// three is tagged by int: true
