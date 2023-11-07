@@ -18,22 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package dependency
+package field
 
 import (
 	"github.com/gontainer/gontainer-helpers/v3/container"
 )
 
 type (
-	Dependency = container.Dependency
-)
+	/*
+		Fields is an alias that can be used in [*container.Service.SetFields] for more readable syntax
 
-var (
-	Value     = container.NewDependencyValue
-	Tag       = container.NewDependencyTag
-	Service   = container.NewDependencyService
-	Param     = container.NewDependencyParam
-	Provider  = container.NewDependencyProvider
-	Container = container.NewDependencyContainer
-	Context   = container.NewDependencyContext
+			s := service.New()
+			s.SetFields(field.Fields{
+				"Name": dependency.Value("Jane"),
+				"Age":  dependency.Value(30),
+			})
+	*/
+	Fields = map[string]container.Dependency
 )

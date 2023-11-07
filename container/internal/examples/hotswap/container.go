@@ -26,6 +26,7 @@ import (
 	"github.com/gontainer/gontainer-helpers/v3/container"
 	containerHttp "github.com/gontainer/gontainer-helpers/v3/container/http"
 	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/param"
 	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 )
 
@@ -84,7 +85,7 @@ func NewContainer() *Container {
 		"endpointCompareParams": describeEndpointCompareParams(),
 		"container":             root,
 	})
-	c.OverrideParams(dependency.Dependencies{
+	c.OverrideParams(param.Params{
 		"a": dependency.Value(0),
 		"b": dependency.Value(0),
 	})

@@ -27,6 +27,7 @@ import (
 
 	"github.com/gontainer/gontainer-helpers/v3/container"
 	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/field"
 	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 	"github.com/gontainer/gontainer-helpers/v3/copier"
 )
@@ -286,7 +287,7 @@ func ExampleContainer_Get_circularDepsServices() {
 		SetConstructor(func() *Spouse {
 			return &Spouse{}
 		}).
-		SetFields(dependency.Dependencies{
+		SetFields(field.Fields{
 			"Name":   dependency.Value("Hera"),
 			"Spouse": dependency.Service("husband"),
 		})
@@ -296,7 +297,7 @@ func ExampleContainer_Get_circularDepsServices() {
 		SetConstructor(func() *Spouse {
 			return &Spouse{}
 		}).
-		SetFields(dependency.Dependencies{
+		SetFields(field.Fields{
 			"Name":   dependency.Value("Zeus"),
 			"Spouse": dependency.Service("wife"),
 		})
@@ -339,7 +340,7 @@ func ExampleContainer_CircularDeps() {
 		SetConstructor(func() *Spouse {
 			return &Spouse{}
 		}).
-		SetFields(dependency.Dependencies{
+		SetFields(field.Fields{
 			"Name":   dependency.Value("Hera"),
 			"Spouse": dependency.Service("husband"),
 		})
@@ -349,7 +350,7 @@ func ExampleContainer_CircularDeps() {
 		SetConstructor(func() *Spouse {
 			return &Spouse{}
 		}).
-		SetFields(dependency.Dependencies{
+		SetFields(field.Fields{
 			"Name":   dependency.Value("Zeus"),
 			"Spouse": dependency.Service("wife"),
 		})

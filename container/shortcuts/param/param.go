@@ -18,22 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package dependency
+package param
 
 import (
 	"github.com/gontainer/gontainer-helpers/v3/container"
 )
 
 type (
-	Dependency = container.Dependency
-)
+	/*
+		Params is an alias that can be used in [*container.Container.OverrideParams] for more readable syntax
 
-var (
-	Value     = container.NewDependencyValue
-	Tag       = container.NewDependencyTag
-	Service   = container.NewDependencyService
-	Param     = container.NewDependencyParam
-	Provider  = container.NewDependencyProvider
-	Container = container.NewDependencyContainer
-	Context   = container.NewDependencyContext
+			c := container.New()
+			c.OverrideParams(param.Params{
+				"username": dependency.Value("user"),
+				"password": dependency.Value("password"),
+			})
+	*/
+	Params = map[string]container.Dependency
 )

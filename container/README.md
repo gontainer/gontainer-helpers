@@ -510,7 +510,7 @@ func main() {
 	s.SetField("name", dependency.Param("name"))
 
 	// alternatively:
-	// s.SetFields(dependency.Dependencies{
+	// s.SetFields(field.Fields{
 	// 	"name": dependency.Value("name"),
 	// })
 

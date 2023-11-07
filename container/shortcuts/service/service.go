@@ -25,7 +25,17 @@ import (
 )
 
 type (
-	Service  = container.Service
+	Service = container.Service
+
+	/*
+		Services is an alias that can be used in [*container.Container.OverrideServices] for more readable syntax
+
+			c := container.New()
+			c.OverrideServices(service.Services{
+				"db":     db,
+				"server": server,
+			})
+	*/
 	Services = map[string]Service
 )
 
