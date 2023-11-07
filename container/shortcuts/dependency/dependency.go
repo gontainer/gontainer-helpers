@@ -18,14 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package dep
+package dependency
 
 import (
 	"github.com/gontainer/gontainer-helpers/v3/container"
 )
 
 type (
-	Dependency = container.Dependency
+	Dependency   = container.Dependency
+	Dependencies = map[string]Dependency
 )
 
 var (

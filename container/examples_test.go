@@ -26,7 +26,7 @@ import (
 	"math"
 
 	"github.com/gontainer/gontainer-helpers/v3/container"
-	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dep"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
 	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 	"github.com/gontainer/gontainer-helpers/v3/copier"
 )
@@ -64,7 +64,7 @@ func describePoseidon() service.Service {
 	p := service.New()
 	p.
 		SetValue(God{}).
-		SetField("Name", dep.Value("Poseidon")). // field injection
+		SetField("Name", dependency.Value("Poseidon")). // field injection
 		Tag("olympians", 0)
 	return p
 }
@@ -80,8 +80,8 @@ func describeAthena() service.Service {
 func describeZeus() service.Service {
 	z := service.New()
 	z.
-		SetConstructor(NewGod, dep.Value("Zeus")). // constructor injection
-		Tag("olympians", 1)                        // Zeus has a higher priority
+		SetConstructor(NewGod, dependency.Value("Zeus")). // constructor injection
+		Tag("olympians", 1)                               // Zeus has a higher priority
 	return z
 }
 
@@ -89,13 +89,13 @@ func describeOlympians() service.Service {
 	o := service.New()
 	o.
 		SetValue(Gods{}).
-		SetField("Gods", dep.Tag("olympians"))
+		SetField("Gods", dependency.Tag("olympians"))
 	return o
 }
 
 func buildContainer() *container.Container {
 	c := container.New()
-	c.OverrideServices(map[string]service.Service{
+	c.OverrideServices(service.Services{
 		"poseidon":  describePoseidon(),
 		"athena":    describeAthena(),
 		"zeus":      describeZeus(),
@@ -224,7 +224,7 @@ func ExampleContainer_Get() {
 	hera.SetConstructor(func() God {
 		return God{}
 	})
-	hera.SetField("Name", dep.Value("Hera"))
+	hera.SetField("Name", dependency.Value("Hera"))
 	hera.Tag("god", 1) // priority = 1, ladies first :)
 
 	// describe Zeus
@@ -232,15 +232,15 @@ func ExampleContainer_Get() {
 	zeus.SetConstructor(func() God {
 		return God{}
 	})
-	zeus.SetField("Name", dep.Provider(func() string {
+	zeus.SetField("Name", dependency.Provider(func() string {
 		return "Zeus"
 	}))
 	zeus.Tag("god", 0)
 
 	// describe "gods"
 	gods := service.New()
-	gods.SetValue(Gods{})                 // instead of providing a constructor, we can provide a value directly
-	gods.SetField("Gods", dep.Tag("god")) // fetch all objects tagged as "god", and assign them to the field "Gods"
+	gods.SetValue(Gods{})                        // instead of providing a constructor, we can provide a value directly
+	gods.SetField("Gods", dependency.Tag("god")) // fetch all objects tagged as "god", and assign them to the field "Gods"
 
 	// create a Container, and append all services there
 	c := container.New()
@@ -264,7 +264,7 @@ func ExampleContainer_Get_errorServiceDoesNotExist() {
 	riemann.SetConstructor(func() Person {
 		return Person{}
 	})
-	riemann.SetField("Name", dep.Value("Bernhard Riemann"))
+	riemann.SetField("Name", dependency.Value("Bernhard Riemann"))
 
 	c := container.New()
 	// oops... we forgot to add the variable `riemann` to the container
@@ -284,7 +284,7 @@ func ExampleContainer_Get_errorFieldDoesNotExist() {
 	riemann := service.New()
 	riemann.
 		SetValue(Person{}).
-		SetField("FullName", dep.Value("Bernhard Riemann")) // it's an invalid field name, it cannot work!
+		SetField("FullName", dependency.Value("Bernhard Riemann")) // it's an invalid field name, it cannot work!
 
 	c := container.New()
 	c.OverrideService("riemann", riemann)
@@ -307,9 +307,9 @@ func ExampleContainer_Get_circularDepsServices() {
 		SetConstructor(func() *Spouse {
 			return &Spouse{}
 		}).
-		SetFields(map[string]dep.Dependency{
-			"Name":   dep.Value("Hera"),
-			"Spouse": dep.Service("husband"),
+		SetFields(dependency.Dependencies{
+			"Name":   dependency.Value("Hera"),
+			"Spouse": dependency.Service("husband"),
 		})
 
 	husband := service.New()
@@ -317,13 +317,13 @@ func ExampleContainer_Get_circularDepsServices() {
 		SetConstructor(func() *Spouse {
 			return &Spouse{}
 		}).
-		SetFields(map[string]dep.Dependency{
-			"Name":   dep.Value("Zeus"),
-			"Spouse": dep.Service("wife"),
+		SetFields(dependency.Dependencies{
+			"Name":   dependency.Value("Zeus"),
+			"Spouse": dependency.Service("wife"),
 		})
 
 	c := container.New()
-	c.OverrideServices(map[string]service.Service{
+	c.OverrideServices(service.Services{
 		"wife":    wife,
 		"husband": husband,
 	})
@@ -340,10 +340,10 @@ func ExampleContainer_Get_circularDepsParams() {
 	person := service.New()
 	person.
 		SetValue(Person{}).
-		SetField("name", dep.Param("name"))
+		SetField("name", dependency.Param("name"))
 
 	c.OverrideService("person", person)
-	c.OverrideParam("name", dep.Param("name"))
+	c.OverrideParam("name", dependency.Param("name"))
 
 	_, err := c.Get("person")
 	fmt.Println(err)
@@ -362,9 +362,9 @@ func ExampleContainer_CircularDeps() {
 		SetConstructor(func() *Spouse {
 			return &Spouse{}
 		}).
-		SetFields(map[string]dep.Dependency{
-			"Name":   dep.Value("Hera"),
-			"Spouse": dep.Service("husband"),
+		SetFields(dependency.Dependencies{
+			"Name":   dependency.Value("Hera"),
+			"Spouse": dependency.Service("husband"),
 		})
 
 	husband := service.New()
@@ -372,17 +372,17 @@ func ExampleContainer_CircularDeps() {
 		SetConstructor(func() *Spouse {
 			return &Spouse{}
 		}).
-		SetFields(map[string]dep.Dependency{
-			"Name":   dep.Value("Zeus"),
-			"Spouse": dep.Service("wife"),
+		SetFields(dependency.Dependencies{
+			"Name":   dependency.Value("Zeus"),
+			"Spouse": dependency.Service("wife"),
 		})
 
 	c := container.New()
-	c.OverrideServices(map[string]service.Service{
+	c.OverrideServices(service.Services{
 		"wife":    wife,
 		"husband": husband,
 	})
-	c.OverrideParam("name", dep.Param("name"))
+	c.OverrideParam("name", dependency.Param("name"))
 
 	fmt.Println(c.CircularDeps())
 
@@ -397,7 +397,7 @@ func ExampleContainer_Get_setterInjection() {
 		SetConstructor(func() Person { // we don't need to use a pointer here, even tho `SetName` requires a pointer receiver :)
 			return Person{}
 		}).
-		AppendCall("SetName", dep.Value("Bernhard Riemann"))
+		AppendCall("SetName", dependency.Value("Bernhard Riemann"))
 
 	c := container.New()
 	c.OverrideService("riemann", riemannSvc)
@@ -414,7 +414,7 @@ func ExampleContainer_Get_witherInjection() {
 		SetConstructor(func() Person {
 			return Person{}
 		}).
-		AppendWither("WithName", dep.Value("Bernhard Riemann"))
+		AppendWither("WithName", dependency.Value("Bernhard Riemann"))
 
 	c := container.New()
 	c.OverrideService("riemann", riemannSvc)
@@ -431,7 +431,7 @@ func ExampleContainer_Get_fieldInjection() {
 		SetConstructor(func() Person {
 			return Person{}
 		}).
-		SetField("Name", dep.Value("Bernhard Riemann"))
+		SetField("Name", dependency.Value("Bernhard Riemann"))
 
 	c := container.New()
 	c.OverrideService("riemann", riemannSvc)
@@ -543,23 +543,23 @@ func ExampleContainer_GetTaggedBy() {
 	p1 := service.New()
 	p1.
 		SetValue(Person{}).
-		SetField("Name", dep.Value("person1")).
+		SetField("Name", dependency.Value("person1")).
 		Tag("person", 0) // priority 0
 
 	p2 := service.New()
 	p2.
 		SetValue(Person{}).
-		SetField("Name", dep.Value("person2")).
+		SetField("Name", dependency.Value("person2")).
 		Tag("person", 1) // priority 1
 
 	p3 := service.New()
 	p3.
 		SetValue(Person{}).
-		SetField("Name", dep.Value("person3")).
+		SetField("Name", dependency.Value("person3")).
 		Tag("person", 1) // priority 1
 
 	c := container.New()
-	c.OverrideServices(map[string]service.Service{
+	c.OverrideServices(service.Services{
 		"p1": p1,
 		"p2": p2,
 		"p3": p3,
@@ -588,8 +588,8 @@ func ExampleContainer_Get_invalidConstructorParameters() {
 				Port: port,
 			}
 		},
-		dep.Value(nil),         // it should be a string!
-		dep.Value("localhost"), // it should be an int!
+		dependency.Value(nil),         // it should be a string!
+		dependency.Value("localhost"), // it should be an int!
 	)
 
 	c := container.New()
@@ -632,7 +632,7 @@ func ExampleContainer_IsTaggedBy_serviceDoesNotExist() {
 
 func ExampleNewDependencyProvider() {
 	c := container.New()
-	c.OverrideParam("pi", dep.Provider(func() float64 {
+	c.OverrideParam("pi", dependency.Provider(func() float64 {
 		return math.Pi
 	}))
 	pi, _ := c.GetParam("pi")
