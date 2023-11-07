@@ -359,6 +359,7 @@ import (
    "fmt"
 
    "github.com/gontainer/gontainer-helpers/v3/container"
+   "github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 )
 
 func main() {
@@ -366,10 +367,10 @@ func main() {
       Name string
    }
 
-   tonySvc := container.NewService()
+   tonySvc := service.New()
    tonySvc.SetValue(Person{Name: "Tony"}) // create the service using a value
 
-   peterSvc := container.NewService()
+   peterSvc := service.New()
    peterSvc.SetConstructor(
       func(n string) Person { // use a constructor to create a new service
          return Person{
@@ -406,6 +407,7 @@ import (
 	"fmt"
 
 	"github.com/gontainer/gontainer-helpers/v3/container"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 )
 
 type Person struct {
@@ -417,7 +419,7 @@ func (p *Person) SetName(n string) {
 }
 
 func main() {
-	s := container.NewService()
+	s := service.New()
 	s.SetConstructor(func() Person {
 		// we don't need to use a pointer here, even tho `SetName` requires a pointer receiver :)
 		return Person{}
@@ -448,6 +450,7 @@ import (
 	"fmt"
 
 	"github.com/gontainer/gontainer-helpers/v3/container"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 )
 
 type Person struct {
@@ -460,7 +463,7 @@ func (p Person) WithName(n string) Person {
 }
 
 func main() {
-	s := container.NewService()
+	s := service.New()
 	s.SetValue(Person{})
 	s.AppendWither("WithName", container.NewDependencyValue("Jane"))
 
@@ -488,6 +491,7 @@ import (
    "fmt"
 
    "github.com/gontainer/gontainer-helpers/v3/container"
+   "github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 )
 
 type Person struct {
@@ -495,7 +499,7 @@ type Person struct {
 }
 
 func main() {
-   s := container.NewService()
+   s := service.New()
    s.SetValue(Person{})
    s.SetField("name", container.NewDependencyParam("name"))
 
@@ -530,6 +534,7 @@ import (
 	"fmt"
 
 	"github.com/gontainer/gontainer-helpers/v3/container"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 )
 
 func main() {
@@ -541,15 +546,15 @@ func main() {
 		Gods []God
 	}
 
-	loki := container.NewService()
+	loki := service.New()
 	loki.SetValue(God{Name: "Loki"})
 	loki.Tag("norse-god", 0) // tag
 
-	thor := container.NewService()
+	thor := service.New()
 	thor.SetValue(God{Name: "Thor"})
 	thor.Tag("norse-god", 0) // tag
 
-	team := container.NewService()
+	team := service.New()
 	team.SetValue(Gods{})
 	team.SetField("Gods", container.NewDependencyTag("norse-god")) // inject tagged services
 
@@ -579,7 +584,7 @@ To define the scope of the given service, use one of the following methods:
   <summary>See code</summary>
 
 ```go
-s := container.NewService()
+s := service.New()
 s.SetScopeContextual()
 ```
 </details>
@@ -695,7 +700,7 @@ func RefreshConfigEveryMinute(c *container.Container) {
 
 				// override a service
 				// the cache for that service is automatically invalidated
-				db := container.NewService()
+				db := service.New()
 				db.SetConstructor(
 					sql.Open,
 					container.NewDependencyValue("mysql"),
@@ -758,7 +763,7 @@ func NewTx(db *sql.DB) (*sql.Tx, error) {
 func buildContainer() *container.Container {
 	c := container.New()
 
-	tx := container.NewService()
+	tx := service.New()
 	tx.SetConstructor(
 		NewTx,
 		container.NewDependencyService("db"),
@@ -774,7 +779,7 @@ func buildContainer() *container.Container {
 		We will define NewHTTPHandler in the next step,
 		now let's register it only in the container
 	*/
-	myHandler := container.NewService()
+	myHandler := service.New()
 	myHandler.SetConstructor(
 		NewHTTPHandler,
 		container.NewDependencyContainer(),
@@ -894,6 +899,7 @@ import (
 	"fmt"
 
 	"github.com/gontainer/gontainer-helpers/v3/container"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 )
 
 type Spouse struct {
@@ -902,14 +908,14 @@ type Spouse struct {
 }
 
 func main() {
-	wife := container.NewService()
+	wife := service.New()
 	wife.SetConstructor(func() *Spouse {
 		return &Spouse{}
 	})
 	wife.SetField("Name", container.NewDependencyValue("Hera"))
 	wife.SetField("Spouse", container.NewDependencyService("husband"))
 
-	husband := container.NewService()
+	husband := service.New()
 	husband.SetConstructor(func() *Spouse {
 		return &Spouse{}
 	})
@@ -948,7 +954,7 @@ type Employee struct {
 func buildContainer() *container.Container {
 	c := container.New()
 
-	jane := container.NewService()
+	jane := service.New()
 	jane.SetValue(Employee{})
 	jane.SetField("name", container.NewDependencyValue("Jane Doe"))
 	// The following value "53" is of the type "int", although we need an "uint"
@@ -1072,14 +1078,14 @@ func buildContainer() *myContainer {
 	)
 
 	// define your error aware http handler
-	myHandler := container.NewService()
+	myHandler := service.New()
 	myHandler.SetValue(ErrorAwareHTTPHandlerFunc(myHTTPHandler))
 	myHandler.Tag("http-errors", 0)
 	c.OverrideService("myHandler", myHandler)
 
 	// I assume we may need more endpoints later,
 	// let's use the built-in multiplexer [http.ServeMux]
-	m := container.NewService()
+	m := service.New()
 	m.SetConstructor(http.NewServeMux)
 	m.AppendCall(
 		"Handle",
@@ -1113,10 +1119,11 @@ import (
 	"fmt"
 
 	"github.com/gontainer/gontainer-helpers/v3/container"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 )
 
 func main() {
-	janeDoe := container.NewService()
+	janeDoe := service.New()
 	janeDoe.SetValue(
 		struct {
 			name string
