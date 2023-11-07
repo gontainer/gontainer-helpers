@@ -504,7 +504,7 @@ func ExampleContainer_Get_taggedServices() {
 	c := buildContainer()
 	olympians, _ := c.Get("olympians")
 	fmt.Printf("%+v\n", olympians)
-	// Output: {Gods:[{Name:Zeus} {Name:Athena} {Name:Poseidon}]}
+	// Output: {Gods:[{Name:Athena} {Name:Poseidon} {Name:Zeus}]}
 }
 
 func ExampleContainer_GetTaggedBy() {
