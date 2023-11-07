@@ -356,39 +356,42 @@ Use either `SetConstructor` or `SetValue`. Constructor MUST be a provider (see [
 package main
 
 import (
-   "fmt"
+	"fmt"
 
-   "github.com/gontainer/gontainer-helpers/v3/container"
-   "github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
+	"github.com/gontainer/gontainer-helpers/v3/container"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 )
 
 func main() {
-   type Person struct {
-      Name string
-   }
+	type Person struct {
+		Name string
+	}
 
-   tonySvc := service.New()
-   tonySvc.SetValue(Person{Name: "Tony"}) // create the service using a value
+	tonySvc := service.New()
+	tonySvc.SetValue(Person{Name: "Tony"}) // create the service using a value
 
-   peterSvc := service.New()
-   peterSvc.SetConstructor(
-      func(n string) Person { // use a constructor to create a new service
-         return Person{
-            Name: n,
-         }
-      },
-      container.NewDependencyValue("Peter"), // inject the value "Peter" to the constructor
-   )
+	peterSvc := service.New()
+	peterSvc.SetConstructor(
+		func(n string) Person { // use a constructor to create a new service
+			return Person{
+				Name: n,
+			}
+		},
+		dependency.Value("Peter"), // inject the value "Peter" to the constructor
+	)
 
-   c := container.New()
-   c.OverrideService("tony", tonySvc)
-   c.OverrideService("peter", peterSvc)
+	c := container.New()
+	c.OverrideServices(service.Services{
+		"tony":  tonySvc,
+		"peter": peterSvc,
+	})
 
-   tony, _ := c.Get("tony")
-   peter, _ := c.Get("peter")
-   fmt.Println(tony, peter)
+	tony, _ := c.Get("tony")
+	peter, _ := c.Get("peter")
+	fmt.Println(tony, peter)
 
-   // Output: {Tony} {Peter}
+	// Output: {Tony} {Peter}
 }
 ```
 </details>
@@ -407,6 +410,7 @@ import (
 	"fmt"
 
 	"github.com/gontainer/gontainer-helpers/v3/container"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
 	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 )
 
@@ -424,7 +428,7 @@ func main() {
 		// we don't need to use a pointer here, even tho `SetName` requires a pointer receiver :)
 		return Person{}
 	})
-	s.AppendCall("SetName", container.NewDependencyValue("Jane"))
+	s.AppendCall("SetName", dependency.Value("Jane"))
 
 	c := container.New()
 	c.OverrideService("jane", s)
@@ -450,6 +454,7 @@ import (
 	"fmt"
 
 	"github.com/gontainer/gontainer-helpers/v3/container"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
 	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 )
 
@@ -465,7 +470,7 @@ func (p Person) WithName(n string) Person {
 func main() {
 	s := service.New()
 	s.SetValue(Person{})
-	s.AppendWither("WithName", container.NewDependencyValue("Jane"))
+	s.AppendWither("WithName", dependency.Value("Jane"))
 
 	c := container.New()
 	c.OverrideService("jane", s)
@@ -488,33 +493,34 @@ Use `SetField` or `SetFields`.
 package main
 
 import (
-   "fmt"
+	"fmt"
 
-   "github.com/gontainer/gontainer-helpers/v3/container"
-   "github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
+	"github.com/gontainer/gontainer-helpers/v3/container"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 )
 
 type Person struct {
-   name string // unexported fields are supported :)
+	name string // unexported fields are supported :)
 }
 
 func main() {
-   s := service.New()
-   s.SetValue(Person{})
-   s.SetField("name", container.NewDependencyParam("name"))
+	s := service.New()
+	s.SetValue(Person{})
+	s.SetField("name", dependency.Param("name"))
 
-   // alternatively:
-   // s.SetFields(map[string]container.Dependency{
-   // 	"name": container.NewDependencyValue("name"),
-   // })
+	// alternatively:
+	// s.SetFields(dependency.Dependencies{
+	// 	"name": dependency.Value("name"),
+	// })
 
-   c := container.New()
-   c.OverrideService("jane", s)
-   c.OverrideParam("name", container.NewDependencyValue("Jane"))
+	c := container.New()
+	c.OverrideService("jane", s)
+	c.OverrideParam("name", dependency.Value("Jane"))
 
-   jane, _ := c.Get("jane")
-   fmt.Printf("%+v\n", jane)
-   // Output: {name:Jane}
+	jane, _ := c.Get("jane")
+	fmt.Printf("%+v\n", jane)
+	// Output: {name:Jane}
 }
 ```
 </details>
@@ -547,21 +553,26 @@ func main() {
 	}
 
 	loki := service.New()
-	loki.SetValue(God{Name: "Loki"})
-	loki.Tag("norse-god", 0) // tag
+	loki.
+		SetValue(God{Name: "Loki"}).
+		Tag("norse-god", 0) // tag
 
 	thor := service.New()
-	thor.SetValue(God{Name: "Thor"})
-	thor.Tag("norse-god", 0) // tag
+	thor.
+		SetValue(God{Name: "Thor"}).
+		Tag("norse-god", 0) // tag
 
 	team := service.New()
-	team.SetValue(Gods{})
-	team.SetField("Gods", container.NewDependencyTag("norse-god")) // inject tagged services
+	team.
+		SetValue(Gods{}).
+		SetField("Gods", container.NewDependencyTag("norse-god")) // inject tagged services
 
 	c := container.New()
-	c.OverrideService("loki", loki)
-	c.OverrideService("thor", thor)
-	c.OverrideService("norseGods", team)
+	c.OverrideServices(service.Services{
+		"loki":      loki,
+		"thor":      thor,
+		"norseGods": team,
+	})
 
 	norseGods, _ := c.Get("norseGods")
 	fmt.Println(norseGods)
