@@ -87,7 +87,7 @@ func callProvider(
 		e, _ = results[1].(error)
 	}
 	if e != nil {
-		e = newProviderError(grouperror.Prefix(providerExternalErrPrefix, e))
+		e = grouperror.Prefix(providerExternalErrPrefix, newProviderError(e))
 	}
 
 	return r, e
@@ -161,7 +161,7 @@ func ForceCallProviderMethod(object any, method string, args []any, convertArgs 
 		e, _ = results[1].(error)
 	}
 	if e != nil {
-		e = newProviderError(grouperror.Prefix(providerExternalErrPrefix, e))
+		e = grouperror.Prefix(providerExternalErrPrefix, newProviderError(e))
 	}
 
 	return r, e

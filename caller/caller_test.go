@@ -29,6 +29,7 @@ import (
 	"github.com/gontainer/gontainer-helpers/v3/caller"
 	errAssert "github.com/gontainer/gontainer-helpers/v3/grouperror/assert"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCall(t *testing.T) {
@@ -274,14 +275,15 @@ func TestCallProvider(t *testing.T) {
 			return nil, &myError{errors.New("my error")}
 		}
 		_, err := caller.CallProvider(p, nil, false)
-		assert.EqualError(t, err, "provider returned error: my error")
-		assert.IsType(t, (*caller.ProviderError)(nil), err)
+		require.EqualError(t, err, "provider returned error: my error")
 
 		var providerErr *caller.ProviderError
-		assert.True(t, errors.As(err, &providerErr))
+		require.True(t, errors.As(err, &providerErr))
+		assert.EqualError(t, providerErr, "my error")
 
 		var myErr *myError
-		assert.True(t, errors.As(err, &myErr))
+		require.True(t, errors.As(err, &myErr))
+		assert.EqualError(t, myErr, "my error")
 	})
 
 	t.Run("Given errors", func(t *testing.T) {
@@ -471,6 +473,9 @@ func TestForceCallProviderMethod(t *testing.T) {
 			r, err := caller.ForceCallProviderMethod(&p, "ProviderWithError", nil, false)
 			assert.Equal(t, "my error value", r)
 			assert.EqualError(t, err, "provider returned error: my error in provider")
+			var providerErr *caller.ProviderError
+			require.True(t, errors.As(err, &providerErr))
+			assert.EqualError(t, providerErr, "my error in provider")
 		})
 		t.Run("#3", func(t *testing.T) {
 			var p any = mockProvider{}
