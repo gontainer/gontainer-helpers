@@ -61,12 +61,14 @@ func (s *ServeMux) Handle(pattern string, handler http.Handler) {
 HandleDynamic registers the handler for the given pattern.
 Since the handler is fetched from the [*container.Container], it allows for building the handler in runtime.
 It is useful when our handler has contextual dependencies.
+
+serviceID MUST be an ID of a registered service in the container that implements the [http.Handler] interface.
 */
-func (s *ServeMux) HandleDynamic(pattern string, handlerID string) {
+func (s *ServeMux) HandleDynamic(pattern string, serviceID string) {
 	s.Handle(
 		pattern,
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			tmp, err := s.container.Root().GetInContext(r.Context(), handlerID)
+			tmp, err := s.container.Root().GetInContext(r.Context(), serviceID)
 			if err != nil {
 				panic(fmt.Sprintf(
 					"HandleDynamic %+q: container returned error: %s",
@@ -79,7 +81,7 @@ func (s *ServeMux) HandleDynamic(pattern string, handlerID string) {
 				panic(fmt.Sprintf(
 					"HandleDynamic %+q: service %+q does not implement http.Handler",
 					pattern,
-					handlerID,
+					serviceID,
 				))
 			}
 			h.ServeHTTP(w, r)
