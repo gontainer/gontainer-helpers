@@ -325,7 +325,7 @@ It refers to the container.
 ```go
 container.NewDependencyContainer()
 
-//or shorter syntax
+// or shorter syntax
 
 dependency.Container()
 ```
