@@ -772,11 +772,25 @@ func describeTx() service.Service {
 	return s
 }
 
+func describeImageRepo() service.Service {
+	// ir := repos.ImageRepo{}
+	// ir.Tx = c.Get("tx")
+	s := service.New()
+	s.
+		SetValue(repos.ImageRepo{}).
+		SetField("Tx", dependency.Service("tx"))
+	// NOTE
+	// imageRepo has automatically contextual scope automatically,
+	// because it depends on the "tx" service that has the contextual scope
+	return s
+}
+
 func BuildContainer() *container.Container {
 	c := container.New()
 	c.OverrideServices(map[string]service.Service{
-		"db": describeDB(),
-		"tx": describeTx(),
+		"db":        describeDB(),
+		"tx":        describeTx(),
+		"imageRepo": describeImageRepo(),
 	})
 	
 	// TODO define other services

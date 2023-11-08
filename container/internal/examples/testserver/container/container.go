@@ -64,23 +64,29 @@ func describeTx() service.Service {
 	return s
 }
 
-func describeUserRepository() service.Service {
-	// ur := repositories.ImageRepo{}
+func describeUserRepo() service.Service {
+	// ur := repos.ImageRepo{}
 	// ur.Tx = c.Get("tx")
 	s := service.New()
 	s.
 		SetValue(repos.UserRepo{}).
 		SetField("Tx", dependency.Service("tx"))
+	// NOTE
+	// userRepo has automatically contextual scope automatically,
+	// because it depends on the "tx" service that has the contextual scope
 	return s
 }
 
-func describeImageRepository() service.Service {
-	// ir := repositories.ImageRepo{}
+func describeImageRepo() service.Service {
+	// ir := repos.ImageRepo{}
 	// ir.Tx = c.Get("tx")
 	s := service.New()
 	s.
 		SetValue(repos.ImageRepo{}).
 		SetField("Tx", dependency.Service("tx"))
+	// NOTE
+	// imageRepo has automatically contextual scope automatically,
+	// because it depends on the "tx" service that has the contextual scope
 	return s
 }
 
@@ -119,8 +125,8 @@ func BuildContainer() *Container {
 		"db": describeDB(),
 		"tx": describeTx(),
 
-		"userRepo":  describeUserRepository(),
-		"imageRepo": describeImageRepository(),
+		"userRepo":  describeUserRepo(),
+		"imageRepo": describeImageRepo(),
 
 		"mux":        describeMux(),
 		"server":     describeServer(),
