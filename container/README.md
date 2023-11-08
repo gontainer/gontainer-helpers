@@ -356,6 +356,8 @@ Use either `SetConstructor`, `SetValue`, or `SetFactory`. Constructor MUST be a 
   <summary>See code</summary>
 
 ```go
+// SetFactory
+
 func describeDB() service.Service {
 	s := service.New()
 	s.SetConstructor(func() (*sql.DB, error) {
@@ -386,6 +388,8 @@ func BuildContainer() *container.Container {
 ```
 
 ```go
+// SetConstructor and SetValue
+
 package main
 
 import (
