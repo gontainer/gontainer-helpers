@@ -21,3 +21,6 @@ addlicense:
 
 addlicense-check:
 	addlicense -f LICENSE -ignore=vendor/\*\* -ignore=.github/\*\* -check .
+
+make run-test-server:
+	go run container/internal/examples/testserver/main.go
