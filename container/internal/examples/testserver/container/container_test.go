@@ -53,7 +53,7 @@ func TestContainer_Server(t *testing.T) {
 
 		matches := re.FindAllString(string(buff), -1)
 		require.Len(t, matches, 2)
-		require.Equal(t, matches[0], matches[1]) // make we use a single transaction in the scope of the given request
+		require.Equal(t, matches[0], matches[1]) // make sure we use a single transaction in the scope of the given request
 		require.NotEqual(t, matches[0], prev)    // make sure we don't share the same transaction between different requests
 
 		prev = matches[0]
