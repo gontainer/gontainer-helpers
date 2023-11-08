@@ -72,7 +72,7 @@ func describeUserRepo() service.Service {
 		SetValue(repos.UserRepo{}).
 		SetField("Tx", dependency.Service("tx"))
 	// NOTE
-	// userRepo has automatically contextual scope automatically,
+	// userRepo has the contextual scope automatically,
 	// because it depends on the "tx" service that has the contextual scope
 	return s
 }
@@ -85,7 +85,7 @@ func describeImageRepo() service.Service {
 		SetValue(repos.ImageRepo{}).
 		SetField("Tx", dependency.Service("tx"))
 	// NOTE
-	// imageRepo has automatically contextual scope automatically,
+	// imageRepo has the contextual scope automatically,
 	// because it depends on the "tx" service that has the contextual scope
 	return s
 }
