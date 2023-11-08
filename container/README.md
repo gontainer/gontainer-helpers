@@ -970,9 +970,10 @@ func myHTTPHandler(h http.ResponseWriter, r *http.Request) error {
 
 You can find [here](internal/examples/testserver) a sample server written using the above approach.
 
-See how simply the endpoint can look like!
+[See](internal/examples/testserver/http/endpoints.go) how simply the endpoint can look like!
 There is no need to create a transaction and inject it into other structs manually.
-[code](internal/examples/testserver/http/endpoints.go)
+
+[See](internal/examples/testserver/container/container.go) how the container is being built.
 
 Execute the following command to start the server:
 
