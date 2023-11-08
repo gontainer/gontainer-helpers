@@ -66,7 +66,7 @@ func (s *ServeMux) HandleDynamic(pattern string, handlerID string) {
 	s.Handle(
 		pattern,
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			tmp, err := s.container.Root().Get(handlerID)
+			tmp, err := s.container.Root().GetInContext(r.Context(), handlerID)
 			if err != nil {
 				panic(fmt.Sprintf(
 					"HandleDynamic %+q: container returned error: %s",
