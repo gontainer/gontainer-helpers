@@ -18,9 +18,9 @@ go get -u github.com/gontainer/gontainer-helpers/v3/container@latest
 4. [Usage](#usage)
    1. [HotSwap](#hotswap)
    2. [Contextual scope](#contextual-scope)
-   3. [Circular dependencies](#circular-dependencies)
-   4. [Type conversion](#type-conversion)
-   5. [Transactions](#transactions)
+   3. [Transactions](#transactions)
+   4. [Circular dependencies](#circular-dependencies)
+   5. [Type conversion](#type-conversion)
    6. [Errors](#errors)
    7. [Examples](#examples)
 5. [Code generation](#code-generation)
@@ -802,101 +802,6 @@ func BuildContainer() *container.Container {
 
 ---
 
-### Circular dependencies
-
-Container automatically detects circular dependencies, and returns a proper error.<br/>
-Do not need to worry about `fatal error: stack overflow` :)
-
-<details>
-  <summary>See code</summary>
-
-```go
-package main
-
-import (
-	"fmt"
-
-	"github.com/gontainer/gontainer-helpers/v3/container"
-	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
-	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/field"
-	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
-)
-
-type Spouse struct {
-	Name   string
-	Spouse *Spouse
-}
-
-func main() {
-	wife := service.New()
-	wife.
-		SetConstructor(func() *Spouse {
-			return &Spouse{}
-		}).
-		SetFields(field.Fields{
-			"Name":   dependency.Value("Hera"),
-			"Spouse": dependency.Service("husband"),
-		})
-
-	husband := service.New()
-	husband.
-		SetConstructor(func() *Spouse {
-			return &Spouse{}
-		}).
-		SetFields(field.Fields{
-			"Name":   dependency.Value("Zeus"),
-			"Spouse": dependency.Service("wife"),
-		})
-
-	c := container.New()
-	c.OverrideServices(service.Services{
-		"wife":    wife,
-		"husband": husband,
-	})
-
-	_, err := c.Get("wife")
-	fmt.Println(err)
-
-	// Output: get("wife"): circular dependencies: @husband -> @wife -> @husband
-}
-```
-</details>
-
----
-
-### Type conversion
-
-In GO assignments between different types requires explicit type conversion.
-Container automatically converts values for more developer-friendly experience.
-It supports even a bit more sophisticated conversions of maps and slices, see [copier](../copier/README.md).
-
-<details>
-  <summary>See code</summary>
-
-```go
-type Employee struct {
-	name string
-	age  uint
-}
-
-func buildContainer() *container.Container {
-	c := container.New()
-
-	jane := service.New()
-	jane.SetValue(Employee{})
-	jane.SetField("name", container.NewDependencyValue("Jane Doe"))
-	// The following value "53" is of the type "int", although we need an "uint"
-	// See [Employee.age]
-	// Container automatically converts values for more developer-friendly experience :)
-	jane.SetField("age", container.NewDependencyValue(53))
-
-	return c
-}
-```
-</details>
-
----
-
 ### Transactions
 
 As an exercise, let's build a small framework that wraps our endpoints and manages transactions automatically.
@@ -994,6 +899,101 @@ MyEndpoint:
 	TxID: 0x1400011e980
 	userRepo.Tx == imageRepo.Tx: true
 ```
+
+---
+
+### Circular dependencies
+
+Container automatically detects circular dependencies, and returns a proper error.<br/>
+Do not need to worry about `fatal error: stack overflow` :)
+
+<details>
+  <summary>See code</summary>
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/gontainer/gontainer-helpers/v3/container"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/field"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
+)
+
+type Spouse struct {
+	Name   string
+	Spouse *Spouse
+}
+
+func main() {
+	wife := service.New()
+	wife.
+		SetConstructor(func() *Spouse {
+			return &Spouse{}
+		}).
+		SetFields(field.Fields{
+			"Name":   dependency.Value("Hera"),
+			"Spouse": dependency.Service("husband"),
+		})
+
+	husband := service.New()
+	husband.
+		SetConstructor(func() *Spouse {
+			return &Spouse{}
+		}).
+		SetFields(field.Fields{
+			"Name":   dependency.Value("Zeus"),
+			"Spouse": dependency.Service("wife"),
+		})
+
+	c := container.New()
+	c.OverrideServices(service.Services{
+		"wife":    wife,
+		"husband": husband,
+	})
+
+	_, err := c.Get("wife")
+	fmt.Println(err)
+
+	// Output: get("wife"): circular dependencies: @husband -> @wife -> @husband
+}
+```
+</details>
+
+---
+
+### Type conversion
+
+In GO assignments between different types requires explicit type conversion.
+Container automatically converts values for more developer-friendly experience.
+It supports even a bit more sophisticated conversions of maps and slices, see [copier](../copier/README.md).
+
+<details>
+  <summary>See code</summary>
+
+```go
+type Employee struct {
+	name string
+	age  uint
+}
+
+func buildContainer() *container.Container {
+	c := container.New()
+
+	jane := service.New()
+	jane.SetValue(Employee{})
+	jane.SetField("name", container.NewDependencyValue("Jane Doe"))
+	// The following value "53" is of the type "int", although we need an "uint"
+	// See [Employee.age]
+	// Container automatically converts values for more developer-friendly experience :)
+	jane.SetField("age", container.NewDependencyValue(53))
+
+	return c
+}
+```
+</details>
 
 ---
 
