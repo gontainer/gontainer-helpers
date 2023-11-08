@@ -660,33 +660,25 @@ func MyHTTPEndpoint(c *container.Container) http.Handler {
 }
 ```
 
-...or even easier, use built-in `HTTPHandlerWithContainer`...
+...or even easier, use built-in `http.HandlerWithContainer`...
 
 ```go
-var (
-	h http.Handler
-	c *container.Container
-)
-
-// create your HTTP handler
-h = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// your code
-	// ...
-})
 // decorate your HTTP handler, this function automatically binds contexts with the container
-h = container.HTTPHandlerWithContainer(h, c)
+myHandler = http.HandlerWithContainer(c, myHandler)
 ```
 
 ...or override `server.Handler`...
 
 ```go
-var (
-	s *http.Server
-	c *container.Container
-)
-// your code
-// ...
-s.Handler = container.HTTPHandlerWithContainer(s.Handler, c)
+s.Handler = http.HandlerWithContainer(c, s.Handler)
+```
+
+...or use built-in `http.ServeMux`
+
+```go
+mux := http.NewServeMux(c)
+// use mux.Handle the same way as you use it in the standard library
+TODO
 ```
 </details>
 
