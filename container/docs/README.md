@@ -648,6 +648,9 @@ The first argument of decorators is DecoratorPayload always.
 They are useful when we have many object of the same type that we are aiming to wrap by another object.
 Decorator MUST be a provider.
 
+<details>
+  <summary>See code</summary>
+
 ```go
 func MiddlewareExecutionTime(p container.DecoratorPayload, l *log.Logger) http.Handler {
 	parent := p.Service.(http.Handler) // first we have to cast interface{} to the desired type
@@ -670,6 +673,7 @@ func buildContainer() *container.Container {
 	return c
 }
 ```
+</details>
 
 ---
 
