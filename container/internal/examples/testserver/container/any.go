@@ -18,30 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package http
+package container
 
-import (
-	"fmt"
-	"net/http"
-
-	"github.com/gontainer/gontainer-helpers/v3/container/internal/examples/testserver/repos"
-)
-
-// NewMyEndpoint depends on
-//   - [repos.UserRepo]
-//   - [repos.ImageRepo]
-//
-// These two objects depends on *sql.Tx.
-// Container automatically builds *sql.Tx and injects it properly in the given scope.
-func NewMyEndpoint(userRepo repos.UserRepo, imageRepo repos.ImageRepo) ErrorAwareHandler {
-	return ErrorAwareHandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-		s := "MyEndpoint:\n"
-		s += fmt.Sprintf("\tTxID: %p\n", userRepo.Tx)
-		s += fmt.Sprintf("\tuserRepo.Tx == imageRepo.Tx: %t\n", userRepo.Tx == imageRepo.Tx)
-
-		w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
-		_, _ = w.Write([]byte(s))
-
-		return nil
-	})
-}
+type any = interface{}

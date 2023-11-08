@@ -1,3 +1,23 @@
+// Copyright (c) 2023 Bartłomiej Krukowski
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is furnished
+// to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
 package container
 
 import (
@@ -10,7 +30,7 @@ import (
 	"github.com/gontainer/gontainer-helpers/v3/container"
 	containerHttp "github.com/gontainer/gontainer-helpers/v3/container/http"
 	pkgHttp "github.com/gontainer/gontainer-helpers/v3/container/internal/examples/testserver/http"
-	"github.com/gontainer/gontainer-helpers/v3/container/internal/examples/testserver/repositories"
+	"github.com/gontainer/gontainer-helpers/v3/container/internal/examples/testserver/repos"
 	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
 	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/field"
 	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
@@ -45,29 +65,30 @@ func describeTx() service.Service {
 }
 
 func describeUserRepository() service.Service {
-	// ur := repositories.ImageRepository{}
+	// ur := repositories.ImageRepo{}
 	// ur.Tx = c.Get("tx")
 	s := service.New()
 	s.
-		SetValue(repositories.UserRepository{}).
+		SetValue(repos.UserRepo{}).
 		SetField("Tx", dependency.Service("tx"))
 	return s
 }
 
 func describeImageRepository() service.Service {
-	// ir := repositories.ImageRepository{}
+	// ir := repositories.ImageRepo{}
 	// ir.Tx = c.Get("tx")
 	s := service.New()
 	s.
-		SetValue(repositories.ImageRepository{}).
+		SetValue(repos.ImageRepo{}).
 		SetField("Tx", dependency.Service("tx"))
 	return s
 }
 
 func describeMyEndpoint() service.Service {
+	// myEndpoint := pkgHttp.NewMyEndpoint(c.Get("userRepo"), c.Get("imageRepo"))
 	s := service.New()
 	s.
-		SetConstructor(pkgHttp.NewMyEndpoint, dependency.Service("rootContainer")).
+		SetConstructor(pkgHttp.NewMyEndpoint, dependency.Service("userRepo"), dependency.Service("imageRepo")).
 		Tag("error-aware-handler", 0)
 	return s
 }
@@ -107,39 +128,18 @@ func BuildContainer() *Container {
 	})
 
 	/*
-		Container embeds *container.Container and adds custom methods, e.g.:
-		`Tx(ctx context.Context) *sql.Tx`
-		Registering it as a service lets us inject it in our handlers, e.g.:
+		The following decorator is an equivalent of the following code:
 
-		type TxFactory interface {
-			Tx(context.Context) *sql.Tx
-		}
-
-		func NewMyHandler(f TxFactory) http.Handler {
-			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				tx := f.Tx(r.Context()) // fetch the transaction for the given context
-				// ... your code
-			})
-		}
-	*/
-	rootContainer := service.New()
-	rootContainer.SetConstructor(func() interface{} {
-		return c
-	})
-	c.OverrideService("rootContainer", rootContainer)
-
-	/*
-		The following decorator it's an equivalent of the following code:
 		var tmp pkgHttp.ErrorAwareHandler
 		tmp := ... // your code
-		h := pkgHttp.NewAutoCloseTxEndpoint(c, tmp)
+		h := pkgHttp.NewAutoCloseTxEndpoint(tx, tmp)
 	*/
 	c.AddDecorator(
 		"error-aware-handler",
-		func(p container.DecoratorPayload, c *Container) http.Handler {
-			return pkgHttp.NewAutoCloseTxEndpoint(c, p.Service.(pkgHttp.ErrorAwareHandler))
+		func(p container.DecoratorPayload, tx *sql.Tx) http.Handler {
+			return pkgHttp.NewAutoCloseTxEndpoint(tx, p.Service.(pkgHttp.ErrorAwareHandler))
 		},
-		dependency.Service("rootContainer"),
+		dependency.Service("tx"),
 	)
 
 	// make the server address configurable
@@ -154,11 +154,15 @@ func BuildContainer() *Container {
 	return c
 }
 
+// Container wraps [*container.Container].
+// This approach lets us create custom getters, see:
+//   - [*Container.Server]
+//   - [*Container.ServerAddr]
 type Container struct {
 	*container.Container
 }
 
-func (c *Container) mustGet(ctx context.Context, n string) interface{} {
+func (c *Container) mustGet(ctx context.Context, n string) any {
 	v, err := c.GetInContext(ctx, n)
 	if err != nil {
 		panic(err)
@@ -172,26 +176,6 @@ func (c *Container) mustGetParam(n string) interface{} {
 		panic(err)
 	}
 	return v
-}
-
-func (c *Container) DB(ctx context.Context) *sql.DB {
-	return c.mustGet(ctx, "db").(*sql.DB)
-}
-
-func (c *Container) Tx(ctx context.Context) *sql.Tx {
-	return c.mustGet(ctx, "tx").(*sql.Tx)
-}
-
-func (c *Container) UserRepo(ctx context.Context) repositories.UserRepository {
-	return c.mustGet(ctx, "userRepo").(repositories.UserRepository)
-}
-
-func (c *Container) ImageRepo(ctx context.Context) repositories.ImageRepository {
-	return c.mustGet(ctx, "imageRepo").(repositories.ImageRepository)
-}
-
-func (c *Container) Mux(ctx context.Context) *containerHttp.ServeMux {
-	return c.mustGet(ctx, "mux").(*containerHttp.ServeMux)
 }
 
 func (c *Container) Server(ctx context.Context) *http.Server {
