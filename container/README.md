@@ -817,6 +817,8 @@ import (
 	"fmt"
 
 	"github.com/gontainer/gontainer-helpers/v3/container"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/field"
 	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 )
 
@@ -827,22 +829,30 @@ type Spouse struct {
 
 func main() {
 	wife := service.New()
-	wife.SetConstructor(func() *Spouse {
-		return &Spouse{}
-	})
-	wife.SetField("Name", container.NewDependencyValue("Hera"))
-	wife.SetField("Spouse", container.NewDependencyService("husband"))
+	wife.
+		SetConstructor(func() *Spouse {
+			return &Spouse{}
+		}).
+		SetFields(field.Fields{
+			"Name":   dependency.Value("Hera"),
+			"Spouse": dependency.Service("husband"),
+		})
 
 	husband := service.New()
-	husband.SetConstructor(func() *Spouse {
-		return &Spouse{}
-	})
-	husband.SetField("Name", container.NewDependencyValue("Zeus"))
-	husband.SetField("Spouse", container.NewDependencyService("wife"))
+	husband.
+		SetConstructor(func() *Spouse {
+			return &Spouse{}
+		}).
+		SetFields(field.Fields{
+			"Name":   dependency.Value("Zeus"),
+			"Spouse": dependency.Service("wife"),
+		})
 
 	c := container.New()
-	c.OverrideService("wife", wife)
-	c.OverrideService("husband", husband)
+	c.OverrideServices(service.Services{
+		"wife":    wife,
+		"husband": husband,
+	})
 
 	_, err := c.Get("wife")
 	fmt.Println(err)
