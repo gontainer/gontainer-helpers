@@ -901,7 +901,7 @@ func buildContainer() *container.Container {
 
 As an exercise, let's build a small framework that wraps our endpoints and manages transactions automatically.
 
-**ErrorAwareHTTPHandler**
+**ErrorAwareHandler**
 
 A new type for our endpoints that informs us whether an error has occurred.
 
@@ -909,50 +909,45 @@ A new type for our endpoints that informs us whether an error has occurred.
   <summary>See code</summary>
 
 ```go
-type ErrorAwareHTTPHandler interface {
-	Handle(http.ResponseWriter, *http.Request) error
+type ErrorAwareHandler interface {
+	ServeHTTP(http.ResponseWriter, *http.Request) error
 }
 
-type ErrorAwareHTTPHandlerFunc func(http.ResponseWriter, *http.Request) error
+type ErrorAwareHandlerFunc func(http.ResponseWriter, *http.Request) error
 
-func (e ErrorAwareHTTPHandlerFunc) Handle(w http.ResponseWriter, r *http.Request) error {
+func (e ErrorAwareHandlerFunc) ServeHTTP(w http.ResponseWriter, r *http.Request) error {
 	return e(w, r)
 }
 ```
 </details>
 
-**WrapTransactionHandler**
+**NewAutoCloseTxEndpoint**
 
-A small wrapper over the newly created type that implements `http.Handler` interface,
+A small wrapper over the newly created type. It returns `http.Handler` interface,
 and automatically handles transactions.
 
 <details>
   <summary>See code</summary>
 
 ```go
-func WrapTransactionHandler(h ErrorAwareHTTPHandler, c *myContainer) http.Handler {
+func NewAutoCloseTxEndpoint(tx *sql.Tx, handler ErrorAwareHandler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// create a copy of the current request, and inject a container aware context
-		ctx := container.ContextWithContainer(r.Context(), c)
-		r = r.Clone(ctx)
+		ok := false
 
-		tx := c.Tx()
-
-		// do not forget about rolling back when your code panics
 		defer func() {
-			rec := recover()
-			if rec != nil {
+			if !ok {
+				// handler panics, so we have to rollback the transaction
 				_ = tx.Rollback()
-				panic(rec)
 			}
 		}()
 
-		err := h.Handle(w, r)
+		err := handler.ServeHTTP(w, r)
 		if err != nil {
 			_ = tx.Rollback()
 		} else {
 			_ = tx.Commit()
 		}
+		ok = true
 	})
 }
 ```
@@ -973,58 +968,31 @@ func myHTTPHandler(h http.ResponseWriter, r *http.Request) error {
 
 **The final container**
 
-Let's connect all the dots.
+You can find [here](internal/examples/testserver) a sample server written using the above approach.
 
-<details>
-  <summary>See code</summary>
+See how simply the endpoint can look like!
+There is no need to create a transaction and inject it into other structs manually.
+[code](internal/examples/testserver/http/endpoints.go)
 
-```go
-type myContainer struct {
-	*container.Container
-}
+Execute the following command to start the server:
 
-func (m *myContainer) Tx() *sql.Tx {
-	tx, err := m.Get("tx")
-	if err != nil {
-		panic(err)
-	}
-	return tx.(*sql.Tx)
-}
-
-func buildContainer() *myContainer {
-	c := &myContainer{container.New()}
-
-	// decorate all services tagged by "http-errors"
-	c.AddDecorator(
-		"http-errors",
-		func(p container.DecoratorPayload) http.Handler {
-			return WrapTransactionHandler(
-				p.Service.(ErrorAwareHTTPHandler),
-				c,
-			)
-		},
-	)
-
-	// define your error aware http handler
-	myHandler := service.New()
-	myHandler.SetValue(ErrorAwareHTTPHandlerFunc(myHTTPHandler))
-	myHandler.Tag("http-errors", 0)
-	c.OverrideService("myHandler", myHandler)
-
-	// I assume we may need more endpoints later,
-	// let's use the built-in multiplexer [http.ServeMux]
-	m := service.New()
-	m.SetConstructor(http.NewServeMux)
-	m.AppendCall(
-		"Handle",
-		container.NewDependencyValue("/my-error-aware-endpoint"),
-		container.NewDependencyService("myHandler"),
-	)
-	
-	return c
-}
 ```
-</details>
+make run-test-server SERVER_ADDR=:8080
+```
+
+The server prints in the http response the pointer to the transaction passed to our endpoint
+and to its decorator to validate that on different layers in the scope of a single request
+we received the same transaction.
+
+**Sample response**
+
+```
+Decorator AutoCloseTxEndpoint:
+	TxID: 0x1400011e980
+MyEndpoint:
+	TxID: 0x1400011e980
+	userRepo.Tx == imageRepo.Tx: true
+```
 
 ---
 
