@@ -1039,7 +1039,7 @@ func main() {
 
 In GO assignments between different types requires explicit type conversion.
 Container automatically converts values for more developer-friendly experience.
-It supports even a bit more sophisticated conversions of maps and slices, see [copier](../copier/README.md).
+It supports even a bit more sophisticated conversions of maps and slices, see [copier].
 
 <details>
   <summary>See code</summary>
@@ -1075,7 +1075,7 @@ To ease the debugging process all errors are as descriptive as possible.
 Sometimes you may have more than a single reason why something does not work,
 so whenever it is possible you get a multiline error.
 Multiline error is a collection of few independent errors.
-You can extract them using `grouperror.Collection`, see [grouperror](../grouperror).
+You can extract them using `grouperror.Collection`, see [grouperror].
 
 <details>
   <summary>See code</summary>
@@ -1118,7 +1118,7 @@ func main() {
 
 ### Examples
 
-See [examples](examples_test.go).
+See [examples](../examples_test.go).
 
 ---
 
@@ -1126,3 +1126,6 @@ See [examples](examples_test.go).
 
 The entire code can be built using a YAML-configuration files.
 See [gontainer/gontainer](https://github.com/gontainer/gontainer).
+
+[grouperror]: ../../grouperror
+[copier]: ../../copier
