@@ -333,6 +333,9 @@ dependency.Container()
 **Context**
 
 It refers to the current `context.Context`.
+If you use `GetInContext` func, the context is the one you passed to that func.
+If you use `Get` func, the container uses `context.Background`.
+
 ```go
 container.NewDependencyContext()
 
