@@ -754,135 +754,34 @@ Container can solve that problem, you need to instruct it only that the given de
   <summary>See code</summary>
 
 ```go
-// let's wrap the original container by a custom struct.
-// it will let us adding custom getters later
-type myContainer struct {
-	*container.Container
+func describeDB() service.Service {
+	s := service.New()
+	s.SetConstructor(func() (*sql.DB, error) {
+		// TODO
+	})
+	return s
 }
 
-// let's create the constructor for new transactions
-func NewTx(db *sql.DB) (*sql.Tx, error) {
-	return db.Begin()
+func describeTx() service.Service {
+	s := service.New()
+	// tx, err := db.BeginTx(ctx, nil)
+	s.
+		SetFactory("db", "BeginTx", dependency.Context(), dependency.Value(nil)).
+		SetScopeContextual() // IMPORTANT
+	// SetScopeContextual instructs the container to create a new instance of that service for each context
+	return s
 }
 
-func buildContainer() *container.Container {
+func BuildContainer() *container.Container {
 	c := container.New()
-
-	tx := service.New()
-	tx.SetConstructor(
-		NewTx,
-		container.NewDependencyService("db"),
-	)
-	/*
-		Here we instruct the container that the scope of tx is contextual.
-		By default, the scope of all parent dependencies will be contextual as well.
-	*/
-	tx.SetScopeContextual()
-	c.OverrideService("tx", tx)
-
-	/*
-		We will define NewHTTPHandler in the next step,
-		now let's register it only in the container
-	*/
-	myHandler := service.New()
-	myHandler.SetConstructor(
-		NewHTTPHandler,
-		container.NewDependencyContainer(),
-	)
-	myHandler.Tag("http-handler", 0)
-	c.OverrideService("myHandler", myHandler)
-
-	// TODO define other dependencies
-
-	/*
-		The following code will automatically wrap all http handlers registered to the container
-		by func `container.HTTPHandlerWithContainer`.
-
-		It is an equivalent of the following raw code:
-
-			var handler http.Handler
-			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				// your code here
-			})
-			handler = decorateHTTPHandler(handler, c)
-	*/
-	c.AddDecorator(
-		"http-handler",
-		decorateHTTPHandler,
-		container.NewDependencyContainer(),
-	)
+	c.OverrideServices(map[string]service.Service{
+		"db": describeDB(),
+		"tx": describeTx(),
+	})
+	
+	// TODO define other services
 
 	return c
-}
-
-func decorateHTTPHandler(p container.DecoratorPayload, c *container.Container) http.Handler {
-	return container.HTTPHandlerWithContainer(p.Service.(http.Handler), c)
-}
-```
-</details>
-
-Let's build our endpoint now.
-
-<details>
-  <summary>See code</summary>
-
-```go
-type UserRepository struct {
-	tx *sql.Tx
-}
-
-type ImageRepository struct {
-	tx *sql.Tx
-}
-
-// let's define custom getter, they are easier to use
-func (c *myContainer) Tx(ctx context.Context) *sql.Tx {
-	tx, err := c.GetInContext(ctx, "userRepository")
-	// we expect all services to be defined correctly,
-	// so we can panic here in case of an error
-	if err != nil {
-		panic(err)
-	}
-	return tx.(*sql.Tx)
-}
-
-func (c *myContainer) UserRepository(ctx context.Context) *UserRepository {
-	u, err := c.GetInContext(ctx, "userRepository")
-	if err != nil {
-		panic(err)
-	}
-	return u.(*UserRepository)
-}
-
-func (c *myContainer) ImageRepository(ctx context.Context) *ImageRepository {
-	i, err := c.GetInContext(ctx, "imageRepository")
-	if err != nil {
-		panic(err)
-	}
-	return i.(*ImageRepository)
-}
-
-func NewHTTPHandler(c *myContainer) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// `tx` refers to the same instance that has been injected to `userRepository` and `imageRepository`
-		var (
-			tx              = c.Tx(r.Context())
-			userRepository  = c.UserRepository(r.Context())
-			imageRepository = c.ImageRepository(r.Context())
-		)
-
-		var err error
-		defer func() {
-			// do not forget about committing or rolling back the transaction
-			if err == nil {
-				tx.Commit()
-			} else {
-				tx.Rollback()
-			}
-		}()
-
-		// todo add your logic
-	})
 }
 ```
 </details>
