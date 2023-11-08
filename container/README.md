@@ -14,7 +14,8 @@ go get -u github.com/gontainer/gontainer-helpers/v3/container@latest
    2. [Scopes](#scopes)
    3. [Dependencies](#dependencies)
    4. [Services](#services)
-   5. [Parameters](#parameters)
+   5. [Decorators](#decorators)
+   6. [Parameters](#parameters)
 4. [Usage](#usage)
    1. [HotSwap](#hotswap)
    2. [Contextual scope](#contextual-scope)
@@ -636,6 +637,39 @@ s := service.New()
 s.SetScopeContextual()
 ```
 </details>
+
+---
+
+### Decorators
+
+Decorators decorate services with the given tag.
+Decorators may return a variable of another type, so the order of adding decorators matters.
+The first argument of decorators is DecoratorPayload always.
+They are useful when we have many object of the same type that we are aiming to wrap by another object.
+Decorator MUST be a provider.
+
+```go
+func MiddlewareExecutionTime(p container.DecoratorPayload, l *log.Logger) http.Handler {
+	parent := p.Service.(http.Handler) // first we have to cast interface{} to the desired type
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		s := time.Now()
+		parent.ServeHTTP(w, r)
+		l.Printf("Execution time %s %s", p.ServiceID, time.Since(s).String())
+	})
+}
+
+func buildContainer() *container.Container {
+	c := container.New()
+	// ... register your services and params
+
+	l := service.New()
+	l.SetConstructor(log.Default)
+	c.OverrideService("logger", l)
+
+	c.AddDecorator("http-handler", MiddlewareExecutionTime, dependency.Service("logger"))
+	return c
+}
+```
 
 ---
 
