@@ -356,38 +356,6 @@ Use either `SetConstructor`, `SetValue`, or `SetFactory`. Constructor MUST be a 
   <summary>See code</summary>
 
 ```go
-// SetFactory
-
-func describeDB() service.Service {
-	s := service.New()
-	s.SetConstructor(func() (*sql.DB, error) {
-		// TODO
-	})
-	return s
-}
-
-func describeTx() service.Service {
-	s := service.New()
-	// tx, err := db.BeginTx(ctx, nil)
-	s.
-		SetFactory("db", "BeginTx", dependency.Context(), dependency.Value(nil)).
-		SetScopeContextual() // IMPORTANT
-	// SetScopeContextual instructs the container to create a new instance of that service for each context
-	return s
-}
-
-func BuildContainer() *container.Container {
-	c := container.New()
-	c.OverrideServices(service.Services{
-		"db": describeDB(),
-		"tx": describeTx(),
-	})
-
-	return c
-}
-```
-
-```go
 // SetConstructor and SetValue
 
 package main
@@ -429,6 +397,38 @@ func main() {
 	fmt.Println(tony, peter)
 
 	// Output: {Tony} {Peter}
+}
+```
+
+```go
+// SetFactory
+
+func describeDB() service.Service {
+	s := service.New()
+	s.SetConstructor(func() (*sql.DB, error) {
+		// TODO
+	})
+	return s
+}
+
+func describeTx() service.Service {
+	s := service.New()
+	// tx, err := db.BeginTx(ctx, nil)
+	s.
+		SetFactory("db", "BeginTx", dependency.Context(), dependency.Value(nil)).
+		SetScopeContextual() // IMPORTANT
+	// SetScopeContextual instructs the container to create a new instance of that service for each context
+	return s
+}
+
+func BuildContainer() *container.Container {
+	c := container.New()
+	c.OverrideServices(service.Services{
+		"db": describeDB(),
+		"tx": describeTx(),
+	})
+
+	return c
 }
 ```
 </details>
