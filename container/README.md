@@ -673,12 +673,13 @@ myHandler = http.HandlerWithContainer(c, myHandler)
 s.Handler = http.HandlerWithContainer(c, s.Handler)
 ```
 
-...or use built-in `http.ServeMux`
+...or use built-in [`http.ServeMux`](http/http.go)
 
 ```go
 mux := http.NewServeMux(c)
 // use mux.Handle the same way as you use it in the standard library
-TODO
+// or/and
+// mux.HandleDynamic(pattern, serviceID)
 ```
 </details>
 
