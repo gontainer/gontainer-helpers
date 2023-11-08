@@ -121,7 +121,7 @@ func describeMux() service.Service {
 
 func BuildContainer() *Container {
 	c := &Container{container.New()}
-	c.OverrideServices(map[string]service.Service{
+	c.OverrideServices(service.Services{
 		"db": describeDB(),
 		"tx": describeTx(),
 

@@ -787,7 +787,7 @@ func describeImageRepo() service.Service {
 
 func BuildContainer() *container.Container {
 	c := container.New()
-	c.OverrideServices(map[string]service.Service{
+	c.OverrideServices(service.Services{
 		"db":        describeDB(),
 		"tx":        describeTx(),
 		"imageRepo": describeImageRepo(),
