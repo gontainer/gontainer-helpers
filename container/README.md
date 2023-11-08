@@ -350,10 +350,40 @@ dependency.Context()
 
 **Creating a new service**
 
-Use either `SetConstructor` or `SetValue`. Constructor MUST be a provider (see [definitions](#definitions)).
+Use either `SetConstructor`, `SetValue`, or `SetFactory`. Constructor MUST be a provider (see [definitions](#definitions)).
 
 <details>
   <summary>See code</summary>
+
+```go
+func describeDB() service.Service {
+	s := service.New()
+	s.SetConstructor(func() (*sql.DB, error) {
+		// TODO
+	})
+	return s
+}
+
+func describeTx() service.Service {
+	s := service.New()
+	// tx, err := db.BeginTx(ctx, nil)
+	s.
+		SetFactory("db", "BeginTx", dependency.Context(), dependency.Value(nil)).
+		SetScopeContextual() // IMPORTANT
+	// SetScopeContextual instructs the container to create a new instance of that service for each context
+	return s
+}
+
+func BuildContainer() *container.Container {
+	c := container.New()
+	c.OverrideServices(service.Services{
+		"db": describeDB(),
+		"tx": describeTx(),
+	})
+
+	return c
+}
+```
 
 ```go
 package main
