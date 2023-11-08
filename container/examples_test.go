@@ -369,15 +369,20 @@ func ExampleContainer_CircularDeps() {
 }
 
 func ExampleContainer_Get_setterInjection() {
-	riemannSvc := service.New()
-	riemannSvc.
+	/*
+		p := Person{}
+		p.SetName("Bernhard Riemann")
+	*/
+
+	svc := service.New()
+	svc.
 		SetConstructor(func() Person { // we don't need to use a pointer here, even tho `SetName` requires a pointer receiver :)
 			return Person{}
 		}).
 		AppendCall("SetName", dependency.Value("Bernhard Riemann"))
 
 	c := container.New()
-	c.OverrideService("riemann", riemannSvc)
+	c.OverrideService("riemann", svc)
 
 	riemann, _ := c.Get("riemann")
 	fmt.Println(riemann)
@@ -385,15 +390,20 @@ func ExampleContainer_Get_setterInjection() {
 }
 
 func ExampleContainer_Get_witherInjection() {
-	riemannSvc := service.New()
-	riemannSvc.
+	/*
+		p := Person{}
+		p = p.WithName("Bernhard Riemann")
+	*/
+
+	svc := service.New()
+	svc.
 		SetConstructor(func() Person {
 			return Person{}
 		}).
 		AppendWither("WithName", dependency.Value("Bernhard Riemann"))
 
 	c := container.New()
-	c.OverrideService("riemann", riemannSvc)
+	c.OverrideService("riemann", svc)
 
 	riemann, _ := c.Get("riemann")
 	fmt.Println(riemann)
@@ -401,15 +411,20 @@ func ExampleContainer_Get_witherInjection() {
 }
 
 func ExampleContainer_Get_fieldInjection() {
-	riemannSvc := service.New()
-	riemannSvc.
+	/*
+		p := Person{}
+		p.Name = "Bernhard Riemann"
+	*/
+
+	svc := service.New()
+	svc.
 		SetConstructor(func() Person {
 			return Person{}
 		}).
 		SetField("Name", dependency.Value("Bernhard Riemann"))
 
 	c := container.New()
-	c.OverrideService("riemann", riemannSvc)
+	c.OverrideService("riemann", svc)
 
 	riemann, _ := c.Get("riemann")
 	fmt.Println(riemann)
@@ -441,19 +456,25 @@ func PoliteGreeterDecorator(payload container.DecoratorPayload) politeGreeter {
 }
 
 func ExampleContainer_AddDecorator() {
-	g := service.New()
-	g.
+	/*
+		var g any
+		g = greeter{}
+		g = politeGreeter{parent: g}
+	*/
+
+	svc := service.New()
+	svc.
 		SetValue(greeter{}).
 		Tag("greeter-tag", 0)
 
 	c := container.New()
-	c.OverrideService("greeter", g)
+	c.OverrideService("greeter", svc)
 	c.AddDecorator("greeter-tag", PoliteGreeterDecorator)
 
-	var greeterObj Greeter
 	tmp, _ := c.Get("greeter")
-	_ = copier.Copy(tmp, &greeterObj, true)
-	fmt.Println(greeterObj.Greet())
+	var g Greeter                  // or equivalently:
+	_ = copier.Copy(tmp, &g, true) // g := tmp.(Greeter)
+	fmt.Println(g.Greet())
 	// Output: Hello! How are you?
 }
 

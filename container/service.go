@@ -117,8 +117,8 @@ SetConstructor sets a constructor of the service. It excludes [*Service.SetValue
 		func NewDB(username, password string) (*sql.DB, error) {
 			return sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/test", username, password))
 		},
-		container.NewDependencyValue("root"),
-		container.NewDependencyValue("root"),
+		dependency.Value("root"),
+		dependency.Value("root"),
 	)
 */
 func (s *Service) SetConstructor(fn any, deps ...Dependency) *Service {
@@ -134,7 +134,7 @@ SetFactory sets a factory that is supposed to return the given service.
 
 	// "db" refers to *sql.DB
 	s := container.NewService()
-	s.SetFactory("db", "BeginTx", container.NewDependencyContext(), container.NewDependencyValue(nil))
+	s.SetFactory("db", "BeginTx", dependency.Context(), dependency.Value(nil))
 	s.SetScopeContextual()
 */
 func (s *Service) SetFactory(serviceID string, method string, deps ...Dependency) *Service {
