@@ -21,7 +21,6 @@
 package container
 
 import (
-	"context"
 	"database/sql"
 	"net/http"
 	"os"
@@ -168,8 +167,8 @@ type Container struct {
 	*container.Container
 }
 
-func (c *Container) mustGet(ctx context.Context, n string) any {
-	v, err := c.GetInContext(ctx, n)
+func (c *Container) mustGet(n string) any {
+	v, err := c.Get(n)
 	if err != nil {
 		panic(err)
 	}
@@ -184,8 +183,8 @@ func (c *Container) mustGetParam(n string) interface{} {
 	return v
 }
 
-func (c *Container) Server(ctx context.Context) *http.Server {
-	return c.mustGet(ctx, "server").(*http.Server)
+func (c *Container) Server() *http.Server {
+	return c.mustGet("server").(*http.Server)
 }
 
 func (c *Container) ServerAddr() string {

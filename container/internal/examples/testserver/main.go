@@ -29,18 +29,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/gontainer/gontainer-helpers/v3/container"
 	pkgContainer "github.com/gontainer/gontainer-helpers/v3/container/internal/examples/testserver/container"
 )
 
 func main() {
 	c := pkgContainer.BuildContainer()
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	ctx = container.ContextWithContainer(ctx, c)
-
-	server := c.Server(ctx)
+	server := c.Server()
 	log.Println("Server addr", c.ServerAddr())
 
 	sigChan := make(chan os.Signal, 1)
