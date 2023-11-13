@@ -31,16 +31,31 @@ import (
 
 func TestSortedStringKeys(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
-		input := map[string]struct{}{
-			"orange": {},
-			"apple":  {},
-			"banana": {},
-		}
-		expected := []string{"apple", "banana", "orange"}
+		t.Run("#1", func(t *testing.T) {
+			input := map[string]struct{}{
+				"orange": {},
+				"apple":  {},
+				"banana": {},
+			}
+			expected := []string{"apple", "banana", "orange"}
 
-		for i := 0; i < 100; i++ {
-			require.Equal(t, expected, maps.SortedStringKeys(input))
-		}
+			for i := 0; i < 100; i++ {
+				require.Equal(t, expected, maps.SortedStringKeys(input))
+			}
+		})
+		t.Run("#2", func(t *testing.T) {
+			type myMap map[string]struct{}
+			input := myMap{
+				"orange": {},
+				"apple":  {},
+				"banana": {},
+			}
+			expected := []string{"apple", "banana", "orange"}
+
+			for i := 0; i < 100; i++ {
+				require.Equal(t, expected, maps.SortedStringKeys(input))
+			}
+		})
 	})
 	t.Run("Nil", func(t *testing.T) {
 		require.Nil(t, maps.SortedStringKeys((map[string]bool)(nil)))
