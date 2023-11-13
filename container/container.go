@@ -85,12 +85,12 @@ New creates a concurrent-safe DI Container.
 				Name: n,
 			}
 		},
-		container.NewDependencyParam("name"),
+		dependency.Param("name"),
 	)
 
 	c := container.New()
 	c.OverrideService("jane", s)
-	c.OverrideParam("name", container.NewDependencyValue("Jane"))
+	c.OverrideParam("name", dependency.Value("Jane"))
 
 	jane, _ := c.Get("jane")
 	fmt.Printf("%+v\n", jane)
