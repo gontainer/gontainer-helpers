@@ -42,7 +42,7 @@ func (c *Container) OverrideParams(params map[string]Dependency) {
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()
 
-	for _, id := range maps.StringKeys(params) {
+	for _, id := range maps.SortedStringKeys(params) {
 		overrideParam(c, id, params[id])
 	}
 }
@@ -62,7 +62,7 @@ func (c *Container) OverrideServices(services map[string]Service) {
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()
 
-	for _, id := range maps.StringKeys(services) {
+	for _, id := range maps.SortedStringKeys(services) {
 		overrideService(c, id, services[id])
 	}
 }

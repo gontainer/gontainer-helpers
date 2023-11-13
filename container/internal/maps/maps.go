@@ -25,8 +25,8 @@ import (
 	"sort"
 )
 
-// StringKeys returns keys of the given maps in increasing order.
-func StringKeys(m any) []string {
+// SortedStringKeys returns keys of the given maps in increasing order.
+func SortedStringKeys(m any) []string {
 	v := reflect.ValueOf(m)
 	r := make([]string, v.Len())
 	for i, k := range v.MapKeys() {

@@ -237,7 +237,7 @@ See [*Service.SetField].
 */
 func (s *Service) SetFields(fields map[string]Dependency) *Service {
 	// sort names to have the same order of errors always
-	for _, n := range maps.StringKeys(fields) {
+	for _, n := range maps.SortedStringKeys(fields) {
 		s.SetField(n, fields[n])
 	}
 	return s

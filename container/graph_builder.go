@@ -107,7 +107,7 @@ func (g *graphBuilder) warmUp() {
 	// iterate over `g.Container.services` in the same order always,
 	// otherwise we would add elements to the tree in different order
 	// it may lead to having inconsistent results in the method `CircularDeps()`
-	for _, sID := range maps.StringKeys(g.container.services) {
+	for _, sID := range maps.SortedStringKeys(g.container.services) {
 		s := g.container.services[sID]
 
 		var tags []string
@@ -140,7 +140,7 @@ func (g *graphBuilder) warmUp() {
 		graph.DecoratorDependsOnTags(dID, dependenciesTags)
 	}
 
-	for _, pID := range maps.StringKeys(g.container.params) {
+	for _, pID := range maps.SortedStringKeys(g.container.params) {
 		dep := g.container.params[pID]
 		if dep.type_ == dependencyParam {
 			graph.ParamDependsOnParam(pID, dep.paramID)

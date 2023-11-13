@@ -58,7 +58,7 @@ func (m *mutableContainer) OverrideServices(services map[string]Service) {
 	m.locker.Lock()
 	defer m.locker.Unlock()
 
-	for _, id := range maps.StringKeys(services) {
+	for _, id := range maps.SortedStringKeys(services) {
 		overrideService(m.parent, id, services[id])
 	}
 }
@@ -74,7 +74,7 @@ func (m *mutableContainer) OverrideParams(params map[string]Dependency) {
 	m.locker.Lock()
 	defer m.locker.Unlock()
 
-	for _, id := range maps.StringKeys(params) {
+	for _, id := range maps.SortedStringKeys(params) {
 		overrideParam(m.parent, id, params[id])
 	}
 }

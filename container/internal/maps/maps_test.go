@@ -27,7 +27,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestStringKeys(t *testing.T) {
+func TestSortedStringKeys(t *testing.T) {
 	input := map[string]struct{}{
 		"orange": {},
 		"apple":  {},
@@ -36,6 +36,6 @@ func TestStringKeys(t *testing.T) {
 	expected := []string{"apple", "banana", "orange"}
 
 	for i := 0; i < 100; i++ {
-		require.Equal(t, expected, maps.StringKeys(input))
+		require.Equal(t, expected, maps.SortedStringKeys(input))
 	}
 }
