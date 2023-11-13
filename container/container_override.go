@@ -38,12 +38,12 @@ func (c *Container) OverrideParam(paramID string, d Dependency) {
 	overrideParam(c, paramID, d)
 }
 
-func (c *Container) OverrideParams(deps map[string]Dependency) {
+func (c *Container) OverrideParams(params map[string]Dependency) {
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()
 
-	for _, id := range maps.StringKeys(deps) {
-		overrideParam(c, id, deps[id])
+	for _, id := range maps.StringKeys(params) {
+		overrideParam(c, id, params[id])
 	}
 }
 

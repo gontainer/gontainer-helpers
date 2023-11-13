@@ -22,12 +22,16 @@ package container
 
 import (
 	"sync"
+
+	"github.com/gontainer/gontainer-helpers/v3/container/internal/maps"
 )
 
 // MutableContainer represents the interface that is required by [*Container.HotSwap].
 type MutableContainer interface {
 	OverrideService(serviceID string, s Service)
+	OverrideServices(services map[string]Service)
 	OverrideParam(paramID string, d Dependency)
+	OverrideParams(params map[string]Dependency)
 	InvalidateServicesCache(servicesIDs ...string)
 	InvalidateAllServicesCache()
 	InvalidateParamsCache(paramsIDs ...string)
@@ -50,11 +54,29 @@ func (m *mutableContainer) OverrideService(serviceID string, s Service) {
 	overrideService(m.parent, serviceID, s)
 }
 
+func (m *mutableContainer) OverrideServices(services map[string]Service) {
+	m.locker.Lock()
+	defer m.locker.Unlock()
+
+	for _, id := range maps.StringKeys(services) {
+		overrideService(m.parent, id, services[id])
+	}
+}
+
 func (m *mutableContainer) OverrideParam(paramID string, d Dependency) {
 	m.locker.Lock()
 	defer m.locker.Unlock()
 
 	overrideParam(m.parent, paramID, d)
+}
+
+func (m *mutableContainer) OverrideParams(params map[string]Dependency) {
+	m.locker.Lock()
+	defer m.locker.Unlock()
+
+	for _, id := range maps.StringKeys(params) {
+		overrideParam(m.parent, id, params[id])
+	}
 }
 
 func (m *mutableContainer) InvalidateServicesCache(servicesIDs ...string) {
@@ -92,7 +114,7 @@ HotSwap lets safely modify the given [*Container] in a concurrent environment.
 It waits till all contexts are done, then locks the container till the passed function is executed.
 
 	c.HotSwap(func (c container.MutableContainer) {
-		c.OverrideParam("db.password", container.NewDependencyValue("new-password"))
+		c.OverrideParam("db.password", dependency.Value("new-password"))
 	})
 */
 func (c *Container) HotSwap(fn func(MutableContainer)) {
