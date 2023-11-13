@@ -26,6 +26,8 @@ import (
 	"testing"
 
 	"github.com/gontainer/gontainer-helpers/v3/container"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
+	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
 	"github.com/stretchr/testify/require"
 )
 
@@ -37,18 +39,25 @@ func (e *Employee) SetName(n string) {
 	e.Name = n
 }
 
+func (e Employee) WithName(n string) Employee {
+	e.Name = n
+	return e
+}
+
 func BenchmarkContainer_scopeDefault(b *testing.B) {
 	c := container.New()
-	e := container.NewService()
-	e.SetConstructor(func() interface{} {
-		return Employee{}
-	})
-	e.AppendCall("SetName", container.NewDependencyParam("name"))
-	e.SetScopeDefault()
+	e := service.New()
+	e.
+		SetConstructor(func() interface{} {
+			return Employee{}
+		}).
+		AppendCall("SetName", dependency.Param("name")).
+		SetScopeDefault()
 	c.OverrideService("employee", e)
-	c.OverrideParam("name", container.NewDependencyValue("Mary"))
+	c.OverrideParam("name", dependency.Value("Mary"))
 	emp, _ := c.Get("employee") // warm up
 	require.Equal(b, Employee{Name: "Mary"}, emp)
+	b.ReportAllocs()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
@@ -58,16 +67,18 @@ func BenchmarkContainer_scopeDefault(b *testing.B) {
 
 func BenchmarkContainer_scopeShared(b *testing.B) {
 	c := container.New()
-	e := container.NewService()
-	e.SetConstructor(func() interface{} {
-		return Employee{}
-	})
-	e.AppendCall("SetName", container.NewDependencyParam("name"))
-	e.SetScopeShared()
+	e := service.New()
+	e.
+		SetConstructor(func() interface{} {
+			return Employee{}
+		}).
+		AppendCall("SetName", dependency.Param("name")).
+		SetScopeShared()
 	c.OverrideService("employee", e)
-	c.OverrideParam("name", container.NewDependencyValue("Mary"))
+	c.OverrideParam("name", dependency.Value("Mary"))
 	emp, _ := c.Get("employee") // warm up
 	require.Equal(b, Employee{Name: "Mary"}, emp)
+	b.ReportAllocs()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
@@ -75,18 +86,20 @@ func BenchmarkContainer_scopeShared(b *testing.B) {
 	}
 }
 
-func BenchmarkContainer_scopeContextual(b *testing.B) {
+func BenchmarkContainer_scopeContextual_AppendCall(b *testing.B) {
 	c := container.New()
-	e := container.NewService()
-	e.SetConstructor(func() interface{} {
-		return Employee{}
-	})
-	e.AppendCall("SetName", container.NewDependencyParam("name"))
-	e.SetScopeContextual()
+	e := service.New()
+	e.
+		SetConstructor(func() interface{} {
+			return Employee{}
+		}).
+		AppendCall("SetName", dependency.Param("name")).
+		SetScopeContextual()
 	c.OverrideService("employee", e)
-	c.OverrideParam("name", container.NewDependencyValue("Mary"))
+	c.OverrideParam("name", dependency.Value("Mary"))
 	emp, _ := c.Get("employee") // warm up
 	require.Equal(b, Employee{Name: "Mary"}, emp)
+	b.ReportAllocs()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
@@ -94,18 +107,41 @@ func BenchmarkContainer_scopeContextual(b *testing.B) {
 	}
 }
 
-func BenchmarkContainer_scopeContextualSetField(b *testing.B) {
+func BenchmarkContainer_scopeContextual_SetField(b *testing.B) {
 	c := container.New()
-	e := container.NewService()
-	e.SetConstructor(func() interface{} {
-		return Employee{}
-	})
-	e.SetField("Name", container.NewDependencyParam("name"))
-	e.SetScopeContextual()
+	e := service.New()
+	e.
+		SetConstructor(func() interface{} {
+			return Employee{}
+		}).
+		SetField("Name", dependency.Param("name")).
+		SetScopeContextual()
 	c.OverrideService("employee", e)
-	c.OverrideParam("name", container.NewDependencyValue("Mary"))
+	c.OverrideParam("name", dependency.Value("Mary"))
 	emp, _ := c.Get("employee") // warm up
 	require.Equal(b, Employee{Name: "Mary"}, emp)
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		_, _ = c.Get("employee")
+	}
+}
+
+func BenchmarkContainer_scopeContextual_AppendWither(b *testing.B) {
+	c := container.New()
+	e := service.New()
+	e.
+		SetConstructor(func() interface{} {
+			return Employee{}
+		}).
+		AppendWither("WithName", dependency.Param("name")).
+		SetScopeContextual()
+	c.OverrideService("employee", e)
+	c.OverrideParam("name", dependency.Value("Mary"))
+	emp, _ := c.Get("employee") // warm up
+	require.Equal(b, Employee{Name: "Mary"}, emp)
+	b.ReportAllocs()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
@@ -115,19 +151,21 @@ func BenchmarkContainer_scopeContextualSetField(b *testing.B) {
 
 func BenchmarkContainer_scopeContextual_in_same_context(b *testing.B) {
 	c := container.New()
-	e := container.NewService()
-	e.SetConstructor(func() interface{} {
-		return Employee{}
-	})
-	e.AppendCall("SetName", container.NewDependencyParam("name"))
-	e.SetScopeContextual()
+	e := service.New()
+	e.
+		SetConstructor(func() interface{} {
+			return Employee{}
+		}).
+		AppendCall("SetName", dependency.Param("name")).
+		SetScopeContextual()
 	c.OverrideService("employee", e)
-	c.OverrideParam("name", container.NewDependencyValue("Mary"))
+	c.OverrideParam("name", dependency.Value("Mary"))
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	ctx = container.ContextWithContainer(ctx, c)
 	emp, _ := c.GetInContext(ctx, "employee") // warm up
 	require.Equal(b, Employee{Name: "Mary"}, emp)
+	b.ReportAllocs()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
@@ -135,18 +173,19 @@ func BenchmarkContainer_scopeContextual_in_same_context(b *testing.B) {
 	}
 }
 
-func BenchmarkContainer_scopeNonShared(b *testing.B) {
+func BenchmarkContainer_scopeNonShared_AppendCall(b *testing.B) {
 	c := container.New()
-	e := container.NewService()
+	e := service.New()
 	e.SetConstructor(func() interface{} {
 		return Employee{}
-	})
-	e.AppendCall("SetName", container.NewDependencyParam("name"))
-	e.SetScopeNonShared()
+	}).
+		AppendCall("SetName", dependency.Param("name")).
+		SetScopeNonShared()
 	c.OverrideService("employee", e)
-	c.OverrideParam("name", container.NewDependencyValue("Mary"))
+	c.OverrideParam("name", dependency.Value("Mary"))
 	emp, _ := c.Get("employee") // warm up
 	require.Equal(b, Employee{Name: "Mary"}, emp)
+	b.ReportAllocs()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
@@ -175,6 +214,7 @@ func BenchmarkContainer_map(b *testing.B) {
 	})
 	emp, _ := m.Get("employee")
 	require.Equal(b, Employee{Name: "Mary"}, emp)
+	b.ReportAllocs()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
