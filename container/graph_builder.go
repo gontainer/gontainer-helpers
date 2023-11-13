@@ -22,9 +22,9 @@ package container
 
 import (
 	"fmt"
-	"sort"
 
 	containerGraph "github.com/gontainer/gontainer-helpers/v3/container/internal/graph"
+	"github.com/gontainer/gontainer-helpers/v3/container/internal/maps"
 )
 
 // graphBuilder is a helper for [*Container], it analyzes dependencies to resolve the scope in runtime,
@@ -107,13 +107,7 @@ func (g *graphBuilder) warmUp() {
 	// iterate over `g.Container.services` in the same order always,
 	// otherwise we would add elements to the tree in different order
 	// it may lead to having inconsistent results in the method `CircularDeps()`
-	sIDs := make([]string, 0, len(g.container.services))
-	for sID := range g.container.services {
-		sIDs = append(sIDs, sID)
-	}
-	sort.Strings(sIDs)
-
-	for _, sID := range sIDs {
+	for _, sID := range maps.StringKeys(g.container.services) {
 		s := g.container.services[sID]
 
 		var tags []string
@@ -146,13 +140,7 @@ func (g *graphBuilder) warmUp() {
 		graph.DecoratorDependsOnTags(dID, dependenciesTags)
 	}
 
-	pIDs := make([]string, 0, len(g.container.params))
-	for pID := range g.container.params {
-		pIDs = append(pIDs, pID)
-	}
-	sort.Strings(pIDs)
-
-	for _, pID := range pIDs {
+	for _, pID := range maps.StringKeys(g.container.params) {
 		dep := g.container.params[pID]
 		if dep.type_ == dependencyParam {
 			graph.ParamDependsOnParam(pID, dep.paramID)

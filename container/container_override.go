@@ -22,8 +22,9 @@ package container
 
 import (
 	"fmt"
-	"sort"
 	"sync"
+
+	"github.com/gontainer/gontainer-helpers/v3/container/internal/maps"
 )
 
 // OverrideParam adds a parameter to the [*Container].
@@ -41,13 +42,7 @@ func (c *Container) OverrideParams(deps map[string]Dependency) {
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()
 
-	ids := make([]string, 0, len(deps))
-	for id := range deps {
-		ids = append(ids, id)
-	}
-	sort.Strings(ids)
-
-	for _, id := range ids {
+	for _, id := range maps.StringKeys(deps) {
 		overrideParam(c, id, deps[id])
 	}
 }
@@ -67,13 +62,7 @@ func (c *Container) OverrideServices(services map[string]Service) {
 	c.globalLocker.Lock()
 	defer c.globalLocker.Unlock()
 
-	ids := make([]string, 0, len(services))
-	for id := range services {
-		ids = append(ids, id)
-	}
-	sort.Strings(ids)
-
-	for _, id := range ids {
+	for _, id := range maps.StringKeys(services) {
 		overrideService(c, id, services[id])
 	}
 }

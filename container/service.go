@@ -23,7 +23,8 @@ package container
 import (
 	"fmt"
 	"reflect"
-	"sort"
+
+	"github.com/gontainer/gontainer-helpers/v3/container/internal/maps"
 )
 
 type serviceCall struct {
@@ -236,13 +237,7 @@ See [*Service.SetField].
 */
 func (s *Service) SetFields(fields map[string]Dependency) *Service {
 	// sort names to have the same order of errors always
-	names := make([]string, 0, len(fields))
-	for n := range fields {
-		names = append(names, n)
-	}
-	sort.Strings(names)
-
-	for _, n := range names {
+	for _, n := range maps.StringKeys(fields) {
 		s.SetField(n, fields[n])
 	}
 	return s
