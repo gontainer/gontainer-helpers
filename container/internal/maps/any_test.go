@@ -18,27 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package maps
+package maps_test
 
-import (
-	"fmt"
-	"reflect"
-	"sort"
-)
-
-// SortedStringKeys returns keys of the given maps in increasing order.
-func SortedStringKeys(m any) []string {
-	v := reflect.ValueOf(m)
-	if v.Kind() != reflect.Map || v.Type().Key().Kind() != reflect.String || v.Type().Key().PkgPath() != "" {
-		panic(fmt.Sprintf("SortedStringKeys: expected map[string]T, %T given", m))
-	}
-	if v.Len() == 0 {
-		return nil
-	}
-	r := make([]string, v.Len())
-	for i, k := range v.MapKeys() {
-		r[i] = k.Interface().(string)
-	}
-	sort.Strings(r)
-	return r
-}
+type any = interface{}

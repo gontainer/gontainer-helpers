@@ -21,21 +21,56 @@
 package maps_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/gontainer/gontainer-helpers/v3/container/internal/maps"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestSortedStringKeys(t *testing.T) {
-	input := map[string]struct{}{
-		"orange": {},
-		"apple":  {},
-		"banana": {},
-	}
-	expected := []string{"apple", "banana", "orange"}
+	t.Run("OK", func(t *testing.T) {
+		input := map[string]struct{}{
+			"orange": {},
+			"apple":  {},
+			"banana": {},
+		}
+		expected := []string{"apple", "banana", "orange"}
 
-	for i := 0; i < 100; i++ {
-		require.Equal(t, expected, maps.SortedStringKeys(input))
-	}
+		for i := 0; i < 100; i++ {
+			require.Equal(t, expected, maps.SortedStringKeys(input))
+		}
+	})
+	t.Run("Nil", func(t *testing.T) {
+		require.Nil(t, maps.SortedStringKeys((map[string]bool)(nil)))
+	})
+	t.Run("Panic", func(t *testing.T) {
+		type myString string
+		type myMap map[myString]struct{}
+
+		scenarios := []struct {
+			input any
+			panic string
+		}{
+			{
+				input: myMap{},
+				panic: "SortedStringKeys: expected map[string]T, maps_test.myMap given",
+			},
+			{
+				input: nil,
+				panic: "SortedStringKeys: expected map[string]T, <nil> given",
+			},
+		}
+
+		for i, s := range scenarios {
+			s := s
+			t.Run(fmt.Sprintf("Scenario #%d", i), func(t *testing.T) {
+				defer func() {
+					assert.Equal(t, s.panic, recover())
+				}()
+				maps.SortedStringKeys(s.input)
+			})
+		}
+	})
 }
