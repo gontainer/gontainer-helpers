@@ -280,10 +280,7 @@ func (bytesExporter) export(v any) (string, error) {
 
 func (bytesExporter) supports(v any) bool {
 	b, ok := v.([]byte)
-	if ok {
-		return utf8.Valid(b)
-	}
-	return false
+	return ok && utf8.Valid(b)
 }
 
 type multiArray struct {
