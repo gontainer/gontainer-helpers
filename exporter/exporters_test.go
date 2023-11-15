@@ -151,6 +151,9 @@ func TestChainExporter_Export(t *testing.T) {
 			})
 		}
 	})
+	t.Run("Cannot convert []byte to string", func(t *testing.T) {
+		assert.Equal(t, "[]uint8{uint8(255)}", MustExport([]byte{0xff}))
+	})
 }
 
 func TestExport(t *testing.T) {

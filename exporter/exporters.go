@@ -26,6 +26,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 var (
@@ -278,8 +279,11 @@ func (bytesExporter) export(v any) (string, error) {
 }
 
 func (bytesExporter) supports(v any) bool {
-	_, ok := v.([]byte)
-	return ok
+	b, ok := v.([]byte)
+	if ok {
+		return utf8.Valid(b)
+	}
+	return false
 }
 
 type multiArray struct {
