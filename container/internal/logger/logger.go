@@ -18,7 +18,11 @@ var (
 	reFileNameSuffix = regexp.MustCompile(" \\+0x[a-z0-9]+")
 )
 
-func New(output io.Writer, prefix string, prefixLen int) *logger {
+const (
+	prefixLen = 40
+)
+
+func New(output io.Writer, prefix string) *logger {
 	if len([]rune(prefix)) > prefixLen {
 		prefix = string([]rune(prefix)[:prefixLen-3]) + "..."
 	} else if len([]rune(prefix)) < prefixLen {

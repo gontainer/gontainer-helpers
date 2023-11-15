@@ -30,7 +30,7 @@ import (
 )
 
 // GetParam returns a param with the given ID.
-func (c *Container) GetParam(paramID string) (any, error) {
+func (c *Container) GetParam(paramID string) (_ any, err error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
@@ -38,9 +38,14 @@ func (c *Container) GetParam(paramID string) (any, error) {
 
 	var l logger
 	if c.loggerOutput != nil {
-		l = loggerPkg.New(c.loggerOutput, fmt.Sprintf("GetParam(%+q)", paramID), 40)
+		l = loggerPkg.New(c.loggerOutput, fmt.Sprintf("GetParam(%+q)", paramID))
 		l.Info("START")
-		defer l.Info("STOP")
+		defer func() {
+			if err != nil {
+				l.Error(err)
+			}
+			l.Info("STOP")
+		}()
 	}
 
 	return c.getParam(paramID)

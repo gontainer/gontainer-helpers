@@ -50,13 +50,13 @@ func (c *Container) Get(serviceID string) (_ any, err error) {
 
 	var l logger
 	if c.loggerOutput != nil {
-		l = loggerPkg.New(c.loggerOutput, fmt.Sprintf("Get(%+q)", serviceID), 40)
+		l = loggerPkg.New(c.loggerOutput, fmt.Sprintf("Get(%+q)", serviceID))
 		l.Info("START")
-		defer l.Info("STOP")
 		defer func() {
 			if err != nil {
 				l.Error(err)
 			}
+			l.Info("STOP")
 		}()
 	}
 
@@ -71,18 +71,23 @@ func (c *Container) GetInContext(ctx context.Context, serviceID string) (_ any, 
 
 	c.warmUpGraph()
 
+	var l logger
+	if c.loggerOutput != nil {
+		l = loggerPkg.New(c.loggerOutput, fmt.Sprintf("GetInContext(ctx, %+q)", serviceID))
+		l.Info("START")
+		defer func() {
+			if err != nil {
+				l.Error(err)
+			}
+			l.Info("STOP")
+		}()
+	}
+
 	// contextBag checks whether the context is valid,
 	// so it must be executed before checking whether the context is done
 	bag := c.contextBag(ctx)
 	if contextDone(ctx) {
 		return nil, fmt.Errorf("GetInContext(%+q): ctx.Done() closed: %w", serviceID, ctx.Err())
-	}
-
-	var l logger
-	if c.loggerOutput != nil {
-		l = loggerPkg.New(c.loggerOutput, fmt.Sprintf("GetInContext(ctx, %+q)", serviceID), 40)
-		l.Info("START")
-		l.Info("STOP")
 	}
 
 	return c.get(ctx, serviceID, bag)
@@ -92,11 +97,23 @@ func (c *Container) GetInContext(ctx context.Context, serviceID string) (_ any, 
 // The order is determined by the priority (descending) and service ID (ascending).
 //
 // See [Service.Tag].
-func (c *Container) GetTaggedBy(tag string) ([]any, error) {
+func (c *Container) GetTaggedBy(tag string) (_ []any, err error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
 	c.warmUpGraph()
+
+	var l logger
+	if c.loggerOutput != nil {
+		l = loggerPkg.New(c.loggerOutput, fmt.Sprintf("GetTaggedBy(%+q)", tag))
+		l.Info("START")
+		defer func() {
+			if err != nil {
+				l.Error(err)
+			}
+			l.Info("STOP")
+		}()
+	}
 
 	return c.getTaggedBy(context.Background(), tag, newSafeMap())
 }
@@ -105,11 +122,23 @@ func (c *Container) GetTaggedBy(tag string) ([]any, error) {
 // It returns an error if the context is done.
 //
 // See [Container.GetTaggedBy].
-func (c *Container) GetTaggedByInContext(ctx context.Context, tag string) ([]any, error) {
+func (c *Container) GetTaggedByInContext(ctx context.Context, tag string) (_ []any, err error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
 	c.warmUpGraph()
+
+	var l logger
+	if c.loggerOutput != nil {
+		l = loggerPkg.New(c.loggerOutput, fmt.Sprintf("GetTaggedByInContext(%+q)", tag))
+		l.Info("START")
+		defer func() {
+			if err != nil {
+				l.Error(err)
+			}
+			l.Info("STOP")
+		}()
+	}
 
 	// contextBag checks whether the context is valid,
 	// so it must be executed before checking whether the context is done
