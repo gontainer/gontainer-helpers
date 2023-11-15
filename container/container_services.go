@@ -44,9 +44,16 @@ func contextDone(ctx context.Context) bool {
 
 // Get returns a service with the given ID.
 func (c *Container) Get(serviceID string) (_ any, err error) {
-	// TODO in debug mode use Lock instead of RLock
-	c.globalLocker.RLock()
-	defer c.globalLocker.RUnlock()
+	c.debuggerLocker.RLock()
+	defer c.debuggerLocker.RUnlock()
+
+	if c.loggerOutput == nil {
+		c.globalLocker.RLock()
+		defer c.globalLocker.RUnlock()
+	} else {
+		c.globalLocker.Lock()
+		defer c.globalLocker.Unlock()
+	}
 
 	c.warmUpGraph()
 
@@ -69,8 +76,16 @@ func (c *Container) Get(serviceID string) (_ any, err error) {
 // GetInContext returns a service with the given ID.
 // It returns an error if the context is done.
 func (c *Container) GetInContext(ctx context.Context, serviceID string) (_ any, err error) {
-	c.globalLocker.RLock()
-	defer c.globalLocker.RUnlock()
+	c.debuggerLocker.RLock()
+	defer c.debuggerLocker.RUnlock()
+
+	if c.loggerOutput == nil {
+		c.globalLocker.RLock()
+		defer c.globalLocker.RUnlock()
+	} else {
+		c.globalLocker.Lock()
+		defer c.globalLocker.Unlock()
+	}
 
 	c.warmUpGraph()
 
@@ -102,8 +117,16 @@ func (c *Container) GetInContext(ctx context.Context, serviceID string) (_ any, 
 //
 // See [Service.Tag].
 func (c *Container) GetTaggedBy(tag string) (_ []any, err error) {
-	c.globalLocker.RLock()
-	defer c.globalLocker.RUnlock()
+	c.debuggerLocker.RLock()
+	defer c.debuggerLocker.RUnlock()
+
+	if c.loggerOutput == nil {
+		c.globalLocker.RLock()
+		defer c.globalLocker.RUnlock()
+	} else {
+		c.globalLocker.Lock()
+		defer c.globalLocker.Unlock()
+	}
 
 	c.warmUpGraph()
 
@@ -128,8 +151,16 @@ func (c *Container) GetTaggedBy(tag string) (_ []any, err error) {
 //
 // See [Container.GetTaggedBy].
 func (c *Container) GetTaggedByInContext(ctx context.Context, tag string) (_ []any, err error) {
-	c.globalLocker.RLock()
-	defer c.globalLocker.RUnlock()
+	c.debuggerLocker.RLock()
+	defer c.debuggerLocker.RUnlock()
+
+	if c.loggerOutput == nil {
+		c.globalLocker.RLock()
+		defer c.globalLocker.RUnlock()
+	} else {
+		c.globalLocker.Lock()
+		defer c.globalLocker.Unlock()
+	}
 
 	c.warmUpGraph()
 

@@ -23,6 +23,7 @@ package container_test
 import (
 	"context"
 	"fmt"
+	"io"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -242,10 +243,16 @@ func TestContainer_concurrency(t *testing.T) {
 		ctx = container.ContextWithContainer(ctx, c)
 
 		wg := sync.WaitGroup{}
-		wg.Add(max * 12)
+		wg.Add(max * 13)
 		for i := 0; i < max; i++ {
 			n := fmt.Sprintf("service%d", i)
 			nCtx := fmt.Sprintf("service-context%d", i)
+
+			go func() {
+				defer wg.Done()
+
+				c.EnableDebugger(io.Discard)
+			}()
 
 			go func() {
 				defer wg.Done()

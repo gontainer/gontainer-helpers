@@ -32,8 +32,16 @@ import (
 
 // GetParam returns a param with the given ID.
 func (c *Container) GetParam(paramID string) (_ any, err error) {
-	c.globalLocker.RLock()
-	defer c.globalLocker.RUnlock()
+	c.debuggerLocker.RLock()
+	defer c.debuggerLocker.RUnlock()
+
+	if c.loggerOutput == nil {
+		c.globalLocker.RLock()
+		defer c.globalLocker.RUnlock()
+	} else {
+		c.globalLocker.Lock()
+		defer c.globalLocker.Unlock()
+	}
 
 	c.warmUpGraph()
 
