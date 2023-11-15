@@ -23,7 +23,7 @@ package container_test
 import (
 	"context"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -251,7 +251,7 @@ func TestContainer_concurrency(t *testing.T) {
 			go func() {
 				defer wg.Done()
 
-				c.EnableDebugger(io.Discard)
+				c.EnableDebugger(ioutil.Discard)
 			}()
 
 			go func() {
