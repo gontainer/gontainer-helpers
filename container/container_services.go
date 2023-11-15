@@ -28,6 +28,7 @@ import (
 
 	"github.com/gontainer/gontainer-helpers/v3/caller"
 	loggerPkg "github.com/gontainer/gontainer-helpers/v3/container/internal/logger"
+	"github.com/gontainer/gontainer-helpers/v3/container/internal/runtime"
 	"github.com/gontainer/gontainer-helpers/v3/grouperror"
 	"github.com/gontainer/gontainer-helpers/v3/setter"
 )
@@ -43,6 +44,7 @@ func contextDone(ctx context.Context) bool {
 
 // Get returns a service with the given ID.
 func (c *Container) Get(serviceID string) (_ any, err error) {
+	// TODO in debug mode use Lock instead of RLock
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
@@ -50,13 +52,14 @@ func (c *Container) Get(serviceID string) (_ any, err error) {
 
 	var l logger
 	if c.loggerOutput != nil {
+		f, _ := runtime.Caller()
 		l = loggerPkg.New(c.loggerOutput, fmt.Sprintf("Get(%+q)", serviceID))
-		l.Info("START")
+		l.Info("START " + f)
 		defer func() {
 			if err != nil {
 				l.Error(err)
 			}
-			l.Info("STOP")
+			l.Info("STOP " + f)
 		}()
 	}
 
@@ -73,13 +76,14 @@ func (c *Container) GetInContext(ctx context.Context, serviceID string) (_ any, 
 
 	var l logger
 	if c.loggerOutput != nil {
+		f, _ := runtime.Caller()
 		l = loggerPkg.New(c.loggerOutput, fmt.Sprintf("GetInContext(ctx, %+q)", serviceID))
-		l.Info("START")
+		l.Info("START " + f)
 		defer func() {
 			if err != nil {
 				l.Error(err)
 			}
-			l.Info("STOP")
+			l.Info("STOP " + f)
 		}()
 	}
 
@@ -105,13 +109,14 @@ func (c *Container) GetTaggedBy(tag string) (_ []any, err error) {
 
 	var l logger
 	if c.loggerOutput != nil {
+		f, _ := runtime.Caller()
 		l = loggerPkg.New(c.loggerOutput, fmt.Sprintf("GetTaggedBy(%+q)", tag))
-		l.Info("START")
+		l.Info("START " + f)
 		defer func() {
 			if err != nil {
 				l.Error(err)
 			}
-			l.Info("STOP")
+			l.Info("STOP " + f)
 		}()
 	}
 
@@ -130,13 +135,14 @@ func (c *Container) GetTaggedByInContext(ctx context.Context, tag string) (_ []a
 
 	var l logger
 	if c.loggerOutput != nil {
+		f, _ := runtime.Caller()
 		l = loggerPkg.New(c.loggerOutput, fmt.Sprintf("GetTaggedByInContext(%+q)", tag))
-		l.Info("START")
+		l.Info("START " + f)
 		defer func() {
 			if err != nil {
 				l.Error(err)
 			}
-			l.Info("STOP")
+			l.Info("STOP " + f)
 		}()
 	}
 
