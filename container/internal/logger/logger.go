@@ -51,6 +51,8 @@ func New(output io.Writer, prefix string) *logger {
 	}
 }
 
+// TODO: color only when l.output == os.Stdout || l.output == os.Stderr
+
 func (l *logger) Info(s string) {
 	l.mustPrint("\033[1;37m" + time.Now().Format("2006-01-02 15:04:05") + "\033[0m")
 	l.mustPrint(" | ")
