@@ -151,9 +151,6 @@ func TestChainExporter_Export(t *testing.T) {
 			})
 		}
 	})
-	t.Run("Cannot convert []byte to string", func(t *testing.T) {
-		assert.Equal(t, "[]uint8{uint8(255)}", MustExport([]byte{0xff}))
-	})
 }
 
 func TestExport(t *testing.T) {
@@ -296,6 +293,10 @@ func TestExport(t *testing.T) {
 		v, err := Export(a)
 		assert.EqualError(t, err, "cannot export ([]interface{})[1]: unexpected infinite loop")
 		assert.Empty(t, v)
+	})
+
+	t.Run("Cannot convert []byte to string", func(t *testing.T) {
+		assert.Equal(t, "[]uint8{uint8(255)}", MustExport([]byte{0xff}))
 	})
 }
 
