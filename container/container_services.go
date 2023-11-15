@@ -27,6 +27,7 @@ import (
 	"sort"
 
 	"github.com/gontainer/gontainer-helpers/v3/caller"
+	loggerPkg "github.com/gontainer/gontainer-helpers/v3/container/internal/logger"
 	"github.com/gontainer/gontainer-helpers/v3/grouperror"
 	"github.com/gontainer/gontainer-helpers/v3/setter"
 )
@@ -41,18 +42,30 @@ func contextDone(ctx context.Context) bool {
 }
 
 // Get returns a service with the given ID.
-func (c *Container) Get(serviceID string) (any, error) {
+func (c *Container) Get(serviceID string) (_ any, err error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
 	c.warmUpGraph()
+
+	var l logger
+	if c.loggerOutput != nil {
+		l = loggerPkg.New(c.loggerOutput, fmt.Sprintf("Get(%+q)", serviceID), 40)
+		l.Info("START")
+		defer l.Info("STOP")
+		defer func() {
+			if err != nil {
+				l.Error(err)
+			}
+		}()
+	}
 
 	return c.get(context.Background(), serviceID, newSafeMap())
 }
 
 // GetInContext returns a service with the given ID.
 // It returns an error if the context is done.
-func (c *Container) GetInContext(ctx context.Context, id string) (any, error) {
+func (c *Container) GetInContext(ctx context.Context, serviceID string) (_ any, err error) {
 	c.globalLocker.RLock()
 	defer c.globalLocker.RUnlock()
 
@@ -62,10 +75,17 @@ func (c *Container) GetInContext(ctx context.Context, id string) (any, error) {
 	// so it must be executed before checking whether the context is done
 	bag := c.contextBag(ctx)
 	if contextDone(ctx) {
-		return nil, fmt.Errorf("GetInContext(%+q): ctx.Done() closed: %w", id, ctx.Err())
+		return nil, fmt.Errorf("GetInContext(%+q): ctx.Done() closed: %w", serviceID, ctx.Err())
 	}
 
-	return c.get(ctx, id, bag)
+	var l logger
+	if c.loggerOutput != nil {
+		l = loggerPkg.New(c.loggerOutput, fmt.Sprintf("GetInContext(ctx, %+q)", serviceID), 40)
+		l.Info("START")
+		l.Info("STOP")
+	}
+
+	return c.get(ctx, serviceID, bag)
 }
 
 // GetTaggedBy returns all services tagged by the given tag.

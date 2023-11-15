@@ -24,6 +24,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"sync"
 	"sync/atomic"
 
@@ -57,6 +58,7 @@ type Container struct {
 	contextLocker rwlocker
 	onceWarmUp    interface{ Do(func()) }
 	id            ctxKey
+	loggerOutput  io.Writer
 }
 
 type serviceDecorator struct {
@@ -112,6 +114,10 @@ func New() *Container {
 	}
 	c.graphBuilder = newGraphBuilder(c)
 	return c
+}
+
+func (c *Container) SetLoggerOutput(w io.Writer) {
+	c.loggerOutput = w
 }
 
 // CircularDeps returns an error if there is any circular dependency.

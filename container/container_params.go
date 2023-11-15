@@ -25,6 +25,7 @@ import (
 	"errors"
 	"fmt"
 
+	loggerPkg "github.com/gontainer/gontainer-helpers/v3/container/internal/logger"
 	"github.com/gontainer/gontainer-helpers/v3/grouperror"
 )
 
@@ -34,6 +35,13 @@ func (c *Container) GetParam(paramID string) (any, error) {
 	defer c.globalLocker.RUnlock()
 
 	c.warmUpGraph()
+
+	var l logger
+	if c.loggerOutput != nil {
+		l = loggerPkg.New(c.loggerOutput, fmt.Sprintf("GetParam(%+q)", paramID), 40)
+		l.Info("START")
+		defer l.Info("STOP")
+	}
 
 	return c.getParam(paramID)
 }

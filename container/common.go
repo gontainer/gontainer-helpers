@@ -36,3 +36,8 @@ type keyValue interface {
 	get(id string) (result any, exists bool)
 	delete(id string)
 }
+
+type logger interface {
+	Info(string)
+	Error(error)
+}
