@@ -24,6 +24,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"sync"
 	"sync/atomic"
 
@@ -49,6 +50,7 @@ type Container struct {
 	cacheParams         keyValue
 	paramsLockers       map[string]sync.Locker
 	globalLocker        rwlocker
+	debuggerLocker      rwlocker
 	decorators          []serviceDecorator
 	groupContext        interface {
 		Add(context.Context)
@@ -57,6 +59,7 @@ type Container struct {
 	contextLocker rwlocker
 	onceWarmUp    interface{ Do(func()) }
 	id            ctxKey
+	loggerOutput  io.Writer
 }
 
 type serviceDecorator struct {
@@ -105,6 +108,7 @@ func New() *Container {
 		cacheParams:         newSafeMap(),
 		paramsLockers:       make(map[string]sync.Locker),
 		globalLocker:        &sync.RWMutex{},
+		debuggerLocker:      &sync.RWMutex{},
 		groupContext:        groupcontext.New(),
 		contextLocker:       &sync.RWMutex{},
 		onceWarmUp:          &sync.Once{},
@@ -112,6 +116,24 @@ func New() *Container {
 	}
 	c.graphBuilder = newGraphBuilder(c)
 	return c
+}
+
+func (c *Container) EnableDebugger(w io.Writer) {
+	c.debuggerLocker.Lock()
+	defer c.debuggerLocker.Unlock()
+
+	if w == nil {
+		panic(fmt.Sprintf("container.Container.EnableDebugger: w == nil"))
+	}
+
+	c.loggerOutput = w
+}
+
+func (c *Container) DisableDebugger() {
+	c.debuggerLocker.Lock()
+	defer c.debuggerLocker.Unlock()
+
+	c.loggerOutput = nil
 }
 
 // CircularDeps returns an error if there is any circular dependency.

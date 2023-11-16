@@ -18,26 +18,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package container
+package runtime
 
-const (
-	convertArgs = true
+import (
+	"runtime"
+	"strconv"
 )
 
-type rwlocker interface {
-	RLock()
-	RUnlock()
-	Lock()
-	Unlock()
-}
+const (
+	maxLen = 50
+)
 
-type keyValue interface {
-	set(id string, v any)
-	get(id string) (result any, exists bool)
-	delete(id string)
-}
-
-type logger interface {
-	Info(string)
-	Error(error)
+func Caller() (string, bool) {
+	_, f, l, ok := runtime.Caller(2)
+	if !ok {
+		return "", false
+	}
+	f = f + ":" + strconv.Itoa(l)
+	if len([]rune(f)) > maxLen {
+		f = "..." + string([]rune(f)[len([]rune(f))-maxLen+3:])
+	}
+	return f, true
 }

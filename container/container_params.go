@@ -25,15 +25,38 @@ import (
 	"errors"
 	"fmt"
 
+	loggerPkg "github.com/gontainer/gontainer-helpers/v3/container/internal/logger"
+	"github.com/gontainer/gontainer-helpers/v3/container/internal/runtime"
 	"github.com/gontainer/gontainer-helpers/v3/grouperror"
 )
 
 // GetParam returns a param with the given ID.
-func (c *Container) GetParam(paramID string) (any, error) {
-	c.globalLocker.RLock()
-	defer c.globalLocker.RUnlock()
+func (c *Container) GetParam(paramID string) (_ any, err error) {
+	c.debuggerLocker.RLock()
+	defer c.debuggerLocker.RUnlock()
+
+	if c.loggerOutput == nil {
+		c.globalLocker.RLock()
+		defer c.globalLocker.RUnlock()
+	} else {
+		c.globalLocker.Lock()
+		defer c.globalLocker.Unlock()
+	}
 
 	c.warmUpGraph()
+
+	var l logger
+	if c.loggerOutput != nil {
+		f, _ := runtime.Caller()
+		l = loggerPkg.New(c.loggerOutput, fmt.Sprintf("GetParam(%+q)", paramID))
+		l.Info("START " + f)
+		defer func() {
+			if err != nil {
+				l.Error(err)
+			}
+			l.Info("STOP " + f)
+		}()
+	}
 
 	return c.getParam(paramID)
 }
