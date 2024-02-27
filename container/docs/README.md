@@ -127,7 +127,7 @@ func NewGod(name string) God {
 	return God{Name: name}
 }
 
-type Gods struct {
+type MountOlympus struct {
 	Gods []God
 }
 
@@ -159,7 +159,7 @@ func describeZeus() service.Service {
 func describeOlympians() service.Service {
 	o := service.New()
 	o.
-		SetValue(Gods{}).
+		SetValue(MountOlympus{}).
 		SetField("Gods", dependency.Tag("olympians"))
 	return o
 }

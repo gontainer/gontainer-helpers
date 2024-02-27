@@ -57,7 +57,7 @@ func NewGod(name string) God {
 	return God{Name: name}
 }
 
-type Gods struct {
+type MountOlympus struct {
 	Gods []God
 }
 
@@ -89,7 +89,7 @@ func describeZeus() service.Service {
 func describeOlympians() service.Service {
 	o := service.New()
 	o.
-		SetValue(Gods{}).
+		SetValue(MountOlympus{}).
 		SetField("Gods", dependency.Tag("olympians"))
 	return o
 }
@@ -220,7 +220,7 @@ func ExampleContainer_Get() {
 	// describe "gods"
 	gods := service.New()
 	gods.
-		SetValue(Gods{}).                             // instead of providing a constructor, we can provide a value directly
+		SetValue(MountOlympus{}).                     // instead of providing a constructor, we can provide a value directly
 		SetField("Gods", dependency.Tag("olympians")) // fetch all objects tagged as "olympians", and assign them to the field "Gods"
 
 	// create a Container, and append all services there
