@@ -524,7 +524,7 @@ func ExampleContainer_Get_scopeNonShared() {
 
 func ExampleContainer_Get_taggedServices() {
 	c := buildContainer()
-	olympians, _ := c.Get("olympians")
+	olympians, _ := c.Get("mountOlympus")
 	fmt.Printf("%+v\n", olympians)
 	// Output: {Gods:[{Name:Athena} {Name:Poseidon} {Name:Zeus}]}
 }
