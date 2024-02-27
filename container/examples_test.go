@@ -97,10 +97,10 @@ func describeOlympians() service.Service {
 func buildContainer() *container.Container {
 	c := container.New()
 	c.OverrideServices(service.Services{
-		"poseidon":  describePoseidon(),
-		"athena":    describeAthena(),
-		"zeus":      describeZeus(),
-		"olympians": describeOlympians(),
+		"poseidon":     describePoseidon(),
+		"athena":       describeAthena(),
+		"zeus":         describeZeus(),
+		"mountOlympus": describeOlympians(),
 	})
 
 	return c
@@ -108,7 +108,7 @@ func buildContainer() *container.Container {
 
 func Example() {
 	c := buildContainer()
-	olympians, _ := c.Get("olympians")
+	olympians, _ := c.Get("mountOlympus")
 	fmt.Printf("%+v\n", olympians)
 	// Output: {Gods:[{Name:Athena} {Name:Poseidon} {Name:Zeus}]}
 }
