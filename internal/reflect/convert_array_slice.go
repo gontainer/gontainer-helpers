@@ -25,9 +25,9 @@ import (
 	"reflect"
 )
 
-func convertSlice(from reflect.Value, to reflect.Type) (_ reflect.Value, supports bool, _ error) {
+func convertSlice(from reflect.Value, to reflect.Type, convert generalConverter) (_ reflect.Value, supports bool, _ error) {
 	if isConvertibleSliceOrArray(from, to) {
-		v, err := convertSliceOrArray(from, to)
+		v, err := convertSliceOrArray(from, to, convert)
 		return v, true, err
 	}
 	return reflect.Value{}, false, nil
@@ -52,7 +52,7 @@ func isConvertibleSliceOrArray(from reflect.Value, to reflect.Type) bool {
 	return true
 }
 
-func convertSliceOrArray(from reflect.Value, to reflect.Type) (reflect.Value, error) {
+func convertSliceOrArray(from reflect.Value, to reflect.Type, convert generalConverter) (reflect.Value, error) {
 	// check whether slice values are convertible for len == 0
 	if from.Len() == 0 && !isAny(from.Type().Elem()) && !isAny(to.Elem()) {
 		if _, err := convert(

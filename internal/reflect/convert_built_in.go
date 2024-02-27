@@ -24,7 +24,7 @@ import (
 	"reflect"
 )
 
-func convertBuiltIn(from reflect.Value, to reflect.Type) (_ reflect.Value, supports bool, _ error) {
+func convertBuiltIn(from reflect.Value, to reflect.Type, _ generalConverter) (_ reflect.Value, supports bool, _ error) {
 	// avoid a panic, see [reflect.Type.ConvertibleTo]
 	if to.Kind() == reflect.Array && (from.Kind() == reflect.Slice || from.Kind() == reflect.Array) && from.Len() < to.Len() {
 		return reflect.Value{}, false, nil

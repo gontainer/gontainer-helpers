@@ -44,7 +44,11 @@ func ValueOf(i any, to reflect.Type, convertVal bool) (reflect.Value, error) {
 		return zeroForNilable(i, to)
 	}
 
-	return r, assignable(r.Type(), to)
+	if err := assignable(r.Type(), to); err != nil {
+		return reflect.Value{}, err
+	}
+
+	return r, nil
 }
 
 func zeroForNilable(i any, t reflect.Type) (reflect.Value, error) {

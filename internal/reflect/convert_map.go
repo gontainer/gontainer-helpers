@@ -25,7 +25,7 @@ import (
 	"reflect"
 )
 
-func convertMap(from reflect.Value, to reflect.Type) (_ reflect.Value, supports bool, _ error) {
+func convertMap(from reflect.Value, to reflect.Type, convert generalConverter) (_ reflect.Value, supports bool, _ error) {
 	if from.Type().Kind() != reflect.Map || to.Kind() != reflect.Map {
 		supports = false
 		return
