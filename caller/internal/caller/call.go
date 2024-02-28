@@ -25,8 +25,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/gontainer/gontainer-helpers/v3/grouperror"
 	intReflect "github.com/gontainer/gontainer-helpers/v3/internal/reflect"
+	"github.com/gontainer/grouperror"
 )
 
 type reflectType struct {

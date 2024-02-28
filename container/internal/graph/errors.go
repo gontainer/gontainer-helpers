@@ -24,7 +24,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gontainer/gontainer-helpers/v3/grouperror"
+	"github.com/gontainer/grouperror"
 )
 
 func CircularDepsToError(circularDeps [][]Dependency) error {

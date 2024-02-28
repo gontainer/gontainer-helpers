@@ -25,7 +25,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/gontainer/gontainer-helpers/v3/grouperror"
+	"github.com/gontainer/grouperror"
 )
 
 // GetParam returns a param with the given ID.

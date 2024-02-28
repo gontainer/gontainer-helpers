@@ -25,7 +25,7 @@ import (
 	"reflect"
 
 	"github.com/gontainer/gontainer-helpers/v3/caller/internal/caller"
-	"github.com/gontainer/gontainer-helpers/v3/grouperror"
+	"github.com/gontainer/grouperror"
 )
 
 // Call calls the given function with the given arguments.

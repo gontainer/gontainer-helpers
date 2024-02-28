@@ -14,5 +14,4 @@ A set of helpers for [Gontainer](https://github.com/gontainer/gontainer).
 4. [Exporter](exporter)
 5. [Getter](getter)
 6. [Graph](graph)
-7. [Grouperror](grouperror)
-8. [Setter](setter)
+7. [Setter](setter)

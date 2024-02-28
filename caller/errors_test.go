@@ -24,8 +24,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/gontainer/gontainer-helpers/v3/grouperror"
-	errAssert "github.com/gontainer/gontainer-helpers/v3/grouperror/assert"
+	"github.com/gontainer/grouperror"
+	errAssert "github.com/gontainer/grouperror/assert"
 )
 
 func TestProviderError_Collection(t *testing.T) {
