@@ -27,8 +27,8 @@ import (
 	"sort"
 
 	"github.com/gontainer/gontainer-helpers/v3/caller"
-	"github.com/gontainer/gontainer-helpers/v3/grouperror"
 	"github.com/gontainer/gontainer-helpers/v3/setter"
+	"github.com/gontainer/grouperror"
 )
 
 func contextDone(ctx context.Context) bool {

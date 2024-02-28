@@ -11,7 +11,7 @@ lint:
 	golangci-lint run
 
 deprecations:
-	grep "Deprecated: " -A 3 -R -n . | grep ".go"
+	grep "Deprecated: " -A 3 -R -n . | grep ".go" | grep -v "vendor/"
 
 benchmark:
 	go test container/benchmark_test.go -bench=Container -benchmem

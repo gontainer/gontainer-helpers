@@ -27,7 +27,7 @@ import (
 	"testing"
 
 	"github.com/gontainer/gontainer-helpers/v3/caller"
-	errAssert "github.com/gontainer/gontainer-helpers/v3/grouperror/assert"
+	errAssert "github.com/gontainer/grouperror/assert"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

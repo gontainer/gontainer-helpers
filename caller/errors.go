@@ -21,7 +21,7 @@
 package caller
 
 import (
-	"github.com/gontainer/gontainer-helpers/v3/grouperror"
+	"github.com/gontainer/grouperror"
 )
 
 /*

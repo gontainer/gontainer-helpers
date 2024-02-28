@@ -24,7 +24,7 @@ import (
 	"testing"
 
 	"github.com/gontainer/gontainer-helpers/v3/container/internal/graph"
-	errAssert "github.com/gontainer/gontainer-helpers/v3/grouperror/assert"
+	errAssert "github.com/gontainer/grouperror/assert"
 )
 
 func TestNew(t *testing.T) {

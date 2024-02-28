@@ -29,7 +29,7 @@ import (
 
 	"github.com/gontainer/gontainer-helpers/v3/caller"
 	"github.com/gontainer/gontainer-helpers/v3/container/internal/groupcontext"
-	"github.com/gontainer/gontainer-helpers/v3/grouperror"
+	"github.com/gontainer/grouperror"
 )
 
 // Container is a DI container. Use [New] to allocate a new instance.
