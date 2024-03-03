@@ -29,7 +29,7 @@ import (
 	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
 	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/field"
 	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/service"
-	"github.com/gontainer/gontainer-helpers/v3/copier"
+	"github.com/gontainer/reflectpro/copier"
 )
 
 type Person struct {

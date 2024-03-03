@@ -37,8 +37,8 @@ github.com/gontainer/graph v1.0.0 h1:FypJCi+thjxbokhBOzMn17tElyDSNL/MklgdIAPn9fo
 github.com/gontainer/graph v1.0.0/go.mod h1:84WI3F7qpTVFxnYkhFFOFy9UtIPgJ8i5466xKWo88MI=
 github.com/gontainer/grouperror v1.0.0 h1:0quo4orM5emDzBnQC2L9cZKW0VFGOobtvoJngTmHUhI=
 github.com/gontainer/grouperror v1.0.0/go.mod h1:6/EHrISoPeYWcnzKx0JUxlSI34nMOMaLihNg6VnWDPc=
-github.com/gontainer/reflectpro v0.0.0-20240303090122-77a5f951ba60 h1:k/qppa17ay+GWBg6N9p2j8nRaE/vhyasiPgcmPUYLg8=
-github.com/gontainer/reflectpro v0.0.0-20240303090122-77a5f951ba60/go.mod h1:lJHUIw9ALry6ofwOoQ04OwTchWGoTU0uwN8w2VCKAm4=
+github.com/gontainer/reflectpro v0.0.0-20240303093114-713d5ab4b49b h1:eTv2vSX/ndIDdHjU1JTFyoOlcgEDbE9zWLR6r4lvfHg=
+github.com/gontainer/reflectpro v0.0.0-20240303093114-713d5ab4b49b/go.mod h1:lJHUIw9ALry6ofwOoQ04OwTchWGoTU0uwN8w2VCKAm4=
 github.com/google/go-cmp v0.5.8/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/jung-kurt/gofpdf v1.0.0/go.mod h1:7Id9E/uU8ce6rXgefFLlgrJj/GYY22cpxn+r32jIOes=
 github.com/jung-kurt/gofpdf v1.0.3-0.20190309125859-24315acbbda5/go.mod h1:7Id9E/uU8ce6rXgefFLlgrJj/GYY22cpxn+r32jIOes=
