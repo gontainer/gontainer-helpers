@@ -6,7 +6,7 @@ require (
 	github.com/gontainer/exporter v1.0.0
 	github.com/gontainer/graph v1.0.0
 	github.com/gontainer/grouperror v1.0.0
-	github.com/gontainer/reflectpro v0.0.0-20240303093114-713d5ab4b49b
+	github.com/gontainer/reflectpro v0.0.0-20240303103625-cd0a20882e59
 )
 
 require ( // tests

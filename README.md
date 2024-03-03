@@ -5,8 +5,3 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gontainer_gontainer-helpers&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gontainer_gontainer-helpers)
 
 # Gontainer-helpers
-
-A set of helpers for [Gontainer](https://github.com/gontainer/gontainer).
-
-1. [Caller](caller)
-2. [Container](container)
