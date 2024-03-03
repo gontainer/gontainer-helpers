@@ -21,21 +21,10 @@
 package getter
 
 import (
-	"github.com/gontainer/gontainer-helpers/v3/internal/reflect"
+	"github.com/gontainer/reflectpro/getter"
 )
 
-/*
-Get returns the value of `field` of the `struct`. Unexported fields are supported.
-
-	person := struct {
-		name string
-	}{
-		name: "Mary",
-	}
-	v, _ := getter.Get(person, "name")
-	fmt.Println(v)
-	// Output: Mary
-*/
-func Get(strct any, field string) (any, error) {
-	return reflect.Get(strct, field)
-}
+var (
+	// Deprecated: use [graph.New].
+	Get = getter.Get
+)

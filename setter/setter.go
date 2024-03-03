@@ -21,21 +21,10 @@
 package setter
 
 import (
-	"github.com/gontainer/gontainer-helpers/v3/internal/reflect"
+	"github.com/gontainer/reflectpro/setter"
 )
 
-/*
-Set assigns the value `val` to the field `field` on the struct `strct`.
-If the fourth argument equals true, it converts the type whenever it is possible.
-Unexported fields are supported.
-
-	type Person struct {
-		Name string
-	}
-	p := Person{}
-	_ = setter.Set(&p, "Name", "Jane", false)
-	fmt.Println(p) // {Jane}
-*/
-func Set(strct any, field string, val any, convert bool) error {
-	return reflect.Set(strct, field, val, convert)
-}
+var (
+	// Deprecated: use [graph.New].
+	Set = setter.Set
+)
