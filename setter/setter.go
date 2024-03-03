@@ -25,6 +25,6 @@ import (
 )
 
 var (
-	// Deprecated: use [graph.New].
+	// Deprecated: use [setter.Set].
 	Set = setter.Set
 )

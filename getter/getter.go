@@ -25,6 +25,6 @@ import (
 )
 
 var (
-	// Deprecated: use [graph.New].
+	// Deprecated: use [getter.Get].
 	Get = getter.Get
 )
