@@ -10,4 +10,3 @@ A set of helpers for [Gontainer](https://github.com/gontainer/gontainer).
 
 1. [Caller](caller)
 2. [Container](container)
-3. [Copier](copier)

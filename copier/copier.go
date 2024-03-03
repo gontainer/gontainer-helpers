@@ -18,6 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package copier_test
+package copier
 
-type any = interface{}
+import (
+	"github.com/gontainer/reflectpro/copier"
+)
+
+var (
+	// Deprecated: use [copier.Copy].
+	Copy = copier.Copy
+)

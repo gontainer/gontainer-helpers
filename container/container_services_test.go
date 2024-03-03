@@ -34,8 +34,8 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/gontainer/gontainer-helpers/v3/container"
 	"github.com/gontainer/gontainer-helpers/v3/container/shortcuts/dependency"
-	"github.com/gontainer/gontainer-helpers/v3/copier"
 	assertErr "github.com/gontainer/grouperror/assert"
+	"github.com/gontainer/reflectpro/copier"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
