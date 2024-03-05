@@ -42,6 +42,8 @@ github.com/gontainer/reflectpro v0.0.0-20240303103625-cd0a20882e59 h1:MwvCwO3Ifc
 github.com/gontainer/reflectpro v0.0.0-20240303103625-cd0a20882e59/go.mod h1:lJHUIw9ALry6ofwOoQ04OwTchWGoTU0uwN8w2VCKAm4=
 github.com/gontainer/reflectpro v0.0.0-20240305193905-371323a8dfaf h1:7gdcN5zBTze4NCO1WjKJQuCPRORp5ict5+jVyEHpeX4=
 github.com/gontainer/reflectpro v0.0.0-20240305193905-371323a8dfaf/go.mod h1:eGV+xNkh0jVTH+XHbv85lpQLXOrB67XSf5wiNPB0VkU=
+github.com/gontainer/reflectpro v0.0.0-20240305210751-f40a66f4b12c h1:jFcf9Xn6O0WcXzrEtZR6PFA18/VcdFe0/3DJtQmwNHg=
+github.com/gontainer/reflectpro v0.0.0-20240305210751-f40a66f4b12c/go.mod h1:eGV+xNkh0jVTH+XHbv85lpQLXOrB67XSf5wiNPB0VkU=
 github.com/google/go-cmp v0.5.8/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/jung-kurt/gofpdf v1.0.0/go.mod h1:7Id9E/uU8ce6rXgefFLlgrJj/GYY22cpxn+r32jIOes=
 github.com/jung-kurt/gofpdf v1.0.3-0.20190309125859-24315acbbda5/go.mod h1:7Id9E/uU8ce6rXgefFLlgrJj/GYY22cpxn+r32jIOes=
