@@ -197,7 +197,7 @@ func (c *Container) createNewService(ctx context.Context, svc Service, contextua
 		if err != nil {
 			return nil, grouperror.Prefix("constructor args: ", err)
 		}
-		result, err = caller.CallProvider(svc.constructor, args, convertArgs)
+		result, _, err = caller.CallProvider(svc.constructor, args, convertArgs)
 		if err != nil {
 			return nil, grouperror.Prefix("constructor: ", err)
 		}
@@ -212,7 +212,7 @@ func (c *Container) createNewService(ctx context.Context, svc Service, contextua
 		if err != nil {
 			return nil, grouperror.Prefix("factory args: ", err)
 		}
-		result, err = caller.ForceCallProviderMethod(obj, svc.factoryMethod, args, convertArgs)
+		result, _, err = caller.CallProviderMethod(obj, svc.factoryMethod, args, convertArgs)
 		if err != nil {
 			return nil, grouperror.Prefix(fmt.Sprintf("factory @%s.%s: ", svc.factoryServiceID, svc.factoryMethod), err)
 		}
@@ -263,7 +263,7 @@ func (c *Container) executeServiceCalls(
 		}
 
 		if call.wither {
-			result, err = caller.ForceCallWither(&result, call.method, args, convertArgs)
+			result, err = caller.CallWither(&result, call.method, args, convertArgs)
 			if err != nil {
 				errs = append(errs, grouperror.Prefix(fmt.Sprintf("%s %+q: ", action, call.method), err))
 				// wither may return a nil value for error,
@@ -271,7 +271,7 @@ func (c *Container) executeServiceCalls(
 				break
 			}
 		} else {
-			_, err = caller.ForceCallMethod(&result, call.method, args, convertArgs)
+			_, err = caller.CallMethod(&result, call.method, args, convertArgs)
 			if err != nil {
 				errs = append(errs, grouperror.Prefix(fmt.Sprintf("%s %+q: ", action, call.method), err))
 			}
@@ -304,7 +304,7 @@ func (c *Container) decorateService(
 			return nil, grouperror.Prefix(fmt.Sprintf("resolve decorator args #%d: ", i), err)
 		}
 		args = append([]any{payload}, args...)
-		result, err = caller.CallProvider(dec.fn, args, convertArgs)
+		result, _, err = caller.CallProvider(dec.fn, args, convertArgs)
 		if err != nil {
 			return nil, grouperror.Prefix(fmt.Sprintf("decorator #%d: ", i), err)
 		}

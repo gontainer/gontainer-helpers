@@ -114,9 +114,9 @@ func TestContainer_executeServiceCalls(t *testing.T) {
 
 		expected := []string{
 			`get("service"): resolve args "SetName": arg #0: provider returned error: could not fetch the name from the config`,
-			`get("service"): call "SetAge": cannot call method (*interface {})."SetAge": invalid func (*struct {})."SetAge"`,
-			`get("service"): call "SetColor": cannot call method (*interface {})."SetColor": invalid func (*struct {})."SetColor"`,
-			`get("service"): wither "WithLogger": cannot call wither (*interface {})."WithLogger": invalid func (*struct {})."WithLogger"`,
+			`get("service"): call "SetAge": cannot call method (*interface {})."SetAge": (*struct {})."SetAge": invalid method`,
+			`get("service"): call "SetColor": cannot call method (*interface {})."SetColor": (*struct {})."SetColor": invalid method`,
+			`get("service"): wither "WithLogger": cannot call wither (*interface {})."WithLogger": cannot call method (*interface {})."WithLogger": (*struct {})."WithLogger": invalid method`,
 		}
 
 		svc, err := c.Get("service")
