@@ -10,6 +10,6 @@ require (
 )
 
 require ( // tests
-	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/stretchr/testify v1.8.2
 )
