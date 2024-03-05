@@ -35,8 +35,9 @@ github.com/gontainer/exporter v1.0.0 h1:0CW7Ju0LRebALDx7Bb0yROVP93MDcRoMZDA3fCGj
 github.com/gontainer/exporter v1.0.0/go.mod h1:ekMrpMMuVriIeVWJIFSyTFkImBaulkjgQa3RLjRiujQ=
 github.com/gontainer/graph v1.0.0 h1:FypJCi+thjxbokhBOzMn17tElyDSNL/MklgdIAPn9fo=
 github.com/gontainer/graph v1.0.0/go.mod h1:84WI3F7qpTVFxnYkhFFOFy9UtIPgJ8i5466xKWo88MI=
-github.com/gontainer/grouperror v1.0.0 h1:0quo4orM5emDzBnQC2L9cZKW0VFGOobtvoJngTmHUhI=
 github.com/gontainer/grouperror v1.0.0/go.mod h1:6/EHrISoPeYWcnzKx0JUxlSI34nMOMaLihNg6VnWDPc=
+github.com/gontainer/grouperror v1.0.1 h1:hNWVEIQZrt3e1q2YBprPEGDN2nYlkE2Px5igj/jqSNU=
+github.com/gontainer/grouperror v1.0.1/go.mod h1:6/EHrISoPeYWcnzKx0JUxlSI34nMOMaLihNg6VnWDPc=
 github.com/gontainer/reflectpro v0.0.0-20240303103625-cd0a20882e59 h1:MwvCwO3IfcWfKAUTcXIWz+jpGUQsUrY9sAFo98sfU74=
 github.com/gontainer/reflectpro v0.0.0-20240303103625-cd0a20882e59/go.mod h1:lJHUIw9ALry6ofwOoQ04OwTchWGoTU0uwN8w2VCKAm4=
 github.com/google/go-cmp v0.5.8/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
