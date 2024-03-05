@@ -153,7 +153,8 @@ func (c *Container) resolveDep(ctx context.Context, contextualBag keyValue, d De
 	case dependencyParam:
 		return c.getParam(d.paramID)
 	case dependencyProvider:
-		return caller.CallProvider(d.provider, nil, convertArgs)
+		r, _, err := caller.CallProvider(d.provider, nil, convertArgs)
+		return r, err
 	case dependencyContainer:
 		return c, nil
 	case dependencyContext:

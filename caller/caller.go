@@ -34,18 +34,9 @@ var (
 	// Deprecated: use [caller.CallProviderMethod].
 	CallProviderMethod = caller.CallProviderMethod
 
-	// Deprecated: use [caller.ForceCallProviderMethod].
-	ForceCallProviderMethod = caller.ForceCallProviderMethod
-
 	// Deprecated: use [caller.CallMethod].
 	CallMethod = caller.CallMethod
 
-	// Deprecated: use [caller.ForceCallMethod].
-	ForceCallMethod = caller.ForceCallMethod
-
 	// Deprecated: [caller.CallWither].
 	CallWither = caller.CallWither
-
-	// Deprecated: [caller.ForceCallWither].
-	ForceCallWither = caller.ForceCallWither
 )
